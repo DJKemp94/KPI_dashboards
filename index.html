@@ -1,0 +1,4259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health & Safety KPI Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: #1e293b;
+            margin-bottom: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .sort-controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .sort-button {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 5px;
+        }
+
+        .sort-button:hover {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .sort-button.active {
+            background: #3b82f6;
+            color: white;
+            font-weight: 600;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .breadcrumb {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 25px;
+            border-radius: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .breadcrumb span {
+            color: #64748b;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            margin-right: 10px;
+        }
+
+        .breadcrumb span:hover {
+            background: #f1f5f9;
+            color: #334155;
+            transform: translateY(-1px);
+        }
+
+        .breadcrumb span.active {
+            background: #3b82f6;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .level-indicator {
+            display: inline-block;
+            background: white;
+            color: #64748b;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #3b82f6;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .kpi-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .kpi-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            line-height: 1.3;
+            flex: 1;
+            margin-right: 15px;
+        }
+
+        .kpi-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            min-width: 80px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .kpi-context {
+            margin-top: 15px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .bar-chart-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .faculty-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .faculty-bar:hover {
+            background: #f8fafc;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+
+        .faculty-name {
+            width: 200px;
+            font-weight: 600;
+            color: #1e293b;
+            flex-shrink: 0;
+        }
+
+        .bar-container {
+            flex: 1;
+            margin: 0 15px;
+            position: relative;
+        }
+
+        .percentage-bar {
+            height: 24px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .percentage-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+
+        .faculty-warning {
+            padding: 10px;
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            color: #92400e;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .percentage-text {
+            width: 120px;
+            text-align: right;
+            color: #64748b;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-size: 13px;
+        }
+
+        .number-count {
+            font-size: 16px;
+            color: #1e293b;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+        
+        .number-count.warning {
+            color: #f59e0b;
+            font-weight: 800;
+        }
+        
+        .number-count.critical {
+            color: #ef4444;
+            font-weight: 800;
+        }
+
+        .chart-legend {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .performance-excellent { background: linear-gradient(135deg, #10b981, #059669); }
+        .performance-good { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }  
+        .performance-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .performance-poor { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .performance-no-data { background: linear-gradient(135deg, #6b7280, #4b5563); }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            grid-column: 1 / -1;
+        }
+
+        .chart-header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .chart-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .chart-subtitle {
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        .chart-canvas {
+            width: 100% !important;
+            height: 400px !important;
+        }
+
+        .back-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            margin-bottom: 20px;
+        }
+
+        .back-button:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Health & Safety KPI Dashboard</h1>
+            <p>Interactive three-tier performance monitoring system</p>
+        </div>
+
+        <div class="breadcrumb" id="breadcrumb">
+            <span id="level1" class="active" onclick="showUniversityView()">🏛️ University</span>
+            <span id="level2" onclick="showFacultyBreakdown(currentFaculty)" style="display:none">🏢 Faculty</span>
+            <span id="level3" onclick="showSchoolBreakdown(currentFaculty, currentSchool)" style="display:none">🎓 School</span>
+        </div>
+
+        <div class="level-indicator" id="levelIndicator">University Level: All KPI Overview</div>
+
+        <div class="sort-controls" id="sortControls" style="display: none;">
+            <button class="sort-button" id="sortHighLow" onclick="sortKpis('highLow')">Highest First</button>
+            <button class="sort-button" id="sortLowHigh" onclick="sortKpis('lowHigh')">Lowest First</button>
+        </div>
+
+        <div id="backButton" style="display:none">
+            <button class="back-button" onclick="goBack()">← Back</button>
+        </div>
+
+        <div class="dashboard-grid" id="dashboardContainer">
+            <!-- Dynamic content will be populated here -->
+        </div>
+    </div>
+
+    <script>
+        const dashboardData = {
+  "university": {
+    "name": "University",
+    "kpis": {
+      "Written Arrangements Complete": {
+        "percentage": 79.69,
+        "number": 645.0,
+        "display_text": "79.7% (645)"
+      },
+      "Risk Assessments in Register up to date": {
+        "percentage": 71.49,
+        "number": 3701.0,
+        "display_text": "71.5% (3701)"
+      },
+      "H&S Induction Completion": {
+        "percentage": 67.66,
+        "number": 7095.0,
+        "display_text": "67.7% (7095)"
+      },
+      "Fire Training Completion": {
+        "percentage": 76.8,
+        "number": 7095.0,
+        "display_text": "76.8% (7095)"
+      },
+      "Fire Drills Completed": {
+        "percentage": 80.0,
+        "number": 95.0,
+        "display_text": "80.0% (95)"
+      },
+      "PEEPS in Place": {
+        "percentage": 88.89,
+        "number": 36.0,
+        "display_text": "88.9% (36)"
+      },
+      "PEEPS Drilled": {
+        "percentage": 41.67,
+        "number": 36.0,
+        "display_text": "41.7% (36)"
+      },
+      "Assets without A&B Defects": {
+        "percentage": 98.08,
+        "number": 3435.0,
+        "display_text": "98.1% (3435)"
+      },
+      "Assets Inspected by Allianz": {
+        "percentage": 96.77,
+        "number": 3435.0,
+        "display_text": "96.8% (3435)"
+      },
+      "Accidents and Incidents Investigated": {
+        "percentage": 83.94,
+        "number": 274.0,
+        "display_text": "83.9% (274)"
+      },
+      "Inspections Carried Out": {
+        "percentage": 51.64,
+        "number": 19076.0,
+        "display_text": "51.6% (19076)"
+      },
+      "Leadership Walkarounds": {
+        "percentage": 92.86,
+        "number": null,
+        "display_text": "92.9%"
+      },
+      "Risk Assessment Coverage": {
+        "percentage": 65.0,
+        "number": null,
+        "display_text": "65.0%"
+      },
+      "Training Matrix Coverage": {
+        "percentage": 73.5,
+        "number": null,
+        "display_text": "73.5%"
+      },
+      "Staff Training Requirements": {
+        "percentage": 51.81,
+        "number": 7095.0,
+        "display_text": "51.8% (7095)"
+      }
+    }
+  },
+  "faculties": {
+    "Arts": {
+      "name": "Arts",
+      "kpis": {
+        "Written Arrangements Complete": {
+          "percentage": 96.88,
+          "number": 64.0,
+          "display_text": "96.9% (64)"
+        },
+        "Risk Assessments in Register up to date": {
+          "percentage": 95.08,
+          "number": 61.0,
+          "display_text": "95.1% (61)"
+        },
+        "H&S Induction Completion": {
+          "percentage": 51.3,
+          "number": 386.0,
+          "display_text": "51.3% (386)"
+        },
+        "Fire Training Completion": {
+          "percentage": 72.02,
+          "number": 386.0,
+          "display_text": "72.0% (386)"
+        },
+        "Fire Drills Completed": {
+          "percentage": 100.0,
+          "number": 2.0,
+          "display_text": "100.0% (2)"
+        },
+        "PEEPS in Place": {
+          "percentage": 100.0,
+          "number": 12.0,
+          "display_text": "100.0% (12)"
+        },
+        "PEEPS Drilled": {
+          "percentage": 33.33,
+          "number": 12.0,
+          "display_text": "33.3% (12)"
+        },
+        "Assets without A&B Defects": {
+          "percentage": 100.0,
+          "number": 3.0,
+          "display_text": "100.0% (3)"
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 100.0,
+          "number": 3.0,
+          "display_text": "100.0% (3)"
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 62.5,
+          "number": 8.0,
+          "display_text": "62.5% (8)"
+        },
+        "Inspections Carried Out": {
+          "percentage": 83.74,
+          "number": 203.0,
+          "display_text": "83.7% (203)"
+        },
+        "Leadership Walkarounds": {
+          "percentage": 50.0,
+          "number": null,
+          "display_text": "50.0%"
+        },
+        "Risk Assessment Coverage": {
+          "percentage": 28.78,
+          "number": null,
+          "display_text": "28.8%"
+        },
+        "Training Matrix Coverage": {
+          "percentage": 33.95,
+          "number": null,
+          "display_text": "34.0%"
+        },
+        "Staff Training Requirements": {
+          "percentage": 0.53,
+          "number": 386.0,
+          "display_text": "0.5% (386)"
+        }
+      },
+      "schools": {
+        "CLAS": {
+          "name": "CLAS",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 100.0,
+              "number": 10.0,
+              "display_text": "100.0% (10)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 50.0,
+              "number": 6.0,
+              "display_text": "50.0% (6)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 50.0,
+              "number": 146.0,
+              "display_text": "50.0% (146)"
+            },
+            "Fire Training Completion": {
+              "percentage": 76.71232876712328,
+              "number": 146.0,
+              "display_text": "76.7% (146)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 100.0,
+              "number": 1.0,
+              "display_text": "100.0% (1)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 0.0,
+              "number": 3.0,
+              "display_text": "0.0% (3)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 52.23880597014925,
+              "number": 67.0,
+              "display_text": "52.2% (67)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 0.5,
+              "number": null,
+              "display_text": "0.5%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 0.4,
+              "number": 146.0,
+              "display_text": "0.4% (146)"
+            }
+          }
+        },
+        "English": {
+          "name": "English",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 100.0,
+              "number": 23.0,
+              "display_text": "100.0% (23)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 100.0,
+              "number": 14.0,
+              "display_text": "100.0% (14)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 45.45454545454545,
+              "number": 88.0,
+              "display_text": "45.5% (88)"
+            },
+            "Fire Training Completion": {
+              "percentage": 75.0,
+              "number": 88.0,
+              "display_text": "75.0% (88)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 100.0,
+              "number": 1.0,
+              "display_text": "100.0% (1)"
+            },
+            "PEEPS in Place": {
+              "percentage": 100.0,
+              "number": 4.0,
+              "display_text": "100.0% (4)"
+            },
+            "PEEPS Drilled": {
+              "percentage": 100.0,
+              "number": 4.0,
+              "display_text": "100.0% (4)"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 100.0,
+              "number": 3.0,
+              "display_text": "100.0% (3)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 98.86363636363636,
+              "number": 88.0,
+              "display_text": "98.9% (88)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 85.0,
+              "number": null,
+              "display_text": "85.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 0.95,
+              "number": null,
+              "display_text": "0.9%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 0.6,
+              "number": 88.0,
+              "display_text": "0.6% (88)"
+            }
+          }
+        },
+        "Humanities": {
+          "name": "Humanities",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 93.54838709677419,
+              "number": 31.0,
+              "display_text": "93.5% (31)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 100.0,
+              "number": 41.0,
+              "display_text": "100.0% (41)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 55.92105263157895,
+              "number": 152.0,
+              "display_text": "55.9% (152)"
+            },
+            "Fire Training Completion": {
+              "percentage": 65.78947368421053,
+              "number": 152.0,
+              "display_text": "65.8% (152)"
+            },
+            "Fire Drills Completed": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS in Place": {
+              "percentage": 100.0,
+              "number": 8.0,
+              "display_text": "100.0% (8)"
+            },
+            "PEEPS Drilled": {
+              "percentage": 0.0,
+              "number": 8.0,
+              "display_text": "0.0% (8)"
+            },
+            "Assets without A&B Defects": {
+              "percentage": 100.0,
+              "number": 3.0,
+              "display_text": "100.0% (3)"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": 100.0,
+              "number": 3.0,
+              "display_text": "100.0% (3)"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 100.0,
+              "number": 2.0,
+              "display_text": "100.0% (2)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 48.0,
+              "display_text": "100.0% (48)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 0.0,
+              "number": null,
+              "display_text": "0.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 0.85,
+              "number": null,
+              "display_text": "0.8%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 0.9,
+              "number": null,
+              "display_text": "0.9%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 0.6,
+              "number": 152.0,
+              "display_text": "0.6% (152)"
+            }
+          }
+        }
+      }
+    },
+    "Engineering": {
+      "name": "Engineering",
+      "kpis": {
+        "Written Arrangements Complete": {
+          "percentage": 47.83,
+          "number": 23.0,
+          "display_text": "47.8% (23)"
+        },
+        "Risk Assessments in Register up to date": {
+          "percentage": 99.21,
+          "number": 504.0,
+          "display_text": "99.2% (504)"
+        },
+        "H&S Induction Completion": {
+          "percentage": 79.27,
+          "number": 849.0,
+          "display_text": "79.3% (849)"
+        },
+        "Fire Training Completion": {
+          "percentage": 90.22,
+          "number": 849.0,
+          "display_text": "90.2% (849)"
+        },
+        "Fire Drills Completed": {
+          "percentage": 100.0,
+          "number": 23.0,
+          "display_text": "100.0% (23)"
+        },
+        "PEEPS in Place": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "PEEPS Drilled": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Assets without A&B Defects": {
+          "percentage": 99.88,
+          "number": 1669.0,
+          "display_text": "99.9% (1669)"
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 97.18,
+          "number": 1669.0,
+          "display_text": "97.2% (1669)"
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 100.0,
+          "number": 93.0,
+          "display_text": "100.0% (93)"
+        },
+        "Inspections Carried Out": {
+          "percentage": 48.0,
+          "number": 17710.0,
+          "display_text": "48.0% (17710)"
+        },
+        "Leadership Walkarounds": {
+          "percentage": 100.0,
+          "number": null,
+          "display_text": "100.0%"
+        },
+        "Risk Assessment Coverage": {
+          "percentage": 80.0,
+          "number": null,
+          "display_text": "80.0%"
+        },
+        "Training Matrix Coverage": {
+          "percentage": 100.0,
+          "number": null,
+          "display_text": "100.0%"
+        },
+        "Staff Training Requirements": {
+          "percentage": 29.0,
+          "number": 849.0,
+          "display_text": "29.0% (849)"
+        }
+      },
+      "schools": {
+        "Engineering": {
+          "name": "Engineering",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 47.82608695652174,
+              "number": 23.0,
+              "display_text": "47.8% (23)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 99.20634920634922,
+              "number": 504.0,
+              "display_text": "99.2% (504)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 79.26972909305064,
+              "number": 849.0,
+              "display_text": "79.3% (849)"
+            },
+            "Fire Training Completion": {
+              "percentage": 90.22379269729093,
+              "number": 849.0,
+              "display_text": "90.2% (849)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 100.0,
+              "number": 23.0,
+              "display_text": "100.0% (23)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": 99.88016776512882,
+              "number": 1669.0,
+              "display_text": "99.9% (1669)"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": 97.18394248052726,
+              "number": 1669.0,
+              "display_text": "97.2% (1669)"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 100.0,
+              "number": 93.0,
+              "display_text": "100.0% (93)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 47.99548277809148,
+              "number": 17710.0,
+              "display_text": "48.0% (17710)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 80.0,
+              "number": null,
+              "display_text": "80.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 29.0,
+              "number": 849.0,
+              "display_text": "29.0% (849)"
+            }
+          }
+        }
+      }
+    },
+    "Estates": {
+      "name": "Estates",
+      "kpis": {
+        "Written Arrangements Complete": {
+          "percentage": 0.0,
+          "number": 37.0,
+          "display_text": "0.0% (37)"
+        },
+        "Risk Assessments in Register up to date": {
+          "percentage": 78.15,
+          "number": 357.0,
+          "display_text": "78.2% (357)"
+        },
+        "H&S Induction Completion": {
+          "percentage": 0.06,
+          "number": 1150.0,
+          "display_text": "0.1% (1150)"
+        },
+        "Fire Training Completion": {
+          "percentage": 0.06,
+          "number": 1150.0,
+          "display_text": "0.1% (1150)"
+        },
+        "Fire Drills Completed": {
+          "percentage": 100.0,
+          "number": 15.0,
+          "display_text": "100.0% (15)"
+        },
+        "PEEPS in Place": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "PEEPS Drilled": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Assets without A&B Defects": {
+          "percentage": 94.39,
+          "number": 944.0,
+          "display_text": "94.4% (944)"
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 95.66,
+          "number": 944.0,
+          "display_text": "95.7% (944)"
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 0.0,
+          "number": 30.0,
+          "display_text": "0.0% (30)"
+        },
+        "Inspections Carried Out": {
+          "percentage": 111.84,
+          "number": 456.0,
+          "display_text": "111.8% (456)"
+        },
+        "Leadership Walkarounds": {
+          "percentage": 100.0,
+          "number": null,
+          "display_text": "100.0%"
+        },
+        "Risk Assessment Coverage": {
+          "percentage": 75.0,
+          "number": null,
+          "display_text": "75.0%"
+        },
+        "Training Matrix Coverage": {
+          "percentage": 80.0,
+          "number": null,
+          "display_text": "80.0%"
+        },
+        "Staff Training Requirements": {
+          "percentage": 70.0,
+          "number": 1150.0,
+          "display_text": "70.0% (1150)"
+        }
+      },
+      "schools": {
+        "Estates": {
+          "name": "Estates",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 0.0,
+              "number": 37.0,
+              "display_text": "0.0% (37)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 78.15126050420169,
+              "number": 357.0,
+              "display_text": "78.2% (357)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 0.0617391304347826,
+              "number": 1150.0,
+              "display_text": "0.1% (1150)"
+            },
+            "Fire Training Completion": {
+              "percentage": 0.0617391304347826,
+              "number": 1150.0,
+              "display_text": "0.1% (1150)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 100.0,
+              "number": 15.0,
+              "display_text": "100.0% (15)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": 94.38559322033899,
+              "number": 944.0,
+              "display_text": "94.4% (944)"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": 95.65677966101696,
+              "number": 944.0,
+              "display_text": "95.7% (944)"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 0.0,
+              "number": 30.0,
+              "display_text": "0.0% (30)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 111.8421052631579,
+              "number": 456.0,
+              "display_text": "111.8% (456)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 75.0,
+              "number": null,
+              "display_text": "75.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 80.0,
+              "number": null,
+              "display_text": "80.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 70.0,
+              "number": 1150.0,
+              "display_text": "70.0% (1150)"
+            }
+          }
+        }
+      }
+    },
+    "Finance and Infrastructure": {
+      "name": "Finance and Infrastructure",
+      "kpis": {
+        "Written Arrangements Complete": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Risk Assessments in Register up to date": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "H&S Induction Completion": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Fire Training Completion": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Fire Drills Completed": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "PEEPS in Place": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "PEEPS Drilled": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Assets without A&B Defects": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Inspections Carried Out": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Leadership Walkarounds": {
+          "percentage": 0.0,
+          "number": null,
+          "display_text": "0.0%"
+        },
+        "Risk Assessment Coverage": {
+          "percentage": 0.0,
+          "number": null,
+          "display_text": "0.0%"
+        },
+        "Training Matrix Coverage": {
+          "percentage": 0.0,
+          "number": null,
+          "display_text": "0.0%"
+        },
+        "Staff Training Requirements": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        }
+      },
+      "schools": {
+        "Finance and Infrastructure": {
+          "name": "Finance and Infrastructure",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "H&S Induction Completion": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Fire Training Completion": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Fire Drills Completed": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Inspections Carried Out": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Leadership Walkarounds": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Training Matrix Coverage": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Staff Training Requirements": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            }
+          }
+        }
+      }
+    },
+    "HR": {
+      "name": "HR",
+      "kpis": {
+        "Written Arrangements Complete": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Risk Assessments in Register up to date": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "H&S Induction Completion": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Fire Training Completion": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Fire Drills Completed": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "PEEPS in Place": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "PEEPS Drilled": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Assets without A&B Defects": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Inspections Carried Out": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Leadership Walkarounds": {
+          "percentage": 0.0,
+          "number": null,
+          "display_text": "0.0%"
+        },
+        "Risk Assessment Coverage": {
+          "percentage": 0.0,
+          "number": null,
+          "display_text": "0.0%"
+        },
+        "Training Matrix Coverage": {
+          "percentage": 0.0,
+          "number": null,
+          "display_text": "0.0%"
+        },
+        "Staff Training Requirements": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        }
+      },
+      "schools": {
+        "HR": {
+          "name": "HR",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "H&S Induction Completion": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Fire Training Completion": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Fire Drills Completed": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Inspections Carried Out": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Leadership Walkarounds": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Training Matrix Coverage": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Staff Training Requirements": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            }
+          }
+        }
+      }
+    },
+    "Medicine & Health Sciences": {
+      "name": "Medicine & Health Sciences",
+      "kpis": {
+        "Written Arrangements Complete": {
+          "percentage": 66.67,
+          "number": 174.0,
+          "display_text": "66.7% (174)"
+        },
+        "Risk Assessments in Register up to date": {
+          "percentage": 79.29,
+          "number": 1743.0,
+          "display_text": "79.3% (1743)"
+        },
+        "H&S Induction Completion": {
+          "percentage": 87.82,
+          "number": 2537.0,
+          "display_text": "87.8% (2537)"
+        },
+        "Fire Training Completion": {
+          "percentage": 98.34,
+          "number": 2537.0,
+          "display_text": "98.3% (2537)"
+        },
+        "Fire Drills Completed": {
+          "percentage": 92.86,
+          "number": 14.0,
+          "display_text": "92.9% (14)"
+        },
+        "PEEPS in Place": {
+          "percentage": 100.0,
+          "number": 5.0,
+          "display_text": "100.0% (5)"
+        },
+        "PEEPS Drilled": {
+          "percentage": 20.0,
+          "number": 5.0,
+          "display_text": "20.0% (5)"
+        },
+        "Assets without A&B Defects": {
+          "percentage": 98.71,
+          "number": 465.0,
+          "display_text": "98.7% (465)"
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 98.06,
+          "number": 465.0,
+          "display_text": "98.1% (465)"
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 98.25,
+          "number": 57.0,
+          "display_text": "98.2% (57)"
+        },
+        "Inspections Carried Out": {
+          "percentage": 78.05,
+          "number": 164.0,
+          "display_text": "78.0% (164)"
+        },
+        "Leadership Walkarounds": {
+          "percentage": 92.31,
+          "number": null,
+          "display_text": "92.3%"
+        },
+        "Risk Assessment Coverage": {
+          "percentage": 64.11,
+          "number": null,
+          "display_text": "64.1%"
+        },
+        "Training Matrix Coverage": {
+          "percentage": 77.62,
+          "number": null,
+          "display_text": "77.6%"
+        },
+        "Staff Training Requirements": {
+          "percentage": 43.33,
+          "number": 2537.0,
+          "display_text": "43.3% (2537)"
+        }
+      },
+      "schools": {
+        "BDI": {
+          "name": "BDI",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 60.60606060606061,
+              "number": 33.0,
+              "display_text": "60.6% (33)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 46.72686230248307,
+              "number": 443.0,
+              "display_text": "46.7% (443)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 72.29813664596273,
+              "number": 805.0,
+              "display_text": "72.3% (805)"
+            },
+            "Fire Training Completion": {
+              "percentage": 88.94409937888199,
+              "number": 805.0,
+              "display_text": "88.9% (805)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 100.0,
+              "number": 2.0,
+              "display_text": "100.0% (2)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": 100.0,
+              "number": 114.0,
+              "display_text": "100.0% (114)"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": 99.12280701754386,
+              "number": 114.0,
+              "display_text": "99.1% (114)"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 100.0,
+              "number": 11.0,
+              "display_text": "100.0% (11)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 45.45454545454545,
+              "number": 11.0,
+              "display_text": "45.5% (11)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 75.0,
+              "number": null,
+              "display_text": "75.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 44.0,
+              "number": null,
+              "display_text": "44.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 80.0,
+              "number": null,
+              "display_text": "80.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 5.0,
+              "number": 805.0,
+              "display_text": "5.0% (805)"
+            }
+          }
+        },
+        "Life Sciences": {
+          "name": "Life Sciences",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 73.91304347826086,
+              "number": 23.0,
+              "display_text": "73.9% (23)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 99.87819732034104,
+              "number": 821.0,
+              "display_text": "99.9% (821)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 70.32640949554896,
+              "number": 337.0,
+              "display_text": "70.3% (337)"
+            },
+            "Fire Training Completion": {
+              "percentage": 83.97626112759644,
+              "number": 337.0,
+              "display_text": "84.0% (337)"
+            },
+            "Fire Drills Completed": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": 97.61904761904762,
+              "number": 42.0,
+              "display_text": "97.6% (42)"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": 92.85714285714286,
+              "number": 42.0,
+              "display_text": "92.9% (42)"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 100.0,
+              "number": 24.0,
+              "display_text": "100.0% (24)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 42.0,
+              "display_text": "100.0% (42)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 75.0,
+              "number": null,
+              "display_text": "75.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 0.75,
+              "number": null,
+              "display_text": "0.8%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 60.0,
+              "number": 337.0,
+              "display_text": "60.0% (337)"
+            }
+          }
+        },
+        "Medicine": {
+          "name": "Medicine",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 47.82608695652174,
+              "number": 46.0,
+              "display_text": "47.8% (46)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 81.78294573643412,
+              "number": 258.0,
+              "display_text": "81.8% (258)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 111.5131578947368,
+              "number": 912.0,
+              "display_text": "111.5% (912)"
+            },
+            "Fire Training Completion": {
+              "percentage": 109.2105263157895,
+              "number": 912.0,
+              "display_text": "109.2% (912)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 100.0,
+              "number": 4.0,
+              "display_text": "100.0% (4)"
+            },
+            "PEEPS in Place": {
+              "percentage": 100.0,
+              "number": 4.0,
+              "display_text": "100.0% (4)"
+            },
+            "PEEPS Drilled": {
+              "percentage": 0.0,
+              "number": 4.0,
+              "display_text": "0.0% (4)"
+            },
+            "Assets without A&B Defects": {
+              "percentage": 100.0,
+              "number": 115.0,
+              "display_text": "100.0% (115)"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": 97.3913043478261,
+              "number": 115.0,
+              "display_text": "97.4% (115)"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 90.9090909090909,
+              "number": 11.0,
+              "display_text": "90.9% (11)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 15.0,
+              "display_text": "100.0% (15)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 0.65,
+              "number": null,
+              "display_text": "0.7%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 95.0,
+              "number": null,
+              "display_text": "95.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 35.0,
+              "number": 912.0,
+              "display_text": "35.0% (912)"
+            }
+          }
+        },
+        "Veterinary Medicine and Science": {
+          "name": "Veterinary Medicine and Science",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 59.45945945945946,
+              "number": 37.0,
+              "display_text": "59.5% (37)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 62.5615763546798,
+              "number": 203.0,
+              "display_text": "62.6% (203)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 61.85185185185185,
+              "number": 270.0,
+              "display_text": "61.9% (270)"
+            },
+            "Fire Training Completion": {
+              "percentage": 101.4814814814815,
+              "number": 270.0,
+              "display_text": "101.5% (270)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 85.71428571428571,
+              "number": 7.0,
+              "display_text": "85.7% (7)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": 97.25274725274726,
+              "number": 182.0,
+              "display_text": "97.3% (182)"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": 99.45054945054945,
+              "number": 182.0,
+              "display_text": "99.5% (182)"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Inspections Carried Out": {
+              "percentage": 28.57142857142857,
+              "number": 7.0,
+              "display_text": "28.6% (7)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 90.0,
+              "number": null,
+              "display_text": "90.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 90.0,
+              "number": null,
+              "display_text": "90.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 60.0,
+              "number": 270.0,
+              "display_text": "60.0% (270)"
+            }
+          }
+        },
+        "Clinical Skills": {
+          "name": "Clinical Skills",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 100.0,
+              "number": 13.0,
+              "display_text": "100.0% (13)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 91.66666666666666,
+              "number": 12.0,
+              "display_text": "91.7% (12)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 100.0,
+              "number": 9.0,
+              "display_text": "100.0% (9)"
+            },
+            "Fire Training Completion": {
+              "percentage": 100.0,
+              "number": 9.0,
+              "display_text": "100.0% (9)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 100.0,
+              "number": 1.0,
+              "display_text": "100.0% (1)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": 100.0,
+              "number": 12.0,
+              "display_text": "100.0% (12)"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": 91.66666666666667,
+              "number": 12.0,
+              "display_text": "91.7% (12)"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 100.0,
+              "number": 4.0,
+              "display_text": "100.0% (4)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 71.5909090909091,
+              "number": 88.0,
+              "display_text": "71.6% (88)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 75.0,
+              "number": null,
+              "display_text": "75.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 50.0,
+              "number": 9.0,
+              "display_text": "50.0% (9)"
+            }
+          }
+        },
+        "Health Sciences": {
+          "name": "Health Sciences",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 100.0,
+              "number": 22.0,
+              "display_text": "100.0% (22)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 100.0,
+              "number": 6.0,
+              "display_text": "100.0% (6)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 105.8823529411765,
+              "number": 204.0,
+              "display_text": "105.9% (204)"
+            },
+            "Fire Training Completion": {
+              "percentage": 106.3725490196078,
+              "number": 204.0,
+              "display_text": "106.4% (204)"
+            },
+            "Fire Drills Completed": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS in Place": {
+              "percentage": 100.0,
+              "number": 1.0,
+              "display_text": "100.0% (1)"
+            },
+            "PEEPS Drilled": {
+              "percentage": 100.0,
+              "number": 1.0,
+              "display_text": "100.0% (1)"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 100.0,
+              "number": 7.0,
+              "display_text": "100.0% (7)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 1.0,
+              "display_text": "100.0% (1)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 50.0,
+              "number": 204.0,
+              "display_text": "50.0% (204)"
+            }
+          }
+        }
+      }
+    },
+    "Registrars": {
+      "name": "Registrars",
+      "kpis": {
+        "Written Arrangements Complete": {
+          "percentage": 79.49,
+          "number": 78.0,
+          "display_text": "79.5% (78)"
+        },
+        "Risk Assessments in Register up to date": {
+          "percentage": 53.16,
+          "number": 158.0,
+          "display_text": "53.2% (158)"
+        },
+        "H&S Induction Completion": {
+          "percentage": 82.06,
+          "number": 418.0,
+          "display_text": "82.1% (418)"
+        },
+        "Fire Training Completion": {
+          "percentage": 83.49,
+          "number": 418.0,
+          "display_text": "83.5% (418)"
+        },
+        "Fire Drills Completed": {
+          "percentage": 92.86,
+          "number": 14.0,
+          "display_text": "92.9% (14)"
+        },
+        "PEEPS in Place": {
+          "percentage": 100.0,
+          "number": 2.0,
+          "display_text": "100.0% (2)"
+        },
+        "PEEPS Drilled": {
+          "percentage": 450.0,
+          "number": 2.0,
+          "display_text": "450.0% (2)"
+        },
+        "Assets without A&B Defects": {
+          "percentage": 95.24,
+          "number": 105.0,
+          "display_text": "95.2% (105)"
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 91.43,
+          "number": 105.0,
+          "display_text": "91.4% (105)"
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 82.93,
+          "number": 41.0,
+          "display_text": "82.9% (41)"
+        },
+        "Inspections Carried Out": {
+          "percentage": 100.0,
+          "number": 40.0,
+          "display_text": "100.0% (40)"
+        },
+        "Leadership Walkarounds": {
+          "percentage": 94.44,
+          "number": null,
+          "display_text": "94.4%"
+        },
+        "Risk Assessment Coverage": {
+          "percentage": 59.63,
+          "number": null,
+          "display_text": "59.6%"
+        },
+        "Training Matrix Coverage": {
+          "percentage": 96.33,
+          "number": null,
+          "display_text": "96.3%"
+        },
+        "Staff Training Requirements": {
+          "percentage": 82.0,
+          "number": 418.0,
+          "display_text": "82.0% (418)"
+        }
+      },
+      "schools": {
+        "Libraries": {
+          "name": "Libraries",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 85.18518518518519,
+              "number": 27.0,
+              "display_text": "85.2% (27)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 69.73684210526315,
+              "number": 76.0,
+              "display_text": "69.7% (76)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 90.0,
+              "number": 260.0,
+              "display_text": "90.0% (260)"
+            },
+            "Fire Training Completion": {
+              "percentage": 91.92307692307692,
+              "number": 260.0,
+              "display_text": "91.9% (260)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 88.88888888888889,
+              "number": 9.0,
+              "display_text": "88.9% (9)"
+            },
+            "PEEPS in Place": {
+              "percentage": 100.0,
+              "number": 2.0,
+              "display_text": "100.0% (2)"
+            },
+            "PEEPS Drilled": {
+              "percentage": 400.0,
+              "number": 2.0,
+              "display_text": "400.0% (2)"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 72.22222222222221,
+              "number": 18.0,
+              "display_text": "72.2% (18)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 32.0,
+              "display_text": "100.0% (32)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 90.9090909090909,
+              "number": null,
+              "display_text": "90.9%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 83.0,
+              "number": null,
+              "display_text": "83.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 89.0,
+              "number": null,
+              "display_text": "89.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 76.0,
+              "number": 260.0,
+              "display_text": "76.0% (260)"
+            }
+          }
+        },
+        "Sport": {
+          "name": "Sport",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 68.18181818181817,
+              "number": 22.0,
+              "display_text": "68.2% (22)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 8.928571428571429,
+              "number": 56.0,
+              "display_text": "8.9% (56)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 58.3941605839416,
+              "number": 137.0,
+              "display_text": "58.4% (137)"
+            },
+            "Fire Training Completion": {
+              "percentage": 58.3941605839416,
+              "number": 137.0,
+              "display_text": "58.4% (137)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 100.0,
+              "number": 3.0,
+              "display_text": "100.0% (3)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": 94.38202247191012,
+              "number": 89.0,
+              "display_text": "94.4% (89)"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": 91.01123595505618,
+              "number": 89.0,
+              "display_text": "91.0% (89)"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 90.47619047619048,
+              "number": 21.0,
+              "display_text": "90.5% (21)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 1.0,
+              "display_text": "100.0% (1)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 95.0,
+              "number": null,
+              "display_text": "95.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 70.0,
+              "number": 137.0,
+              "display_text": "70.0% (137)"
+            }
+          }
+        },
+        "BSU": {
+          "name": "BSU",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 82.75862068965517,
+              "number": 29.0,
+              "display_text": "82.8% (29)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 100.0,
+              "number": 26.0,
+              "display_text": "100.0% (26)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 138.0952380952381,
+              "number": 21.0,
+              "display_text": "138.1% (21)"
+            },
+            "Fire Training Completion": {
+              "percentage": 142.8571428571429,
+              "number": 21.0,
+              "display_text": "142.9% (21)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 100.0,
+              "number": 2.0,
+              "display_text": "100.0% (2)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": 100.0,
+              "number": 16.0,
+              "display_text": "100.0% (16)"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": 93.75,
+              "number": 16.0,
+              "display_text": "93.8% (16)"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 100.0,
+              "number": 2.0,
+              "display_text": "100.0% (2)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 7.0,
+              "display_text": "100.0% (7)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 0.9,
+              "number": null,
+              "display_text": "0.9%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 100.0,
+              "number": 21.0,
+              "display_text": "100.0% (21)"
+            }
+          }
+        },
+        "Student & Public Facing Services": {
+          "name": "Student & Public Facing Services",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "H&S Induction Completion": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Fire Training Completion": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Fire Drills Completed": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Inspections Carried Out": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Leadership Walkarounds": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Training Matrix Coverage": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Staff Training Requirements": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            }
+          }
+        }
+      }
+    },
+    "Science": {
+      "name": "Science",
+      "kpis": {
+        "Written Arrangements Complete": {
+          "percentage": 94.64,
+          "number": 112.0,
+          "display_text": "94.6% (112)"
+        },
+        "Risk Assessments in Register up to date": {
+          "percentage": 39.34,
+          "number": 544.0,
+          "display_text": "39.3% (544)"
+        },
+        "H&S Induction Completion": {
+          "percentage": 74.24,
+          "number": 819.0,
+          "display_text": "74.2% (819)"
+        },
+        "Fire Training Completion": {
+          "percentage": 89.87,
+          "number": 819.0,
+          "display_text": "89.9% (819)"
+        },
+        "Fire Drills Completed": {
+          "percentage": 43.75,
+          "number": 16.0,
+          "display_text": "43.8% (16)"
+        },
+        "PEEPS in Place": {
+          "percentage": 73.33,
+          "number": 15.0,
+          "display_text": "73.3% (15)"
+        },
+        "PEEPS Drilled": {
+          "percentage": 6.67,
+          "number": 15.0,
+          "display_text": "6.7% (15)"
+        },
+        "Assets without A&B Defects": {
+          "percentage": 100.0,
+          "number": 249.0,
+          "display_text": "100.0% (249)"
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 97.99,
+          "number": 249.0,
+          "display_text": "98.0% (249)"
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 90.91,
+          "number": 33.0,
+          "display_text": "90.9% (33)"
+        },
+        "Inspections Carried Out": {
+          "percentage": 100.0,
+          "number": 17.0,
+          "display_text": "100.0% (17)"
+        },
+        "Leadership Walkarounds": {
+          "percentage": 100.0,
+          "number": null,
+          "display_text": "100.0%"
+        },
+        "Risk Assessment Coverage": {
+          "percentage": 36.4,
+          "number": null,
+          "display_text": "36.4%"
+        },
+        "Training Matrix Coverage": {
+          "percentage": 56.4,
+          "number": null,
+          "display_text": "56.4%"
+        },
+        "Staff Training Requirements": {
+          "percentage": 46.29,
+          "number": 819.0,
+          "display_text": "46.3% (819)"
+        }
+      },
+      "schools": {
+        "Computer Sciences": {
+          "name": "Computer Sciences",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 100.0,
+              "number": 19.0,
+              "display_text": "100.0% (19)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 100.0,
+              "number": 11.0,
+              "display_text": "100.0% (11)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 63.6986301369863,
+              "number": 146.0,
+              "display_text": "63.7% (146)"
+            },
+            "Fire Training Completion": {
+              "percentage": 87.67123287671232,
+              "number": 146.0,
+              "display_text": "87.7% (146)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 0.0,
+              "number": 1.0,
+              "display_text": "0.0% (1)"
+            },
+            "PEEPS in Place": {
+              "percentage": 57.14285714285714,
+              "number": 7.0,
+              "display_text": "57.1% (7)"
+            },
+            "PEEPS Drilled": {
+              "percentage": 0.0,
+              "number": 7.0,
+              "display_text": "0.0% (7)"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 66.66666666666666,
+              "number": 3.0,
+              "display_text": "66.7% (3)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 7.0,
+              "display_text": "100.0% (7)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 0.4,
+              "number": null,
+              "display_text": "0.4%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 0.65,
+              "number": 146.0,
+              "display_text": "0.7% (146)"
+            }
+          }
+        },
+        "Biosciences": {
+          "name": "Biosciences",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 90.625,
+              "number": 32.0,
+              "display_text": "90.6% (32)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "H&S Induction Completion": {
+              "percentage": 80.2675585284281,
+              "number": 299.0,
+              "display_text": "80.3% (299)"
+            },
+            "Fire Training Completion": {
+              "percentage": 86.95652173913044,
+              "number": 299.0,
+              "display_text": "87.0% (299)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 18.18181818181818,
+              "number": 11.0,
+              "display_text": "18.2% (11)"
+            },
+            "PEEPS in Place": {
+              "percentage": 100.0,
+              "number": 1.0,
+              "display_text": "100.0% (1)"
+            },
+            "PEEPS Drilled": {
+              "percentage": 0.0,
+              "number": 1.0,
+              "display_text": "0.0% (1)"
+            },
+            "Assets without A&B Defects": {
+              "percentage": 100.0,
+              "number": 226.0,
+              "display_text": "100.0% (226)"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": 100.0,
+              "number": 226.0,
+              "display_text": "100.0% (226)"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 100.0,
+              "number": 9.0,
+              "display_text": "100.0% (9)"
+            },
+            "Inspections Carried Out": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 90.0,
+              "number": null,
+              "display_text": "90.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 90.0,
+              "number": null,
+              "display_text": "90.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 80.0,
+              "number": 299.0,
+              "display_text": "80.0% (299)"
+            }
+          }
+        },
+        "Chemistry": {
+          "name": "Chemistry",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "H&S Induction Completion": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Fire Training Completion": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Fire Drills Completed": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Inspections Carried Out": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Leadership Walkarounds": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Training Matrix Coverage": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Staff Training Requirements": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            }
+          }
+        },
+        "Mathematical Sciences": {
+          "name": "Mathematical Sciences",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 100.0,
+              "number": 23.0,
+              "display_text": "100.0% (23)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 100.0,
+              "number": 6.0,
+              "display_text": "100.0% (6)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 86.95652173913044,
+              "number": 115.0,
+              "display_text": "87.0% (115)"
+            },
+            "Fire Training Completion": {
+              "percentage": 95.65217391304348,
+              "number": 115.0,
+              "display_text": "95.7% (115)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 100.0,
+              "number": 1.0,
+              "display_text": "100.0% (1)"
+            },
+            "PEEPS in Place": {
+              "percentage": 100.0,
+              "number": 2.0,
+              "display_text": "100.0% (2)"
+            },
+            "PEEPS Drilled": {
+              "percentage": 0.0,
+              "number": 2.0,
+              "display_text": "0.0% (2)"
+            },
+            "Assets without A&B Defects": {
+              "percentage": 100.0,
+              "number": 2.0,
+              "display_text": "100.0% (2)"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": 100.0,
+              "number": 2.0,
+              "display_text": "100.0% (2)"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 7.0,
+              "display_text": "100.0% (7)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 0.85,
+              "number": null,
+              "display_text": "0.8%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 1.0,
+              "number": null,
+              "display_text": "1.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 0.78,
+              "number": 115.0,
+              "display_text": "0.8% (115)"
+            }
+          }
+        },
+        "Pharmacy": {
+          "name": "Pharmacy",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 89.28571428571429,
+              "number": 28.0,
+              "display_text": "89.3% (28)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 100.0,
+              "number": 117.0,
+              "display_text": "100.0% (117)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 83.6734693877551,
+              "number": 147.0,
+              "display_text": "83.7% (147)"
+            },
+            "Fire Training Completion": {
+              "percentage": 100.6802721088435,
+              "number": 147.0,
+              "display_text": "100.7% (147)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 100.0,
+              "number": 2.0,
+              "display_text": "100.0% (2)"
+            },
+            "PEEPS in Place": {
+              "percentage": 80.0,
+              "number": 5.0,
+              "display_text": "80.0% (5)"
+            },
+            "PEEPS Drilled": {
+              "percentage": 20.0,
+              "number": 5.0,
+              "display_text": "20.0% (5)"
+            },
+            "Assets without A&B Defects": {
+              "percentage": 100.0,
+              "number": 19.0,
+              "display_text": "100.0% (19)"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": 84.21052631578948,
+              "number": 19.0,
+              "display_text": "84.2% (19)"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 88.23529411764706,
+              "number": 17.0,
+              "display_text": "88.2% (17)"
+            },
+            "Inspections Carried Out": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Leadership Walkarounds": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 0.75,
+              "number": null,
+              "display_text": "0.8%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 90.0,
+              "number": null,
+              "display_text": "90.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 50.0,
+              "number": 147.0,
+              "display_text": "50.0% (147)"
+            }
+          }
+        },
+        "Physics and Astronomy": {
+          "name": "Physics and Astronomy",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "H&S Induction Completion": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Fire Training Completion": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Fire Drills Completed": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Inspections Carried Out": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Leadership Walkarounds": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Training Matrix Coverage": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Staff Training Requirements": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            }
+          }
+        },
+        "Psychology": {
+          "name": "Psychology",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 100.0,
+              "number": 10.0,
+              "display_text": "100.0% (10)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 19.51219512195122,
+              "number": 410.0,
+              "display_text": "19.5% (410)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 46.42857142857143,
+              "number": 112.0,
+              "display_text": "46.4% (112)"
+            },
+            "Fire Training Completion": {
+              "percentage": 80.35714285714286,
+              "number": 112.0,
+              "display_text": "80.4% (112)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 200.0,
+              "number": 1.0,
+              "display_text": "200.0% (1)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": 100.0,
+              "number": 2.0,
+              "display_text": "100.0% (2)"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": 0.0,
+              "number": 2.0,
+              "display_text": "0.0% (2)"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 100.0,
+              "number": 4.0,
+              "display_text": "100.0% (4)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 3.0,
+              "display_text": "100.0% (3)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 90.0,
+              "number": null,
+              "display_text": "90.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 1.0,
+              "number": null,
+              "display_text": "1.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 100.0,
+              "number": 112.0,
+              "display_text": "100.0% (112)"
+            }
+          }
+        }
+      }
+    },
+    "Social Sciences": {
+      "name": "Social Sciences",
+      "kpis": {
+        "Written Arrangements Complete": {
+          "percentage": 100.0,
+          "number": 157.0,
+          "display_text": "100.0% (157)"
+        },
+        "Risk Assessments in Register up to date": {
+          "percentage": 38.62,
+          "number": 334.0,
+          "display_text": "38.6% (334)"
+        },
+        "H&S Induction Completion": {
+          "percentage": 80.12,
+          "number": 936.0,
+          "display_text": "80.1% (936)"
+        },
+        "Fire Training Completion": {
+          "percentage": 88.03,
+          "number": 936.0,
+          "display_text": "88.0% (936)"
+        },
+        "Fire Drills Completed": {
+          "percentage": 27.27,
+          "number": 11.0,
+          "display_text": "27.3% (11)"
+        },
+        "PEEPS in Place": {
+          "percentage": 100.0,
+          "number": 2.0,
+          "display_text": "100.0% (2)"
+        },
+        "PEEPS Drilled": {
+          "percentage": 0.0,
+          "number": 2.0,
+          "display_text": "0.0% (2)"
+        },
+        "Assets without A&B Defects": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 100.0,
+          "number": 12.0,
+          "display_text": "100.0% (12)"
+        },
+        "Inspections Carried Out": {
+          "percentage": 100.0,
+          "number": 486.0,
+          "display_text": "100.0% (486)"
+        },
+        "Leadership Walkarounds": {
+          "percentage": 114.29,
+          "number": null,
+          "display_text": "114.3%"
+        },
+        "Risk Assessment Coverage": {
+          "percentage": 92.56,
+          "number": null,
+          "display_text": "92.6%"
+        },
+        "Training Matrix Coverage": {
+          "percentage": 83.25,
+          "number": null,
+          "display_text": "83.2%"
+        },
+        "Staff Training Requirements": {
+          "percentage": 70.12,
+          "number": 936.0,
+          "display_text": "70.1% (936)"
+        }
+      },
+      "schools": {
+        "Economics": {
+          "name": "Economics",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 100.0,
+              "number": 1.0,
+              "display_text": "100.0% (1)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 100.0,
+              "number": 4.0,
+              "display_text": "100.0% (4)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 50.0,
+              "number": 108.0,
+              "display_text": "50.0% (108)"
+            },
+            "Fire Training Completion": {
+              "percentage": 69.44444444444444,
+              "number": 108.0,
+              "display_text": "69.4% (108)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 0.0,
+              "number": 1.0,
+              "display_text": "0.0% (1)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 89.0,
+              "display_text": "100.0% (89)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 85.0,
+              "number": null,
+              "display_text": "85.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 47.0,
+              "number": 108.0,
+              "display_text": "47.0% (108)"
+            }
+          }
+        },
+        "Business School": {
+          "name": "Business School",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 100.0,
+              "number": 26.0,
+              "display_text": "100.0% (26)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 97.91666666666666,
+              "number": 48.0,
+              "display_text": "97.9% (48)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 89.84375,
+              "number": 256.0,
+              "display_text": "89.8% (256)"
+            },
+            "Fire Training Completion": {
+              "percentage": 82.8125,
+              "number": 256.0,
+              "display_text": "82.8% (256)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 66.66666666666666,
+              "number": 3.0,
+              "display_text": "66.7% (3)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 100.0,
+              "number": 1.0,
+              "display_text": "100.0% (1)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 3.0,
+              "display_text": "100.0% (3)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 98.0,
+              "number": null,
+              "display_text": "98.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 0.0,
+              "number": null,
+              "display_text": "0.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 83.0,
+              "number": 256.0,
+              "display_text": "83.0% (256)"
+            }
+          }
+        },
+        "Education": {
+          "name": "Education",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 100.0,
+              "number": 25.0,
+              "display_text": "100.0% (25)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 100.0,
+              "number": 5.0,
+              "display_text": "100.0% (5)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 108.3333333333333,
+              "number": 156.0,
+              "display_text": "108.3% (156)"
+            },
+            "Fire Training Completion": {
+              "percentage": 108.974358974359,
+              "number": 156.0,
+              "display_text": "109.0% (156)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 100.0,
+              "number": 1.0,
+              "display_text": "100.0% (1)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 100.0,
+              "number": 1.0,
+              "display_text": "100.0% (1)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 141.0,
+              "display_text": "100.0% (141)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 80.0,
+              "number": null,
+              "display_text": "80.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 80.0,
+              "number": 156.0,
+              "display_text": "80.0% (156)"
+            }
+          }
+        },
+        "Law": {
+          "name": "Law",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 100.0,
+              "number": 1.0,
+              "display_text": "100.0% (1)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 100.0,
+              "number": 6.0,
+              "display_text": "100.0% (6)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 38.13559322033898,
+              "number": 118.0,
+              "display_text": "38.1% (118)"
+            },
+            "Fire Training Completion": {
+              "percentage": 67.79661016949152,
+              "number": 118.0,
+              "display_text": "67.8% (118)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 0.0,
+              "number": 1.0,
+              "display_text": "0.0% (1)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 100.0,
+              "number": 1.0,
+              "display_text": "100.0% (1)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 89.0,
+              "display_text": "100.0% (89)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 80.0,
+              "number": null,
+              "display_text": "80.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 0.0,
+              "number": 118.0,
+              "display_text": "0.0% (118)"
+            }
+          }
+        },
+        "Politics and IR": {
+          "name": "Politics and IR",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 100.0,
+              "number": 22.0,
+              "display_text": "100.0% (22)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 100.0,
+              "number": 5.0,
+              "display_text": "100.0% (5)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 90.47619047619048,
+              "number": 63.0,
+              "display_text": "90.5% (63)"
+            },
+            "Fire Training Completion": {
+              "percentage": 103.1746031746032,
+              "number": 63.0,
+              "display_text": "103.2% (63)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 0.0,
+              "number": 1.0,
+              "display_text": "0.0% (1)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 65.0,
+              "display_text": "100.0% (65)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 100.0,
+              "number": 63.0,
+              "display_text": "100.0% (63)"
+            }
+          }
+        },
+        "Rights Lab": {
+          "name": "Rights Lab",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 100.0,
+              "number": 33.0,
+              "display_text": "100.0% (33)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 100.0,
+              "number": 6.0,
+              "display_text": "100.0% (6)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 2.30952380952381,
+              "number": 42.0,
+              "display_text": "2.3% (42)"
+            },
+            "Fire Training Completion": {
+              "percentage": 2.30952380952381,
+              "number": 42.0,
+              "display_text": "2.3% (42)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 0.0,
+              "number": 1.0,
+              "display_text": "0.0% (1)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 6.0,
+              "display_text": "100.0% (6)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 200.0,
+              "number": null,
+              "display_text": "200.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 85.0,
+              "number": null,
+              "display_text": "85.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 1.0,
+              "number": null,
+              "display_text": "1.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 0.97,
+              "number": 42.0,
+              "display_text": "1.0% (42)"
+            }
+          }
+        },
+        "Sociology": {
+          "name": "Sociology",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 100.0,
+              "number": 2.0,
+              "display_text": "100.0% (2)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 84.44444444444444,
+              "number": 90.0,
+              "display_text": "84.4% (90)"
+            },
+            "Fire Training Completion": {
+              "percentage": 98.88888888888889,
+              "number": 90.0,
+              "display_text": "98.9% (90)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 0.0,
+              "number": 1.0,
+              "display_text": "0.0% (1)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 68.0,
+              "display_text": "100.0% (68)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 70.0,
+              "number": 90.0,
+              "display_text": "70.0% (90)"
+            }
+          }
+        },
+        "Geography": {
+          "name": "Geography",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 100.0,
+              "number": 33.0,
+              "display_text": "100.0% (33)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 17.07317073170732,
+              "number": 246.0,
+              "display_text": "17.1% (246)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 90.66666666666666,
+              "number": 75.0,
+              "display_text": "90.7% (75)"
+            },
+            "Fire Training Completion": {
+              "percentage": 96.0,
+              "number": 75.0,
+              "display_text": "96.0% (75)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 0.0,
+              "number": 1.0,
+              "display_text": "0.0% (1)"
+            },
+            "PEEPS in Place": {
+              "percentage": 100.0,
+              "number": 2.0,
+              "display_text": "100.0% (2)"
+            },
+            "PEEPS Drilled": {
+              "percentage": 0.0,
+              "number": 2.0,
+              "display_text": "0.0% (2)"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": 100.0,
+              "number": 9.0,
+              "display_text": "100.0% (9)"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 10.0,
+              "display_text": "100.0% (10)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": null,
+              "number": null,
+              "display_text": "/"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 90.0,
+              "number": null,
+              "display_text": "90.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 100.0,
+              "number": 75.0,
+              "display_text": "100.0% (75)"
+            }
+          }
+        },
+        "Faculty Office": {
+          "name": "Faculty Office",
+          "kpis": {
+            "Written Arrangements Complete": {
+              "percentage": 100.0,
+              "number": 16.0,
+              "display_text": "100.0% (16)"
+            },
+            "Risk Assessments in Register up to date": {
+              "percentage": 100.0,
+              "number": 12.0,
+              "display_text": "100.0% (12)"
+            },
+            "H&S Induction Completion": {
+              "percentage": 178.5714285714286,
+              "number": 28.0,
+              "display_text": "178.6% (28)"
+            },
+            "Fire Training Completion": {
+              "percentage": 214.2857142857143,
+              "number": 28.0,
+              "display_text": "214.3% (28)"
+            },
+            "Fire Drills Completed": {
+              "percentage": 0.0,
+              "number": 1.0,
+              "display_text": "0.0% (1)"
+            },
+            "PEEPS in Place": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "PEEPS Drilled": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets without A&B Defects": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Assets Inspected by Allianz": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Accidents and Incidents Investigated": {
+              "percentage": null,
+              "number": 0.0,
+              "display_text": "/"
+            },
+            "Inspections Carried Out": {
+              "percentage": 100.0,
+              "number": 15.0,
+              "display_text": "100.0% (15)"
+            },
+            "Leadership Walkarounds": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Risk Assessment Coverage": {
+              "percentage": 100.0,
+              "number": null,
+              "display_text": "100.0%"
+            },
+            "Training Matrix Coverage": {
+              "percentage": 80.0,
+              "number": null,
+              "display_text": "80.0%"
+            },
+            "Staff Training Requirements": {
+              "percentage": 80.0,
+              "number": 28.0,
+              "display_text": "80.0% (28)"
+            }
+          }
+        }
+      }
+    }
+  },
+  "schools": {}
+};
+        let currentLevel = 'university';
+        let currentFaculty = null;
+        let currentSchool = null;
+        let currentSortOrder = 'highLow'; // Default sort order
+
+        function getPerformanceClass(percentage) {
+            if (percentage === null || percentage === undefined) return 'performance-no-data';
+            if (percentage >= 95) return 'performance-excellent';
+            if (percentage >= 80) return 'performance-good';
+            if (percentage >= 60) return 'performance-warning';
+            return 'performance-poor';
+        }
+
+        function formatValue(percentage, number) {
+            if (percentage === null || percentage === undefined) return '/';
+            if (number === null || number === undefined) return `${percentage.toFixed(1)}%`;
+            return `${percentage.toFixed(1)}%`;
+        }
+
+        function formatDisplayText(percentage, number) {
+            if (percentage === null || percentage === undefined) return 'No data available';
+            if (number === null || number === undefined) return `${percentage.toFixed(1)}%`;
+            return `${percentage.toFixed(1)}% (total: ${Math.round(number)})`;
+        }
+
+        function getScaleClass(number) {
+            if (number === null || number === undefined) return '';
+            if (number >= 1000) return 'scale-large';
+            if (number >= 100) return 'scale-medium';
+            return 'scale-small';
+        }
+
+        function getScaleDescription(number) {
+            if (number === null || number === undefined) return '';
+            if (number >= 1000) return 'Large scale';
+            if (number >= 100) return 'Medium scale';
+            return 'Small scale';
+        }
+
+        function getNumberScale(number) {
+            if (number === null || number === undefined) return '';
+            if (number >= 1000) return 'large';
+            if (number >= 100) return 'medium';
+            return 'small';
+        }
+
+        function createKpiContextDisplay(percentage, number) {
+            if (percentage === null || percentage === undefined) {
+                return '<div class="kpi-context">No data available</div>';
+            }
+            
+            if (number !== null && number !== undefined) {
+                return `<div class="kpi-context">Total items: ${Math.round(number)}</div>`;
+            } else {
+                return '<div class="kpi-context">Percentage metric</div>';
+            }
+        }
+
+
+        function showUniversityView() {
+            currentLevel = 'university';
+            currentFaculty = null;
+            currentSchool = null;
+            
+            updateBreadcrumb();
+            document.getElementById('levelIndicator').textContent = 'University Level: All KPI Overview';
+            document.getElementById('backButton').style.display = 'none';
+            document.getElementById('sortControls').style.display = 'block';
+
+            const container = document.getElementById('dashboardContainer');
+            container.innerHTML = '';
+
+            if (!dashboardData.university || !dashboardData.university.kpis) {
+                container.innerHTML = '<div class="no-data">No university data available</div>';
+                return;
+            }
+
+            // Create KPI cards with sorting
+            let kpiEntries = Object.entries(dashboardData.university.kpis);
+            
+            // Sort based on current sort order
+            if (currentSortOrder === 'highLow') {
+                kpiEntries.sort((a, b) => {
+                    const aPercentage = a[1].percentage !== null ? a[1].percentage : -1;
+                    const bPercentage = b[1].percentage !== null ? b[1].percentage : -1;
+                    return bPercentage - aPercentage;
+                });
+                document.getElementById('sortHighLow').classList.add('active');
+                document.getElementById('sortLowHigh').classList.remove('active');
+            } else {
+                kpiEntries.sort((a, b) => {
+                    const aPercentage = a[1].percentage !== null ? a[1].percentage : 999;
+                    const bPercentage = b[1].percentage !== null ? b[1].percentage : 999;
+                    return aPercentage - bPercentage;
+                });
+                document.getElementById('sortLowHigh').classList.add('active');
+                document.getElementById('sortHighLow').classList.remove('active');
+            }
+
+            // Create KPI cards
+            for (const [kpiName, kpiData] of kpiEntries) {
+                const card = document.createElement('div');
+                card.className = 'kpi-card';
+                card.onclick = () => showFacultyBreakdown(kpiName);
+                
+                const performanceClass = getPerformanceClass(kpiData.percentage);
+                
+                card.innerHTML = `
+                    <div class="kpi-header">
+                        <div class="kpi-title">${kpiName}</div>
+                        <div class="kpi-value ${performanceClass}">
+                            ${formatValue(kpiData.percentage, kpiData.number)}
+                        </div>
+                    </div>
+                    ${createKpiContextDisplay(kpiData.percentage, kpiData.number)}
+                `;
+                
+                container.appendChild(card);
+            }
+        }
+
+        function showFacultyBreakdown(kpiName) {
+            currentLevel = 'faculty';
+            currentFaculty = kpiName;
+            
+            updateBreadcrumb();
+            document.getElementById('levelIndicator').textContent = `Faculty Level: ${kpiName} Breakdown`;
+            document.getElementById('backButton').style.display = 'block';
+            document.getElementById('sortControls').style.display = 'none';
+
+            const container = document.getElementById('dashboardContainer');
+            container.innerHTML = '';
+
+            // Collect faculty data for this KPI
+            const facultyData = [];
+            console.log('Available faculties:', Object.keys(dashboardData.faculties || {}));
+            
+            for (const [facultyName, facultyInfo] of Object.entries(dashboardData.faculties || {})) {
+                console.log(`Checking faculty: ${facultyName}`, facultyInfo);
+                if (facultyInfo.kpis && facultyInfo.kpis[kpiName]) {
+                    const kpiData = facultyInfo.kpis[kpiName];
+                    console.log(`Found KPI data for ${facultyName}:`, kpiData);
+                    facultyData.push({
+                        name: facultyName,
+                        percentage: kpiData.percentage || 0,
+                        number: kpiData.number
+                    });
+                } else {
+                    console.log(`No KPI data for ${facultyName} in ${kpiName}`);
+                }
+            }
+            
+            console.log('Final faculty data array:', facultyData);
+
+            if (facultyData.length === 0) {
+                container.innerHTML = '<div class="no-data">No faculty data available for this KPI</div>';
+                return;
+            }
+
+            // Sort by percentage (lowest first, null values last)
+            facultyData.sort((a, b) => {
+                if (a.percentage === null) return 1;
+                if (b.percentage === null) return -1;
+                return a.percentage - b.percentage;
+            });
+
+            // Create visual bar chart container
+            const chartContainer = document.createElement('div');
+            chartContainer.className = 'chart-container';
+            chartContainer.innerHTML = `
+                <div class="chart-header">
+                    <div class="chart-title">${kpiName}</div>
+                    <div class="chart-subtitle">Faculty Performance Comparison</div>
+                </div>
+                <div class="chart-legend">
+                    📊 Each bar shows performance percentage. Numbers on the right show total items being measured (e.g., total staff, total assessments, etc.)
+                </div>
+                <div class="bar-chart-wrapper" id="facultyBars"></div>
+            `;
+            container.appendChild(chartContainer);
+
+            // Create custom visual bars
+            const barsContainer = document.getElementById('facultyBars');
+            
+            console.log('Faculty data:', facultyData); // Debug log
+            
+            if (facultyData.length === 0) {
+                barsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #6b7280;">No faculty data available for this KPI</div>';
+                return;
+            }
+            
+            facultyData.forEach(faculty => {
+                const percentage = faculty.percentage || 0;
+                const number = faculty.number;
+                const performanceClass = getPerformanceClass(percentage);
+                
+                let barColor;
+                switch(performanceClass) {
+                    case 'performance-excellent': barColor = '#10b981'; break;
+                    case 'performance-good': barColor = '#3b82f6'; break;
+                    case 'performance-warning': barColor = '#f59e0b'; break;
+                    case 'performance-poor': barColor = '#ef4444'; break;
+                    default: barColor = '#6b7280';
+                }
+                
+                const facultyBar = document.createElement('div');
+                facultyBar.className = 'faculty-bar';
+                facultyBar.onclick = () => showSchoolBreakdown(kpiName, faculty.name);
+                
+                facultyBar.innerHTML = `
+                    <div class="faculty-name">${faculty.name}</div>
+                    <div class="bar-container">
+                        <div class="percentage-bar" style="background: #e5e7eb;">
+                            <div class="percentage-fill" 
+                                 style="width: ${percentage}%; background: ${barColor};">
+                                ${percentage >= 15 ? percentage.toFixed(1) + '%' : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="percentage-text">
+                        ${number ? `<span class="number-count${(percentage >= 90 && number < 10) ? ' critical' : (percentage >= 80 && number < 20) ? ' warning' : ''}">${Math.round(number)} items</span>` : ''}
+                        <span>${percentage.toFixed(1)}%</span>
+                    </div>
+                `;
+                
+                barsContainer.appendChild(facultyBar);
+            });
+        }
+
+        function showSchoolBreakdown(kpiName, facultyName) {
+            currentLevel = 'school';
+            currentFaculty = kpiName;
+            currentSchool = facultyName;
+            
+            updateBreadcrumb();
+            document.getElementById('levelIndicator').textContent = `School Level: ${kpiName} - ${facultyName} Schools`;
+            document.getElementById('backButton').style.display = 'block';
+            document.getElementById('sortControls').style.display = 'none';
+
+            const container = document.getElementById('dashboardContainer');
+            container.innerHTML = '';
+
+            // Get schools for this faculty
+            const facultyInfo = dashboardData.faculties[facultyName];
+            if (!facultyInfo || !facultyInfo.schools) {
+                const explanation = facultyName === 'Registrars' || facultyName === 'Social Sciences' 
+                    ? `${facultyName} operates as a centralized service without individual schools.`
+                    : `No school breakdown available for ${facultyName}.`;
+                
+                container.innerHTML = `
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <div class="chart-title">${kpiName} - ${facultyName}</div>
+                            <div class="chart-subtitle">Faculty operates as single entity</div>
+                        </div>
+                        <div class="faculty-warning">
+                            <strong>ℹ️ Faculty-level data only:</strong><br>
+                            ${explanation} The performance shown at faculty level represents the entire ${facultyName} operation.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const schoolData = [];
+            for (const [schoolName, schoolInfo] of Object.entries(facultyInfo.schools)) {
+                if (schoolInfo.kpis && schoolInfo.kpis[kpiName]) {
+                    schoolData.push({
+                        name: schoolName,
+                        percentage: schoolInfo.kpis[kpiName].percentage,
+                        number: schoolInfo.kpis[kpiName].number
+                    });
+                }
+            }
+
+            if (schoolData.length === 0) {
+                container.innerHTML = `
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <div class="chart-title">${kpiName} - ${facultyName}</div>
+                            <div class="chart-subtitle">No school data available</div>
+                        </div>
+                        <div class="faculty-warning">
+                            <strong>⚠️ No detailed data:</strong><br>
+                            While ${facultyName} shows performance at faculty level, no school-level breakdown is available for this specific KPI.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort by percentage (lowest first, null values last)
+            schoolData.sort((a, b) => {
+                if (a.percentage === null) return 1;
+                if (b.percentage === null) return -1;
+                return a.percentage - b.percentage;
+            });
+
+            // Create visual bar chart container
+            const chartContainer = document.createElement('div');
+            chartContainer.className = 'chart-container';
+            chartContainer.innerHTML = `
+                <div class="chart-header">
+                    <div class="chart-title">${kpiName} - ${facultyName}</div>
+                    <div class="chart-subtitle">School Performance Breakdown</div>
+                </div>
+                <div class="chart-legend">
+                    📊 Each bar shows performance percentage. Numbers on the right show total items being measured within this faculty.
+                </div>
+                <div class="bar-chart-wrapper" id="schoolBars"></div>
+            `;
+            container.appendChild(chartContainer);
+
+            // Create custom visual bars
+            const barsContainer = document.getElementById('schoolBars');
+            
+            console.log('School data:', schoolData); // Debug log
+            
+            if (schoolData.length === 0) {
+                barsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #6b7280;">No school data available for this KPI in this faculty</div>';
+                return;
+            }
+            
+            schoolData.forEach(school => {
+                const percentage = school.percentage || 0;
+                const number = school.number;
+                const performanceClass = getPerformanceClass(percentage);
+                
+                let barColor;
+                switch(performanceClass) {
+                    case 'performance-excellent': barColor = '#10b981'; break;
+                    case 'performance-good': barColor = '#3b82f6'; break;
+                    case 'performance-warning': barColor = '#f59e0b'; break;
+                    case 'performance-poor': barColor = '#ef4444'; break;
+                    default: barColor = '#6b7280';
+                }
+                
+                const schoolBar = document.createElement('div');
+                schoolBar.className = 'faculty-bar'; // Reuse same styling
+                
+                schoolBar.innerHTML = `
+                    <div class="faculty-name">${school.name}</div>
+                    <div class="bar-container">
+                        <div class="percentage-bar" style="background: #e5e7eb;">
+                            <div class="percentage-fill" 
+                                 style="width: ${percentage}%; background: ${barColor};">
+                                ${percentage >= 15 ? percentage.toFixed(1) + '%' : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="percentage-text">
+                        ${number ? `<span class="number-count${(percentage >= 90 && number < 10) ? ' critical' : (percentage >= 80 && number < 20) ? ' warning' : ''}">${Math.round(number)} items</span>` : ''}
+                        <span>${percentage.toFixed(1)}%</span>
+                    </div>
+                `;
+                
+                barsContainer.appendChild(schoolBar);
+            });
+        }
+
+        function updateBreadcrumb() {
+            document.getElementById('level1').className = currentLevel === 'university' ? 'active' : '';
+            document.getElementById('level2').style.display = currentLevel !== 'university' ? 'inline' : 'none';
+            document.getElementById('level2').className = currentLevel === 'faculty' ? 'active' : '';
+            document.getElementById('level2').textContent = `🏢 ${currentFaculty || 'Faculty'}`;
+            document.getElementById('level3').style.display = currentLevel === 'school' ? 'inline' : 'none';  
+            document.getElementById('level3').className = currentLevel === 'school' ? 'active' : '';
+            document.getElementById('level3').textContent = `🎓 ${currentSchool || 'School'}`;
+        }
+
+        function goBack() {
+            if (currentLevel === 'school') {
+                showFacultyBreakdown(currentFaculty);
+            } else if (currentLevel === 'faculty') {
+                showUniversityView();
+            }
+        }
+
+        function sortKpis(order) {
+            currentSortOrder = order;
+            showUniversityView();
+        }
+
+        // Initialize with university view
+        showUniversityView();
+    </script>
+</body>
+</html>
