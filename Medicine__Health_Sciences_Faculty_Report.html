@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Medicine & Health Sciences Faculty - Health & Safety Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#f8fafc 0%,#e2e8f0 100%);min-height:100vh;color:#333;font-size:15px}
+.container{max-width:1400px;margin:0 auto;padding:20px}
+.header{text-align:center;color:#1e293b;margin-bottom:30px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:40px;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.12);position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(45deg,rgba(255,255,255,0.1) 0%,transparent 50%,rgba(255,255,255,0.05) 100%);pointer-events:none}
+.header h1{font-size:2.5rem;margin-bottom:12px;font-weight:800;color:white;text-shadow:0 2px 4px rgba(0,0,0,0.1);position:relative;z-index:1}
+.header p{color:rgba(255,255,255,0.9);font-size:1.1rem;font-weight:500;position:relative;z-index:1}
+.faculty-overview{background:white;border-radius:20px;padding:35px;margin-bottom:30px;box-shadow:0 8px 32px rgba(0,0,0,0.1);border:1px solid #e2e8f0;position:relative;overflow:hidden}
+.faculty-overview::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#667eea,#764ba2,#667eea);background-size:200% 100%;animation:shimmer 3s ease-in-out infinite}
+@keyframes shimmer{0%,100%{background-position:200% 0}50%{background-position:-200% 0}}
+.overview-title{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:25px;text-align:center}
+.controls-container{text-align:center;margin-bottom:25px}
+.view-controls{margin-bottom:15px}
+.view-button{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;padding:10px 20px;border-radius:20px;font-size:15px;font-weight:500;cursor:pointer;transition:all 0.3s ease;margin:0 5px}
+.view-button:hover{background:#e2e8f0;color:#334155}
+.view-button.active{background:#667eea;color:white;font-weight:600}
+.sort-controls{text-align:center}
+.sort-button{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;padding:10px 20px;border-radius:20px;font-size:15px;font-weight:500;cursor:pointer;transition:all 0.3s ease;margin:0 5px}
+.sort-button:hover{background:#e2e8f0;color:#334155}
+.sort-button.active{background:#3b82f6;color:white;font-weight:600}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:25px;margin-bottom:30px}
+.kpi-card{background:white;border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #e2e8f0;transition:all 0.4s cubic-bezier(0.4,0,0.2,1);cursor:pointer;position:relative;overflow:hidden;align-self:start}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#3b82f6,#8b5cf6,#06b6d4);opacity:0;transition:opacity 0.3s ease}
+.kpi-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.15);border-color:#3b82f6}
+.kpi-card:hover::before{opacity:1}
+.kpi-card.expanded{box-shadow:0 12px 35px rgba(0,0,0,0.15)}
+.university-comparison{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:12px}
+.comparison-text{color:#64748b;font-weight:500;font-size:13px;margin:0}
+.comparison-values{display:flex;align-items:center;gap:10px}
+.faculty-value{font-weight:700;color:#1e293b;font-size:16px}
+.university-value{color:#64748b;font-size:16px;font-weight:500}
+.comparison-indicator{font-size:16px;font-weight:700;margin-left:6px;padding:6px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;box-shadow:0 2px 6px rgba(0,0,0,0.12)}
+.comparison-above{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:white}
+.comparison-below{background:linear-gradient(135deg,#ef4444,#dc2626);color:white}
+.comparison-equal{background:linear-gradient(135deg,#6b7280,#4b5563);color:white}
+.kpi-title{font-size:16px;font-weight:600;color:#374151;line-height:1.4;margin-bottom:15px;text-align:center}
+.kpi-value{font-size:24px;font-weight:700;color:white;padding:14px 20px;border-radius:16px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.15);margin:0 auto 15px;display:block;width:fit-content;min-width:100px}
+.expand-icon{position:absolute;bottom:13px;left:50%;transform:translateX(-50%);font-size:15px;color:#9ca3af;transition:all 0.3s ease;cursor:pointer}
+.kpi-card.expanded .expand-icon{transform:translateX(-50%) rotate(180deg);color:#3b82f6}
+.compressed-view .kpi-grid{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.compressed-view .kpi-card{display:grid;grid-template-columns:7fr 1.5fr 1.5fr auto;column-gap:12px;align-items:center;padding:6px 12px;margin-bottom:4px;cursor:default;transform:none;border-radius:8px;min-height:40px;position:relative;align-self:flex-start;flex:1 1 calc(50% - 4px);box-sizing:border-box}
+.compressed-view .kpi-card .school-breakdown-content{grid-column:1/-1;width:100%}
+.compressed-view .kpi-card.expanded{margin-bottom:8px}
+.compressed-view .kpi-card:hover{transform:none;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
+.compressed-view .kpi-card::before{display:none}
+.compressed-view .kpi-title{font-size:14px;font-weight:600;margin:0;line-height:1.3;align-self:center;display:flex;align-items:center}
+.compressed-view .kpi-value{font-size:14px;padding:3px 8px;margin:0;border-radius:6px;justify-self:center;text-align:center;display:inline-flex;align-items:center;justify-content:center;line-height:1.2;min-height:38px;max-height:38px;overflow:hidden}
+.compressed-view .university-comparison{background:transparent;border:none;padding:0;margin:0;flex:none;width:auto;justify-self:end;display:flex;justify-content:flex-end;align-items:center;align-self:center}
+.compressed-view .comparison-text{display:none}
+.compressed-view .comparison-values{margin:0;gap:8px;justify-content:flex-end;align-items:center}
+.compressed-view .university-value{font-size:14px;color:#64748b;font-weight:500}
+.compressed-view .comparison-indicator{font-size:14px;width:24px;height:24px;margin-left:0}
+.compressed-view .expand-icon{display:block;position:static;transform:none;margin-left:0;font-size:12px;color:#9ca3af;z-index:1;pointer-events:none;justify-self:end;align-self:center;grid-column:4;grid-row:1}.compressed-view .kpi-card.expanded .expand-icon{transform:rotate(180deg);color:#3b82f6}
+.compressed-view .tooltip-trigger{margin-left:6px}
+.school-breakdown-content{max-height:0;overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;opacity:0;margin-top:0}
+.kpi-card.expanded .school-breakdown-content{max-height:10000px;opacity:1;margin-top:18px;padding-top:18px;border-top:1px solid #e5e7eb}
+.school-breakdown-title{font-size:15px;font-weight:600;color:#6b7280;margin-bottom:14px}
+.school-bar-inline{display:flex;align-items:center;margin-bottom:14px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;flex-direction:column;align-items:flex-start}
+.school-bar-header{display:flex;justify-content:space-between;width:100%;margin-bottom:9px}
+.school-bar-name-inline{font-size:15px;font-weight:600;color:#374151}
+.school-count{font-size:13px;color:#6b7280}
+.school-bar-container{width:100%;position:relative}
+.school-percentage-bar{height:22px;border-radius:11px;background:#e5e7eb;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:flex-start}
+.school-percentage-bar.zero-count-bar{border:1px dashed #cbd5f5;background:#f8fafc}
+.school-percentage-bar.no-data-bar{background:#6b7280}
+.school-percentage-fill{height:100%;border-radius:11px;transition:width 0.3s ease;display:block}
+.school-percentage-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#1f2937;pointer-events:none;text-align:center;padding:0 8px;white-space:nowrap;z-index:1}
+.school-percentage-label.label-on-fill{color:white}
+.school-percentage-label.label-no-data{color:white}
+.school-percentage-label.label-zero-count{color:#475569;font-style:italic}
+.performance-excellent{background:linear-gradient(135deg,#3b82f6,#1d4ed8);box-shadow:0 4px 15px rgba(59,130,246,0.3)}
+.performance-good{background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 15px rgba(16,185,129,0.3)}
+.performance-warning{background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 4px 15px rgba(245,158,11,0.3)}
+.performance-poor{background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 15px rgba(239,68,68,0.3)}
+.performance-no-data{background:linear-gradient(135deg,#6b7280,#4b5563);box-shadow:0 4px 15px rgba(107,114,128,0.2)}
+.tooltip-trigger{display:inline-flex;align-items:center;cursor:help;margin-left:8px;font-size:16px;color:#6b7280;transition:color 0.2s ease}
+.tooltip-trigger:hover{color:#3b82f6}
+.tooltip-content{visibility:hidden;opacity:0;position:fixed;z-index:9999;background-color:#1f2937;color:white;padding:16px;border-radius:8px;font-size:14px;line-height:1.5;max-width:320px;width:max-content;box-shadow:0 10px 25px rgba(0,0,0,0.3);transition:opacity 0.3s,visibility 0.3s;pointer-events:none}
+@media (max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:768px){.kpi-grid{grid-template-columns:1fr}.container{padding:10px}.header h1{font-size:2rem}.kpi-card{padding:20px}.kpi-title{font-size:16px}.kpi-value{font-size:20px;padding:6px 12px;min-width:70px}.view-button,.sort-button{padding:8px 16px;font-size:14px;margin:0 3px}.compressed-view .kpi-grid{display:block}.compressed-view .kpi-card{flex-direction:column;align-items:center;justify-content:center;padding:14px;position:relative;flex-basis:100%;width:100%}.compressed-view .kpi-value{margin-bottom:8px;align-self:center;text-align:center}.compressed-view .university-comparison{align-self:center;justify-content:center}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1> Medicine & Health Sciences Faculty</h1>
+<p>Health & Safety KPI Overview & School Breakdown</p>
+</div>
+<div class="faculty-overview">
+<div class="overview-title">📊 Faculty KPI Overview</div>
+<p id="instructions" style="text-align:center;color:#64748b;margin-bottom:20px;font-size:15px">Click any KPI card to view school performance breakdown</p>
+<div class="controls-container">
+<div class="view-controls">
+<button class="view-button active" id="detailedView" onclick="toggleViewMode('detailed')">Detailed View</button>
+<button class="view-button" id="compressedView" onclick="toggleViewMode('compressed')">Compressed View</button>
+</div>
+<div class="sort-controls">
+<button class="sort-button active" id="sortHighLow" onclick="sortFacultyCards('highLow')">Highest First</button>
+<button class="sort-button" id="sortLowHigh" onclick="sortFacultyCards('lowHigh')">Lowest First</button>
+</div>
+</div>
+<div class="kpi-grid" id="facultyKpis"></div>
+</div>
+</div>
+<script>
+const facultyData={
+  "name": "Medicine & Health Sciences",
+  "kpis": {
+    "Written Arrangements Complete": {
+      "percentage": 66.67,
+      "number": 174.0,
+      "display_text": "66.7% (174)",
+      "university_percentage": 86.71,
+      "comparison": "below"
+    },
+    "Risk Assessments in Register up to date": {
+      "percentage": 79.29,
+      "number": 1743.0,
+      "display_text": "79.3% (1743)",
+      "university_percentage": 71.49,
+      "comparison": "above"
+    },
+    "H&S Induction Completion": {
+      "percentage": 87.82,
+      "number": 2537.0,
+      "display_text": "87.8% (2537)",
+      "university_percentage": 80.09,
+      "comparison": "above"
+    },
+    "Fire Training Completion": {
+      "percentage": 98.34,
+      "number": 2537.0,
+      "display_text": "98.3% (2537)",
+      "university_percentage": 89.0,
+      "comparison": "above"
+    },
+    "Fire Drills Completed": {
+      "percentage": 92.86,
+      "number": 14.0,
+      "display_text": "92.9% (14)",
+      "university_percentage": 80.0,
+      "comparison": "above"
+    },
+    "PEEPS in Place": {
+      "percentage": 100.0,
+      "number": 6.0,
+      "display_text": "100.0% (6)",
+      "university_percentage": 89.74,
+      "comparison": "above"
+    },
+    "PEEPS Drilled": {
+      "percentage": 16.67,
+      "number": 6.0,
+      "display_text": "16.7% (6)",
+      "university_percentage": 41.03,
+      "comparison": "below"
+    },
+    "Assets without A&B Defects": {
+      "percentage": 98.06,
+      "number": 465.0,
+      "display_text": "98.1% (465)",
+      "university_percentage": 96.94,
+      "comparison": "above"
+    },
+    "Assets Inspected by Allianz": {
+      "percentage": 98.06,
+      "number": 465.0,
+      "display_text": "98.1% (465)",
+      "university_percentage": 96.94,
+      "comparison": "above"
+    },
+    "Accidents and Incidents Investigated": {
+      "percentage": 98.25,
+      "number": 57.0,
+      "display_text": "98.2% (57)",
+      "university_percentage": 80.0,
+      "comparison": "above"
+    },
+    "Inspections Carried Out": {
+      "percentage": 78.05,
+      "number": 164.0,
+      "display_text": "78.0% (164)",
+      "university_percentage": 51.68,
+      "comparison": "above"
+    },
+    "Leadership Walkarounds": {
+      "percentage": 92.31,
+      "number": 13.0,
+      "display_text": "92.3% (13)",
+      "university_percentage": 93.75,
+      "comparison": "below"
+    },
+    "Risk Assessment Coverage": {
+      "percentage": 74.83,
+      "number": null,
+      "display_text": "74.8%",
+      "university_percentage": 81.83,
+      "comparison": "below"
+    },
+    "Training Matrix Coverage": {
+      "percentage": 90.0,
+      "number": null,
+      "display_text": "90.0%",
+      "university_percentage": 94.04,
+      "comparison": "below"
+    },
+    "Staff Training Requirements": {
+      "percentage": 43.33,
+      "number": 2537.0,
+      "display_text": "43.3% (2537)",
+      "university_percentage": 66.48,
+      "comparison": "below"
+    }
+  },
+  "schools": {
+    "BDI": {
+      "name": "BDI",
+      "kpis": {
+        "Written Arrangements Complete": {
+          "percentage": 60.606061,
+          "number": 33.0,
+          "display_text": "60.6% (33)"
+        },
+        "Risk Assessments in Register up to date": {
+          "percentage": 46.726862,
+          "number": 443.0,
+          "display_text": "46.7% (443)"
+        },
+        "H&S Induction Completion": {
+          "percentage": 72.298137,
+          "number": 805.0,
+          "display_text": "72.3% (805)"
+        },
+        "Fire Training Completion": {
+          "percentage": 88.944099,
+          "number": 805.0,
+          "display_text": "88.9% (805)"
+        },
+        "Fire Drills Completed": {
+          "percentage": 100.0,
+          "number": 2.0,
+          "display_text": "100.0% (2)"
+        },
+        "PEEPS in Place": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "PEEPS Drilled": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Assets without A&B Defects": {
+          "percentage": 99.122807,
+          "number": 114.0,
+          "display_text": "99.1% (114)"
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 100.0,
+          "number": 114.0,
+          "display_text": "100.0% (114)"
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 100.0,
+          "number": 11.0,
+          "display_text": "100.0% (11)"
+        },
+        "Inspections Carried Out": {
+          "percentage": 45.454545,
+          "number": 11.0,
+          "display_text": "45.5% (11)"
+        },
+        "Leadership Walkarounds": {
+          "percentage": 75.0,
+          "number": 4.0,
+          "display_text": "75.0% (4)"
+        },
+        "Risk Assessment Coverage": {
+          "percentage": 44.0,
+          "number": null,
+          "display_text": "44.0%"
+        },
+        "Training Matrix Coverage": {
+          "percentage": 80.0,
+          "number": null,
+          "display_text": "80.0%"
+        },
+        "Staff Training Requirements": {
+          "percentage": 5.0,
+          "number": 805.0,
+          "display_text": "5.0% (805)"
+        }
+      }
+    },
+    "Life Sciences": {
+      "name": "Life Sciences",
+      "kpis": {
+        "Written Arrangements Complete": {
+          "percentage": 73.913043,
+          "number": 23.0,
+          "display_text": "73.9% (23)"
+        },
+        "Risk Assessments in Register up to date": {
+          "percentage": 99.878197,
+          "number": 821.0,
+          "display_text": "99.9% (821)"
+        },
+        "H&S Induction Completion": {
+          "percentage": 70.326409,
+          "number": 337.0,
+          "display_text": "70.3% (337)"
+        },
+        "Fire Training Completion": {
+          "percentage": 83.976261,
+          "number": 337.0,
+          "display_text": "84.0% (337)"
+        },
+        "Fire Drills Completed": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "PEEPS in Place": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "PEEPS Drilled": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Assets without A&B Defects": {
+          "percentage": 92.857143,
+          "number": 42.0,
+          "display_text": "92.9% (42)"
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 97.619048,
+          "number": 42.0,
+          "display_text": "97.6% (42)"
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 100.0,
+          "number": 24.0,
+          "display_text": "100.0% (24)"
+        },
+        "Inspections Carried Out": {
+          "percentage": 100.0,
+          "number": 42.0,
+          "display_text": "100.0% (42)"
+        },
+        "Leadership Walkarounds": {
+          "percentage": 100.0,
+          "number": 1.0,
+          "display_text": "100.0% (1)"
+        },
+        "Risk Assessment Coverage": {
+          "percentage": 75.0,
+          "number": null,
+          "display_text": "75.0%"
+        },
+        "Training Matrix Coverage": {
+          "percentage": 75.0,
+          "number": null,
+          "display_text": "75.0%"
+        },
+        "Staff Training Requirements": {
+          "percentage": 60.0,
+          "number": 337.0,
+          "display_text": "60.0% (337)"
+        }
+      }
+    },
+    "Medicine": {
+      "name": "Medicine",
+      "kpis": {
+        "Written Arrangements Complete": {
+          "percentage": 47.826087,
+          "number": 46.0,
+          "display_text": "47.8% (46)"
+        },
+        "Risk Assessments in Register up to date": {
+          "percentage": 81.782946,
+          "number": 258.0,
+          "display_text": "81.8% (258)"
+        },
+        "H&S Induction Completion": {
+          "percentage": 111.513158,
+          "number": 912.0,
+          "display_text": "111.5% (912)"
+        },
+        "Fire Training Completion": {
+          "percentage": 109.210526,
+          "number": 912.0,
+          "display_text": "109.2% (912)"
+        },
+        "Fire Drills Completed": {
+          "percentage": 100.0,
+          "number": 4.0,
+          "display_text": "100.0% (4)"
+        },
+        "PEEPS in Place": {
+          "percentage": 100.0,
+          "number": 4.0,
+          "display_text": "100.0% (4)"
+        },
+        "PEEPS Drilled": {
+          "percentage": 0.0,
+          "number": 4.0,
+          "display_text": "0.0% (4)"
+        },
+        "Assets without A&B Defects": {
+          "percentage": 97.391304,
+          "number": 115.0,
+          "display_text": "97.4% (115)"
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 100.0,
+          "number": 115.0,
+          "display_text": "100.0% (115)"
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 90.909091,
+          "number": 11.0,
+          "display_text": "90.9% (11)"
+        },
+        "Inspections Carried Out": {
+          "percentage": 100.0,
+          "number": 15.0,
+          "display_text": "100.0% (15)"
+        },
+        "Leadership Walkarounds": {
+          "percentage": 100.0,
+          "number": 3.0,
+          "display_text": "100.0% (3)"
+        },
+        "Risk Assessment Coverage": {
+          "percentage": 65.0,
+          "number": null,
+          "display_text": "65.0%"
+        },
+        "Training Matrix Coverage": {
+          "percentage": 95.0,
+          "number": null,
+          "display_text": "95.0%"
+        },
+        "Staff Training Requirements": {
+          "percentage": 35.0,
+          "number": 912.0,
+          "display_text": "35.0% (912)"
+        }
+      }
+    },
+    "Veterinary Medicine and Science": {
+      "name": "Veterinary Medicine and Science",
+      "kpis": {
+        "Written Arrangements Complete": {
+          "percentage": 59.459459,
+          "number": 37.0,
+          "display_text": "59.5% (37)"
+        },
+        "Risk Assessments in Register up to date": {
+          "percentage": 62.561576,
+          "number": 203.0,
+          "display_text": "62.6% (203)"
+        },
+        "H&S Induction Completion": {
+          "percentage": 61.851852,
+          "number": 270.0,
+          "display_text": "61.9% (270)"
+        },
+        "Fire Training Completion": {
+          "percentage": 101.481481,
+          "number": 270.0,
+          "display_text": "101.5% (270)"
+        },
+        "Fire Drills Completed": {
+          "percentage": 85.714286,
+          "number": 7.0,
+          "display_text": "85.7% (7)"
+        },
+        "PEEPS in Place": {
+          "percentage": 100.0,
+          "number": 1.0,
+          "display_text": "100.0% (1)"
+        },
+        "PEEPS Drilled": {
+          "percentage": 0.0,
+          "number": 1.0,
+          "display_text": "0.0% (1)"
+        },
+        "Assets without A&B Defects": {
+          "percentage": 99.450549,
+          "number": 182.0,
+          "display_text": "99.5% (182)"
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 97.252747,
+          "number": 182.0,
+          "display_text": "97.3% (182)"
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Inspections Carried Out": {
+          "percentage": 28.571429,
+          "number": 7.0,
+          "display_text": "28.6% (7)"
+        },
+        "Leadership Walkarounds": {
+          "percentage": 100.0,
+          "number": 3.0,
+          "display_text": "100.0% (3)"
+        },
+        "Risk Assessment Coverage": {
+          "percentage": 90.0,
+          "number": null,
+          "display_text": "90.0%"
+        },
+        "Training Matrix Coverage": {
+          "percentage": 90.0,
+          "number": null,
+          "display_text": "90.0%"
+        },
+        "Staff Training Requirements": {
+          "percentage": 60.0,
+          "number": 270.0,
+          "display_text": "60.0% (270)"
+        }
+      }
+    },
+    "Clinical Skills": {
+      "name": "Clinical Skills",
+      "kpis": {
+        "Written Arrangements Complete": {
+          "percentage": 100.0,
+          "number": 13.0,
+          "display_text": "100.0% (13)"
+        },
+        "Risk Assessments in Register up to date": {
+          "percentage": 91.666667,
+          "number": 12.0,
+          "display_text": "91.7% (12)"
+        },
+        "H&S Induction Completion": {
+          "percentage": 100.0,
+          "number": 9.0,
+          "display_text": "100.0% (9)"
+        },
+        "Fire Training Completion": {
+          "percentage": 100.0,
+          "number": 9.0,
+          "display_text": "100.0% (9)"
+        },
+        "Fire Drills Completed": {
+          "percentage": 100.0,
+          "number": 1.0,
+          "display_text": "100.0% (1)"
+        },
+        "PEEPS in Place": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "PEEPS Drilled": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Assets without A&B Defects": {
+          "percentage": 91.666667,
+          "number": 12.0,
+          "display_text": "91.7% (12)"
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 100.0,
+          "number": 12.0,
+          "display_text": "100.0% (12)"
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 100.0,
+          "number": 4.0,
+          "display_text": "100.0% (4)"
+        },
+        "Inspections Carried Out": {
+          "percentage": 71.590909,
+          "number": 88.0,
+          "display_text": "71.6% (88)"
+        },
+        "Leadership Walkarounds": {
+          "percentage": 100.0,
+          "number": 1.0,
+          "display_text": "100.0% (1)"
+        },
+        "Risk Assessment Coverage": {
+          "percentage": 75.0,
+          "number": null,
+          "display_text": "75.0%"
+        },
+        "Training Matrix Coverage": {
+          "percentage": 100.0,
+          "number": null,
+          "display_text": "100.0%"
+        },
+        "Staff Training Requirements": {
+          "percentage": 50.0,
+          "number": 9.0,
+          "display_text": "50.0% (9)"
+        }
+      }
+    },
+    "Health Sciences": {
+      "name": "Health Sciences",
+      "kpis": {
+        "Written Arrangements Complete": {
+          "percentage": 100.0,
+          "number": 22.0,
+          "display_text": "100.0% (22)"
+        },
+        "Risk Assessments in Register up to date": {
+          "percentage": 100.0,
+          "number": 6.0,
+          "display_text": "100.0% (6)"
+        },
+        "H&S Induction Completion": {
+          "percentage": 105.882353,
+          "number": 204.0,
+          "display_text": "105.9% (204)"
+        },
+        "Fire Training Completion": {
+          "percentage": 106.372549,
+          "number": 204.0,
+          "display_text": "106.4% (204)"
+        },
+        "Fire Drills Completed": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "PEEPS in Place": {
+          "percentage": 100.0,
+          "number": 1.0,
+          "display_text": "100.0% (1)"
+        },
+        "PEEPS Drilled": {
+          "percentage": 100.0,
+          "number": 1.0,
+          "display_text": "100.0% (1)"
+        },
+        "Assets without A&B Defects": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 0.0,
+          "number": 0.0,
+          "display_text": "0.0% (0)"
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 100.0,
+          "number": 7.0,
+          "display_text": "100.0% (7)"
+        },
+        "Inspections Carried Out": {
+          "percentage": 100.0,
+          "number": 1.0,
+          "display_text": "100.0% (1)"
+        },
+        "Leadership Walkarounds": {
+          "percentage": 100.0,
+          "number": 1.0,
+          "display_text": "100.0% (1)"
+        },
+        "Risk Assessment Coverage": {
+          "percentage": 100.0,
+          "number": null,
+          "display_text": "100.0%"
+        },
+        "Training Matrix Coverage": {
+          "percentage": 100.0,
+          "number": null,
+          "display_text": "100.0%"
+        },
+        "Staff Training Requirements": {
+          "percentage": 50.0,
+          "number": 204.0,
+          "display_text": "50.0% (204)"
+        }
+      }
+    }
+  }
+};const facultyName="Medicine & Health Sciences";const tooltipData={
+  "Written Arrangements Complete": "Written Arrangements determine how a department is enacting a specific University Policy. Where a policy determines what a department must do, the arrangements indicate how a department achieves this. This value indicates how many arrangements a department has, alongside the percentage of these which are approved by the local H&S Committee and are in-date/reviewed.",
+  "Risk Assessments in Register up to date": "This number provides an indication of the percentage of risk assessments that are both on the departmental risk assessment register, AND are reviewed/up-to-date.\n\nPlease review the number of assessments provided alongside the % reviewed, as the number will provide an indication on whether the coverage across the department is high enough.",
+  "H&S Induction Completion": "This number is calculated by comparing the  number of staff (from the UniCore records) who have completed the mandatory Health and Safety Induction course against the number of staff within the Department.\nNote that training data is provided by the H&S Dept, but Departments were asked to request their staff numbers through a UniCore report as the H&S Dept cannot procure this data.",
+  "Fire Training Completion": "This number is calculated by comparing the  number of staff (from the UniCore records) who have completed the mandatory Fire Training course against the number of staff within the Department.\nNote that training data is provided by the H&S Dept, but Departments were asked to request their staff numbers through a UniCore report as the H&S Dept cannot procure this data.",
+  "Fire Drills Completed": "This is calculated by comparing the number of buildings that were due to have a Fire Drill within the reporting period against the number of drills carried out.\n\nThe number provided alongside the percentage should be roughly half the number of buildings each department is responsible for.",
+  "PEEPS in Place": "This value provides an indication of how many PEEPS have both been identified as required and are implemented. These should have been reviewed in good time and have appropriate controls in place to mitigate the risks related to the evacuation of the PEEPs holders.",
+  "PEEPS Drilled": "This value provides an indication of how many of the identified PEEPS have been tested to ensure that, upon execution, the affected person can be successfully evacuated,",
+  "Assets without A&B Defects": "This return provides an indication of the % of Assets that have been assessed by Allianz as not having a defect that requires action to remediate, where an \"A\" defect corresponds to one that poses a serious hazard, and a \"B\" defect requires action, but not immediately.",
+  "Assets Inspected by Allianz": "This return provides an indication of how many assets the department has on the Allianz database compared to how many have been inspected within the time frame in which they were due an inspection.\n\nNote that this return does not include assets outside of the Allianz database, including items such as gas regulators, autoclaves, etc. A system is not currently available at the University to maintain these records.",
+  "Accidents and Incidents Investigated": "This return compares the number of Incidents and Near Misses reported in the period alongside the % that have been investigated by the relevant person in the Dept, whether this be the supervisor of the reporting party, or the Health and Safety Assisstants/Coordinators.",
+  "Inspections Carried Out": "This return provides an overview of how many Health and Safety Inspections were due to be carried out within the Dept compared to the number actually carried out.\n\nThe return indicates both the number of inspections planned, as well as the number of areas highlighted in the department as requiring inspection. The provided percentage is an indication of how many were successfully carried out against the schedule, but the number schedules should be compared against the number of areas requiring inspection as this will determine whether the number of inspections planned is proportionate against the size of the department",
+  "Leadership Walkarounds": "This return provides an overview of the percentage of leadership walkarounds scheduled, vs the number completed.\n\nEach department may expect the number of walkarounds to be roughly 1 per quarter, but this will vary depending on the risk profile of the department.",
+  "Risk Assessment Coverage": "This return provides an indication of what the H&S Coordinator believes the coverage of Risk Assessments is across each department.\n\nCurrently, there is no University-wide Risk Assessment Register, so in most cases this figure will be an estimate.\n\nRisk Assessment coverage should reflect the range of hazards within a department (with the RMS module list as a useful starting point), and whether the department believes it has an appropriate number of Risk Assessments in place for each hazard type, taking into account the number of research groups and activities in their buildings.",
+  "Training Matrix Coverage": "This return provides an indication of how much of the training identified in the Department's Training Matrix \u2014 which should capture all training requirements based on the activities carried out by each staff member or student \u2014 is currently accessible to those who need it.\n\nTraining accessibility should reflect whether the courses identified in the Matrix are:\n\nAvailable in the required format (e-learning, in-person, or blended),\n\nKept up to date and relevant, and\n\nRealistically accessible to the groups who need them (considering scheduling, prerequisites, and availability of spaces).",
+  "Staff Training Requirements": "This return is an indication by the H&S Coordinator of what percentage of Staff they believe have received all training they need in order to be competent to carry out their work. This includes all compulsory training via UniCore, all training via Atlus, as well as any other training highlighted on the training matrix."
+};let currentSortOrder='highLow';let currentViewMode='detailed';let globalTooltip=null;
+function createTooltip(kpiName,tooltipText){if(!tooltipText)return '';return `<span class="tooltip-trigger" data-tooltip="${encodeURIComponent(tooltipText)}" data-kpi="${kpiName}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9,9h0a3,3,0,0,1,6,0c0,2-3,3-3,3"></path><path d="m12,17h0"></path></svg></span>`;}
+function createGlobalTooltip(){if(globalTooltip)return;globalTooltip=document.createElement('div');globalTooltip.className='tooltip-content';globalTooltip.style.visibility='hidden';globalTooltip.style.opacity='0';document.body.appendChild(globalTooltip);}
+function positionTooltips(){createGlobalTooltip();document.querySelectorAll('.tooltip-trigger').forEach(trigger=>{trigger.removeEventListener('mouseenter',handleTooltipShow);trigger.removeEventListener('mouseleave',handleTooltipHide);trigger.addEventListener('mouseenter',handleTooltipShow);trigger.addEventListener('mouseleave',handleTooltipHide);});}
+function handleTooltipShow(event){const trigger=event.currentTarget;const tooltipText=decodeURIComponent(trigger.getAttribute('data-tooltip'));if(!tooltipText||!globalTooltip)return;showTooltip(trigger,tooltipText);}
+function handleTooltipHide(event){hideTooltip();}
+function showTooltip(trigger,tooltipText){if(!globalTooltip)return;globalTooltip.innerHTML=tooltipText;const triggerRect=trigger.getBoundingClientRect();const viewportWidth=window.innerWidth;const viewportHeight=window.innerHeight;globalTooltip.style.visibility='visible';globalTooltip.style.opacity='0';globalTooltip.style.left='0px';globalTooltip.style.top='0px';const tooltipRect=globalTooltip.getBoundingClientRect();const triggerCenterX=triggerRect.left+(triggerRect.width/2);const triggerTopY=triggerRect.top;let left=triggerCenterX-(tooltipRect.width/2);let top=triggerTopY-tooltipRect.height-12;if(left<10){left=10;}else if(left+tooltipRect.width>viewportWidth-10){left=viewportWidth-tooltipRect.width-10;}if(top<10){top=triggerRect.bottom+12;}globalTooltip.style.left=left+'px';globalTooltip.style.top=top+'px';globalTooltip.style.visibility='visible';globalTooltip.style.opacity='1';}
+function hideTooltip(){if(globalTooltip){globalTooltip.style.visibility='hidden';globalTooltip.style.opacity='0';}}
+function getPerformanceClass(percentage){if(percentage===null||percentage===undefined)return 'performance-no-data';if(percentage>=95)return 'performance-excellent';if(percentage>=80)return 'performance-good';if(percentage>=60)return 'performance-warning';return 'performance-poor';}
+function formatValue(percentage,number){if(percentage===null||percentage===undefined)return '/';if(number===null||number===undefined)return `${percentage.toFixed(1)}%`;return `${percentage.toFixed(1)}%`;}
+function formatDisplayTextWithCount(percentage,number){if(percentage===null||percentage===undefined)return '/';if(number===null||number===undefined)return `${percentage.toFixed(1)}%`;return `${percentage.toFixed(1)}% (${Math.round(number)})`;}
+function createUniversityComparison(kpiData){const facultyPercentage=kpiData.percentage;const universityPercentage=kpiData.university_percentage;const comparison=kpiData.comparison;if(facultyPercentage===null||universityPercentage===null){return '';}let indicatorText='';let indicatorClass='';switch(comparison){case 'above':indicatorText='▲';indicatorClass='comparison-above';break;case 'below':indicatorText='▼';indicatorClass='comparison-below';break;case 'equal':indicatorText='=';indicatorClass='comparison-equal';break;default:return '';}return `<div class="university-comparison"><div class="comparison-text">vs University:</div><div class="comparison-values"><span class="university-value">${universityPercentage.toFixed(1)}%</span><span class="comparison-indicator ${indicatorClass}">${indicatorText}</span></div></div>`;}
+function toggleCard(cardElement,kpiName){cardElement.classList.toggle('expanded');}
+function sortFacultyCards(order){currentSortOrder=order;document.getElementById('sortHighLow').classList.toggle('active',order==='highLow');document.getElementById('sortLowHigh').classList.toggle('active',order==='lowHigh');initializeFacultyDashboard();setTimeout(()=>{positionTooltips();},100);}
+function toggleViewMode(mode){currentViewMode=mode;document.getElementById('detailedView').classList.toggle('active',mode==='detailed');document.getElementById('compressedView').classList.toggle('active',mode==='compressed');const container=document.querySelector('.faculty-overview');const instructions=document.getElementById('instructions');if(mode==='compressed'){container.classList.add('compressed-view');instructions.textContent='Compact view showing faculty and university averages for all KPIs';}else{container.classList.remove('compressed-view');instructions.textContent='Click any KPI card to view school performance breakdown';}initializeFacultyDashboard();setTimeout(()=>{positionTooltips();},100);}
+function initializeFacultyDashboard(){const facultyKpisContainer=document.getElementById('facultyKpis');facultyKpisContainer.innerHTML='';if(facultyData.kpis){let kpiEntries=Object.entries(facultyData.kpis);if(currentSortOrder==='highLow'){kpiEntries.sort((a,b)=>{const aPercentage=a[1].percentage!==null?a[1].percentage:-1;const bPercentage=b[1].percentage!==null?b[1].percentage:-1;return bPercentage-aPercentage;});}else{kpiEntries.sort((a,b)=>{const aPercentage=a[1].percentage!==null?a[1].percentage:999;const bPercentage=b[1].percentage!==null?b[1].percentage:999;return aPercentage-bPercentage;});}for(const[kpiName,kpiData]of kpiEntries){const card=document.createElement('div');card.className='kpi-card';card.id=`card-${kpiName.replace(/[^a-zA-Z0-9]/g,'-')}`;const performanceClass=getPerformanceClass(kpiData.percentage);let schoolBreakdownHtml='';const hasSchools=facultyData.schools&&Object.keys(facultyData.schools).length>0;if(hasSchools){let schoolEntries=Object.entries(facultyData.schools).filter(([schoolName,schoolData])=>schoolData.kpis&&schoolData.kpis[kpiName]);if(currentSortOrder==='highLow'){schoolEntries.sort((a,b)=>{const aPerc=a[1].kpis[kpiName].percentage!==null?a[1].kpis[kpiName].percentage:-1;const bPerc=b[1].kpis[kpiName].percentage!==null?b[1].kpis[kpiName].percentage:-1;return bPerc-aPerc;});}else{schoolEntries.sort((a,b)=>{const aPerc=a[1].kpis[kpiName].percentage!==null?a[1].kpis[kpiName].percentage:999;const bPerc=b[1].kpis[kpiName].percentage!==null?b[1].kpis[kpiName].percentage:999;return aPerc-bPerc;});}if(schoolEntries.length>0){schoolBreakdownHtml=`<div class="school-breakdown-content"><div class="school-breakdown-title">School Performance (${schoolEntries.length} schools):</div>`;for(const[schoolName,schoolData]of schoolEntries){
+    const schoolKpi=schoolData.kpis[kpiName];
+    const percentage=schoolKpi.percentage;
+    const number=schoolKpi.number;
+    let barWidth=0;
+    let barColor='#6b7280';
+    const labelClasses=['school-percentage-label'];
+    const barClasses=['school-percentage-bar'];
+    let labelText='';
+    const hasNumber=(number!==null&&number!==undefined&&number!=='/'&&!isNaN(parseFloat(number)));
+    const countValue=hasNumber?parseFloat(number):null;
+    const hasZeroCount=countValue===0;
+    if(hasZeroCount){
+        barClasses.push('zero-count-bar');
+    }
+    if(percentage===null||percentage===undefined||(typeof percentage==='string'&&percentage.trim()==='/')){
+        labelText='No Return Provided';
+        labelClasses.push('label-no-data');
+        barClasses.push('no-data-bar');
+    }else{
+        const numericPercentage=parseFloat(percentage);
+        if(!isNaN(numericPercentage)){
+            const boundedPercentage=Math.max(0,Math.min(100,numericPercentage));
+            if(hasZeroCount){
+                labelText='0 items returned';
+                labelClasses.push('label-zero-count');
+            }else{
+                barWidth=boundedPercentage;
+                const performanceClass=getPerformanceClass(numericPercentage);
+                switch(performanceClass){
+                    case 'performance-excellent':
+                        barColor='#3b82f6';
+                        break;
+                    case 'performance-good':
+                        barColor='#10b981';
+                        break;
+                    case 'performance-warning':
+                        barColor='#f59e0b';
+                        break;
+                    case 'performance-poor':
+                        barColor='#ef4444';
+                        break;
+                    default:
+                        barColor='#6b7280';
+                }
+                labelText=`${numericPercentage.toFixed(1)}%`;
+                if(boundedPercentage>=40){
+                    labelClasses.push('label-on-fill');
+                }
+            }
+        }else{
+            labelText='No Return Provided';
+            labelClasses.push('label-no-data');
+            barClasses.push('no-data-bar');
+        }
+    }
+    if(labelText===''){
+        labelText='No Return Provided';
+        if(!labelClasses.includes('label-no-data')){
+            labelClasses.push('label-no-data');
+        }
+        if(!barClasses.includes('no-data-bar')){
+            barClasses.push('no-data-bar');
+        }
+    }
+    const labelClass=labelClasses.join(' ');
+    const barClass=barClasses.join(' ');
+    const countDisplay=countValue!==null?`<div class="school-count">${Math.round(countValue)} items</div>`:'';
+    const fillMarkup=!hasZeroCount&&barWidth>0?`<div class="school-percentage-fill" style="width:${barWidth}%;background:${barColor};"></div>`:'';
+    schoolBreakdownHtml+=`<div class="school-bar-inline"><div class="school-bar-header"><div class="school-bar-name-inline">${schoolName}</div>${countDisplay}</div><div class="school-bar-container"><div class="${barClass}">${fillMarkup}<div class="${labelClass}">${labelText}</div></div></div></div>`;
+}
+schoolBreakdownHtml+='</div>';
+}
+}const hasExpandableContent=schoolBreakdownHtml!=='';const expandIcon=hasExpandableContent?'<div class="expand-icon">▼</div>':'';const tooltipHtml=createTooltip(kpiName,tooltipData[kpiName]);const universityComparisonHtml=createUniversityComparison(kpiData);if(currentViewMode==='compressed'){card.innerHTML=`<div class="kpi-title">${kpiName} ${tooltipHtml}</div><div class="kpi-value ${performanceClass}">${formatDisplayTextWithCount(kpiData.percentage,kpiData.number)}</div>${universityComparisonHtml}${schoolBreakdownHtml}${expandIcon}`;if(hasExpandableContent){card.onclick=()=>toggleCard(card,kpiName);}else{card.style.cursor='default';card.onclick=null;}}else{card.onclick=()=>toggleCard(card,kpiName);card.innerHTML=`<div class="kpi-header"><div class="kpi-title">${kpiName} ${tooltipHtml}</div><div class="kpi-value ${performanceClass}">${formatDisplayTextWithCount(kpiData.percentage,kpiData.number)}</div></div>${universityComparisonHtml}${schoolBreakdownHtml}${expandIcon}`;if(!hasExpandableContent){card.style.cursor='default';card.onclick=null;}}facultyKpisContainer.appendChild(card);}}}
+initializeFacultyDashboard();setTimeout(()=>{positionTooltips();},100);window.addEventListener('resize',()=>{setTimeout(positionTooltips,100);});
+</script>
+</body>
+</html>
