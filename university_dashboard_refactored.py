@@ -29,11 +29,13 @@ class UniversityDashboardGenerator:
         self.kpi_metadata = {
             "Written Arrangements Complete": {
                 "question": "Arrangements completed, reviewed, and approved out of arrangements relevant to the department.",
-                "denominator_label": "arrangements"
+                "denominator_label": "arrangements",
+                "na_message": "No written arrangements available/generated for this period"
             },
             "Risk Assessments in Register up to date": {
                 "question": "Risk assessments updated in the last 2 years out of all risk assessments listed on the register.",
-                "denominator_label": "risk assessments"
+                "denominator_label": "risk assessments",
+                "na_message": "No risk assessments in register this period or no risk assessment register in place"
             },
             "H&S Induction Completion": {
                 "question": "Staff in-date for UoN H&S induction training (last 3 years).",
@@ -45,35 +47,43 @@ class UniversityDashboardGenerator:
             },
             "Fire Drills Completed": {
                 "question": "Fire drills carried out in period out of buildings allocated to undertake a fire drill.",
-                "denominator_label": "buildings"
+                "denominator_label": "buildings",
+                "na_message": "No scheduled drills this period"
             },
             "PEEPS in Place": {
                 "question": "PEEPs in place (reviewed, communicated, controls in place) out of PEEPs required.",
-                "denominator_label": "PEEPs"
+                "denominator_label": "PEEPs",
+                "na_message": "No PEEPs identified as required"
             },
             "PEEPS Drilled": {
                 "question": "PEEPs tested/drilled in the period out of PEEPs required.",
-                "denominator_label": "PEEPs"
+                "denominator_label": "PEEPs",
+                "na_message": "No PEEPs identified as required"
             },
             "Assets without A&B Defects": {
                 "question": "BU-owned assets without unresolved A/B defects.",
-                "denominator_label": "assets"
+                "denominator_label": "assets",
+                "na_message": "No department-owned assets that require inspection"
             },
             "Assets Inspected by Allianz": {
                 "question": "BU-owned assets inspected by Allianz (not overdue / plant available).",
-                "denominator_label": "assets"
+                "denominator_label": "assets",
+                "na_message": "No department-owned assets that require inspection"
             },
             "Accidents and Incidents Investigated": {
                 "question": "Investigations completed out of total incidents and near misses reported in the period.",
-                "denominator_label": "incidents/near misses"
+                "denominator_label": "incidents/near misses",
+                "na_message": "No incidents reported in period"
             },
             "Inspections Carried Out": {
                 "question": "Inspections carried out out of inspections on the monitoring schedule.",
-                "denominator_label": "inspections"
+                "denominator_label": "inspections",
+                "na_message": "No inspections scheduled in this period"
             },
             "Leadership Walkarounds": {
                 "question": "Leadership walkarounds completed out of walkarounds on the monitoring schedule.",
-                "denominator_label": "walkarounds"
+                "denominator_label": "walkarounds",
+                "na_message": "No walkarounds scheduled in period"
             },
             "Risk Assessment Coverage": {
                 "question": "Percentage coverage of risk assessment across department/PS.",
@@ -81,7 +91,9 @@ class UniversityDashboardGenerator:
             },
             "Training Matrix Coverage": {
                 "question": "Training in the matrix that is accessible to staff who need it.",
-                "denominator_label": None
+                "denominator_label": None,
+                "na_message": "No training matrix available/generated for this period",
+                "zero_score_message": "No training matrix available/generated for this period"
             },
             "Staff Training Requirements": {
                 "question": "Staff in-date with all required training.",
@@ -129,7 +141,7 @@ class UniversityDashboardGenerator:
             raise RuntimeError(f"Failed to load Excel data: {e}")
 
     def _build_university_history(self):
-        """Build KPI -> [{date, percentage}] from University_Summary_History."""
+        """Build KPI -> [{date, percentage, number, applicable}] from University_Summary_History."""
         empty = {k: [] for k in self.kpi_definitions.keys()}
         if self.university_history_data is None or self.university_history_data.empty:
             return empty
@@ -151,11 +163,17 @@ class UniversityDashboardGenerator:
             series = []
             for _, row in df.iterrows():
                 val = row.get(kpi_def["percentage_col"], None)
+                num = row.get(kpi_def["number_col"], None) if kpi_def["number_col"] else None
                 pct = self._safe_float(val) if not self._is_empty(val) else None
+                num_val = self._safe_float(num) if not self._is_empty(num) else None
+                applicable = self._is_kpi_applicable(kpi_name, num_val)
                 date_label = row.get('Date', '')
                 series.append({
                     "date": str(date_label) if pd.notna(date_label) else "",
-                    "percentage": pct
+                    "percentage": pct if applicable else None,
+                    "raw_percentage": pct,
+                    "number": num_val,
+                    "applicable": applicable
                 })
             result[kpi_name] = series
         return result
@@ -169,12 +187,30 @@ class UniversityDashboardGenerator:
         except (ValueError, TypeError):
             return None
 
+    def _is_kpi_applicable(self, kpi_name, number):
+        number_col = self.kpi_definitions.get(kpi_name, {}).get("number_col")
+        if not number_col or number is None:
+            return True
+        return abs(float(number)) > 1e-9
+
     def _format_display(self, kpi_name, percentage, number):
+        applicable = self._is_kpi_applicable(kpi_name, number)
+        metadata = self.kpi_metadata.get(kpi_name, {})
+        denominator_label = metadata.get("denominator_label")
+        if not applicable:
+            custom_na_message = metadata.get("na_message")
+            if custom_na_message:
+                return custom_na_message
+            if denominator_label:
+                return f"Not applicable (0 {denominator_label} in scope)"
+            return "Not applicable this period"
         if percentage is None:
             return "No return submitted"
+        zero_score_message = metadata.get("zero_score_message")
+        if zero_score_message and abs(float(percentage)) < 1e-9:
+            return zero_score_message
         if number is None:
             return f"{percentage:.1f}%"
-        denominator_label = self.kpi_metadata.get(kpi_name, {}).get("denominator_label")
         if denominator_label:
             return f"{percentage:.1f}% ({int(number)} {denominator_label} in scope)"
         return f"{percentage:.1f}% ({int(number)} in scope)"
@@ -206,12 +242,15 @@ class UniversityDashboardGenerator:
             kpis[kpi_name] = {
                 "percentage": perc_val,
                 "number": num_val,
+                "applicable": self._is_kpi_applicable(kpi_name, num_val),
                 "display_text": self._format_display(kpi_name, perc_val, num_val),
                 "history": history.get(kpi_name, [])
             }
         return {"name": "University", "kpis": kpis}
 
-    def _performance_class(self, percentage):
+    def _performance_class(self, percentage, applicable=True):
+        if not applicable:
+            return "performance-not-applicable"
         if percentage is None:
             return "performance-no-data"
         if percentage >= 90:
@@ -223,189 +262,24 @@ class UniversityDashboardGenerator:
         return "performance-poor"
 
     def create_university_html_dashboard(self, uni_data, output_path):
+        template_path = os.path.join(os.path.dirname(__file__), 'university_dashboard_template.html')
+        if not os.path.exists(template_path):
+            raise FileNotFoundError(f"University dashboard template not found: {template_path}")
+
         tooltip_json = json.dumps(self.tooltip_data or {}, indent=2, default=str)
-        uni_json = json.dumps(uni_data or {}, indent=2, default=str)
+        kpi_meta_json = json.dumps(self.kpi_metadata, default=str)
+        cards_html = self._render_kpi_cards(uni_data)
 
-        # HTML style/theme mirrors faculty_dashboard_refactored.py (simplified; no controls)
-        # Cards show percentage and optional number in a colored pill reflecting performance
-        html_content = f'''<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>University KPI Dashboard</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-<style>
-*{{margin:0;padding:0;box-sizing:border-box}}
-body{{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f5f7fb;min-height:100vh;color:#1f2937;font-size:15px}}
-.container{{max-width:1360px;margin:0 auto;padding:24px}}
-.header{{text-align:left;color:#0f172a;margin-bottom:18px;background:linear-gradient(145deg,#1e3a5f 0%,#2c5a87 100%);padding:28px;border-radius:14px;box-shadow:0 10px 24px rgba(15,23,42,0.18)}}
-.header h1{{font-size:2rem;margin-bottom:6px;font-weight:700;color:#f8fafc}}
-.header p{{color:#dbeafe;font-size:1rem;font-weight:500}}
-.kpi-grid{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:20px}}
-.kpi-card{{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 2px 10px rgba(15,23,42,0.06);border:1px solid #dbe2ea;position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;row-gap:8px;align-items:start}}
-.kpi-card::before{{content:'';position:absolute;top:0;left:0;right:0;height:4px}}
-.kpi-title{{font-size:15px;font-weight:700;color:#0f172a;line-height:1.25;display:flex;align-items:center;gap:4px;margin:0}}
-.kpi-label-wrap{{display:flex;flex-direction:column;gap:4px}}
-.kpi-question{{font-size:12px;color:#475569;line-height:1.35}}
-.kpi-value{{font-size:14px;font-weight:700;color:white;padding:7px 11px;border-radius:8px;text-align:center;box-shadow:none;margin:0;display:inline-flex;align-items:center;justify-self:end;min-height:30px}}
-.trend-wrap{{grid-column:1/-1;height:148px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px}}
-.trend-canvas{{width:100%!important;height:126px!important}}
-.tooltip-trigger{{display:inline-flex;align-items:center;cursor:help;margin-left:6px;font-size:14px;color:#6b7280;transition:color 0.2s ease}}
-.tooltip-trigger:hover{{color:#3b82f6}}
-.data-warning{{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#dc2626;color:#fff;font-size:12px;font-weight:700;margin-left:6px;vertical-align:middle;cursor:default}}
-.tooltip-content{{visibility:hidden;opacity:0;position:fixed;z-index:9999;background-color:#1f2937;color:white;padding:12px 14px;border-radius:8px;font-size:14px;line-height:1.4;max-width:320px;width:max-content;box-shadow:0 10px 25px rgba(0,0,0,0.3);transition:opacity 0.2s,visibility 0.2s;pointer-events:none}}
-.performance-excellent{{background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 15px rgba(16,185,129,0.3)}}
-.performance-good{{background:linear-gradient(135deg,#3b82f6,#1d4ed8);box-shadow:0 4px 15px rgba(59,130,246,0.3)}}
-.performance-warning{{background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 4px 15px rgba(245,158,11,0.3)}}
-.performance-poor{{background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 15px rgba(239,68,68,0.3)}}
-.performance-no-data{{background:linear-gradient(135deg,#6b7280,#4b5563);box-shadow:0 4px 15px rgba(107,114,128,0.2)}}
-.guide-panel{{background:#ffffff;border:1px solid #dbe2ea;border-radius:12px;padding:12px 14px;margin-bottom:16px;box-shadow:0 2px 8px rgba(15,23,42,0.04)}}
-.guide-title{{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:8px}}
-.guide-line{{font-size:13px;color:#334155;line-height:1.45}}
-@media (max-width:1100px){{.kpi-grid{{grid-template-columns:1fr}}}}
-@media (max-width:768px){{.container{{padding:12px}}.header{{padding:18px}}.header h1{{font-size:1.55rem}}.kpi-card{{padding:12px}}}}
-</style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>University KPI Dashboard</h1>
-      <p>Overall KPI performance across the University</p>
-    </div>
-    <div class="guide-panel">
-      <div class="guide-title">How to read this</div>
-      <div class="guide-line">Each score is a percentage for the KPI. Where shown, the bracketed count is the number of items in scope for that percentage.</div>
-      <div class="guide-line"><span class="data-warning">!</span> means a source percentage is outside 0-100 and should be reviewed with the submitting department.</div>
-      <div class="guide-line">Trend charts show reporting periods in date order.</div>
-    </div>
+        with open(template_path, 'r', encoding='utf-8') as f:
+            html_content = f.read()
 
-    <div class="kpi-grid compressed-view">
-      <!-- KPI Cards inserted here -->
-      {self._render_kpi_cards(uni_data)}
-    </div>
-  </div>
-
-  <div id="tooltip" class="tooltip-content"></div>
-  <script>
-    const tooltipData = {tooltip_json};
-    const uniData = {uni_json};
-    let globalTooltip = null;
-    function createGlobalTooltip(){{
-      if(globalTooltip) return;
-      globalTooltip = document.getElementById('tooltip');
-    }}
-    function handleTooltipShow(e){{
-      const trigger = e.currentTarget;
-      const key = trigger.getAttribute('data-kpi');
-      const text = tooltipData[key] || '';
-      showTooltip(trigger, text);
-    }}
-    function handleTooltipHide(){{
-      if(!globalTooltip) return;
-      globalTooltip.style.visibility='hidden';
-      globalTooltip.style.opacity='0';
-    }}
-    function showTooltip(trigger, text){{
-      createGlobalTooltip();
-      if(!globalTooltip) return;
-      globalTooltip.textContent = text;
-      const rect = trigger.getBoundingClientRect();
-      const vw = window.innerWidth;
-      globalTooltip.style.visibility='visible';
-      globalTooltip.style.opacity='0';
-      globalTooltip.style.left='0px';
-      globalTooltip.style.top='0px';
-      const tipRect = globalTooltip.getBoundingClientRect();
-      let left = rect.left + (rect.width/2) - (tipRect.width/2);
-      let top = rect.top - tipRect.height - 12;
-      if(left < 10) left = 10;
-      if(left + tipRect.width > vw - 10) left = vw - tipRect.width - 10;
-      if(top < 10) top = rect.bottom + 12;
-      globalTooltip.style.left = left + 'px';
-      globalTooltip.style.top = top + 'px';
-      globalTooltip.style.visibility='visible';
-      globalTooltip.style.opacity='1';
-    }}
-    function buildTrendSeries(history){{
-      if(!Array.isArray(history)) return null;
-      const cleaned = history.filter(p => p && p.date && typeof p.percentage === 'number');
-      if(cleaned.length < 2) return null;
-      return {{
-        labels: cleaned.map(p => p.date),
-        data: cleaned.map(p => p.percentage)
-      }};
-    }}
-    function buildTrendBounds(seriesList){{
-      const values = [];
-      seriesList.forEach((series) => {{
-        if(Array.isArray(series)) {{
-          series.forEach((value) => {{
-            if(typeof value === 'number' && !Number.isNaN(value)) values.push(value);
-          }});
-        }}
-      }});
-      if(values.length === 0) return {{ min: 0, max: 100 }};
-      let min = Math.min(...values);
-      let max = Math.max(...values);
-      const span = max - min;
-      const padding = Math.max(4, span * 0.18);
-      if(span < 8) {{
-        min -= 4;
-        max += 4;
-      }} else {{
-        min -= padding;
-        max += padding;
-      }}
-      return {{
-        min: Math.floor(min),
-        max: Math.ceil(max)
-      }};
-    }}
-    function renderTrendCharts(){{
-      document.querySelectorAll('.trend-canvas').forEach(canvas => {{
-        const historyRaw = canvas.getAttribute('data-history') || '[]';
-        let history = [];
-        try {{ history = JSON.parse(historyRaw); }} catch (e) {{ history = []; }}
-        const series = buildTrendSeries(history);
-        if(!series) {{
-          const wrap = canvas.closest('.trend-wrap');
-          if(wrap) wrap.style.display='none';
-          return;
-        }}
-        const ctx = canvas.getContext('2d');
-        const bounds = buildTrendBounds([series.data]);
-        new Chart(ctx, {{
-          type: 'line',
-          data: {{
-            labels: series.labels,
-            datasets: [{{
-              label: 'University',
-              data: series.data,
-              borderColor: '#2563eb',
-              backgroundColor: 'rgba(37,99,235,0.12)',
-              fill: true,
-              tension: 0.25,
-              pointRadius: 3
-            }}]
-          }},
-          options: {{
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {{ legend: {{ display: false }}, tooltip: {{ enabled: true }} }},
-            scales: {{
-              x: {{ ticks: {{ maxRotation: 0, autoSkip: true, maxTicksLimit: 4 }}, grid: {{ display: false }} }},
-              y: {{ min: bounds.min, max: bounds.max, ticks: {{ callback: v => `${{v}}%` }}, grid: {{ color: '#e5e7eb' }} }}
-            }}
-          }}
-        }});
-      }});
-    }}
-    renderTrendCharts();
-  </script>
-</body>
-</html>
-'''
+        replacements = {
+            '__TOOLTIP_JSON__': tooltip_json,
+            '__KPI_META_JSON__': kpi_meta_json,
+            '__UNIVERSITY_CARDS__': cards_html,
+        }
+        for token, value in replacements.items():
+            html_content = html_content.replace(token, value)
 
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(html_content)
@@ -418,16 +292,26 @@ body{{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;ba
         for kpi_name, kpi in items:
             pct = kpi.get("percentage")
             val = kpi.get("display_text", "/")
-            perf_cls = self._performance_class(pct)
+            applicable = kpi.get("applicable", True)
+            perf_cls = self._performance_class(pct, applicable)
             safe_key = kpi_name.replace('"', "&quot;")
-            history_json = json.dumps(kpi.get("history", []), default=str).replace('"', '&quot;')
+            safe_kpi_name = kpi_name.replace('"', '&quot;')
+            history = kpi.get("history", [])
+            history_json = json.dumps(history, default=str).replace('"', '&quot;')
             out_of_range = False
             if pct is not None:
                 try:
                     out_of_range = float(pct) < 0 or float(pct) > 100
                 except (ValueError, TypeError):
                     out_of_range = False
-            warning_badge = '<span class="data-warning" title="Out-of-range percentage in source data">!</span>' if out_of_range else ''
+            history_out_of_range = any(
+                isinstance(point, dict)
+                and point.get("raw_percentage") is not None
+                and self._safe_float(point.get("raw_percentage")) is not None
+                and (self._safe_float(point.get("raw_percentage")) < 0 or self._safe_float(point.get("raw_percentage")) > 100)
+                for point in history
+            )
+            warning_badge = '<span class="data-warning" title="Current or historic source percentage outside 0-100">!</span>' if (out_of_range or history_out_of_range) else ''
             question_text = self.kpi_metadata.get(kpi_name, {}).get("question", "")
             card = f'''<div class="kpi-card">
                 <div class="kpi-label-wrap">
@@ -439,7 +323,7 @@ body{{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;ba
                 </div>
                 <span class="kpi-value {perf_cls}">{val}</span>
                 <span style="height:1px"></span>
-                <div class="trend-wrap"><canvas class="trend-canvas" data-history="{history_json}"></canvas></div>
+                <div class="trend-wrap"><canvas class="trend-canvas" data-kpi-name="{safe_kpi_name}" data-history="{history_json}"></canvas></div>
             </div>'''
             cards.append(card)
         return "\n".join(cards)
