@@ -117,4 +117,3 @@ python3 university_dashboard_refactored.py
 - `... sheet not found`: check you selected the correct workbook for that stage.
 - Tooltips missing: ensure `Question Tooltips` sheet exists.
 - No GUI/file dialog appears: run on a machine/session with desktop GUI support.
-
