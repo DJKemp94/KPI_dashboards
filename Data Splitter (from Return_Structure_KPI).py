@@ -4,6 +4,8 @@ import os
 from tkinter import filedialog, messagebox
 import tkinter as tk
 
+EXCLUDED_SCHOOLS = {"Health and Safety"}
+
 
 def select_input_file():
     """
@@ -68,6 +70,43 @@ def clean_numeric_series(series):
     
     # Fill NaN with 0
     return numeric_series.fillna(0)
+
+
+def parse_reporting_date(value):
+    """Parse reporting date values using day-first format."""
+    if pd.isna(value) or value == "":
+        return pd.NaT
+    return pd.to_datetime(value, dayfirst=True, errors='coerce')
+
+
+def format_reporting_date(value):
+    """Format parsed reporting dates consistently for outputs."""
+    parsed = parse_reporting_date(value)
+    if pd.isna(parsed):
+        return ""
+    return parsed.strftime("%d/%m/%Y")
+
+
+def load_kpi_sheet(file_path):
+    """Load KPI sheet and apply shared cleaning filters."""
+    df = pd.read_excel(file_path, sheet_name='Sheet 1 - Return_Structure_KPI')
+
+    if 'School' in df.columns:
+        df = df[~df['School'].astype(str).str.strip().isin(EXCLUDED_SCHOOLS)].copy()
+
+    if 'Date' in df.columns:
+        df['Date'] = df['Date'].apply(parse_reporting_date)
+
+    return df
+
+
+def get_available_reporting_periods(file_path):
+    """Return sorted list of reporting periods available in KPI source file."""
+    df = load_kpi_sheet(file_path)
+    if 'Date' not in df.columns:
+        return []
+    periods = sorted([d for d in df['Date'].dropna().unique()])
+    return periods
 
 
 def create_tooltips_dataframe():
@@ -157,7 +196,7 @@ def find_column_by_variations(df, target_column, variations=None):
     return None
 
 
-def aggregate_school_to_faculty_data(file_path):
+def aggregate_school_to_faculty_data(file_path, reporting_period=None):
     """
     Aggregates school-level data to faculty-level data by correctly calculating percentages
     from summed raw numbers rather than averaging existing percentages.
@@ -169,8 +208,13 @@ def aggregate_school_to_faculty_data(file_path):
         pd.DataFrame: Faculty-level aggregated data with recalculated percentages
     """
 
-    # Read the Excel file
-    df = pd.read_excel(file_path, sheet_name='Sheet 1 - Return_Structure_KPI')
+    # Read and pre-clean data
+    df = load_kpi_sheet(file_path)
+
+    if reporting_period is not None and 'Date' in df.columns:
+        period = parse_reporting_date(reporting_period)
+        if not pd.isna(period):
+            df = df[df['Date'] == period].copy()
     
     # Debug: Show available Leadership columns (reduced debug output)
     leadership_cols = [col for col in df.columns if 'leadership' in str(col).lower()]
@@ -315,6 +359,8 @@ def aggregate_school_to_faculty_data(file_path):
 
         faculty_schools = df[df['Faculty'] == faculty]
         aggregated_row = {'Faculty': faculty}
+        if 'Date' in df.columns and reporting_period is not None:
+            aggregated_row['Date'] = parse_reporting_date(reporting_period)
 
         # Sum the raw number columns
         for col in sum_columns:
@@ -415,13 +461,18 @@ def aggregate_school_to_faculty_data(file_path):
         if col in faculty_df.columns:
             faculty_df[col] = faculty_df[col].round(2)
 
-    # Sort by Faculty name
-    faculty_df = faculty_df.sort_values('Faculty').reset_index(drop=True)
+    # Sort by date then faculty when available
+    sort_columns = [col for col in ['Date', 'Faculty'] if col in faculty_df.columns]
+    if sort_columns:
+        faculty_df = faculty_df.sort_values(sort_columns).reset_index(drop=True)
+
+    if 'Date' in faculty_df.columns:
+        faculty_df['Date'] = faculty_df['Date'].apply(format_reporting_date)
 
     return faculty_df
 
 
-def aggregate_school_to_university_data(file_path):
+def aggregate_school_to_university_data(file_path, reporting_period=None):
     """
     Aggregates school-level data to university-level data by correctly calculating percentages
     from summed raw numbers rather than averaging existing percentages.
@@ -433,8 +484,13 @@ def aggregate_school_to_university_data(file_path):
         pd.DataFrame: University-level aggregated data with recalculated percentages (single row)
     """
 
-    # Read the Excel file
-    df = pd.read_excel(file_path, sheet_name='Sheet 1 - Return_Structure_KPI')
+    # Read and pre-clean data
+    df = load_kpi_sheet(file_path)
+
+    if reporting_period is not None and 'Date' in df.columns:
+        period = parse_reporting_date(reporting_period)
+        if not pd.isna(period):
+            df = df[df['Date'] == period].copy()
 
     # Define the columns that need aggregation and their corresponding raw number columns
     percentage_calculations = [
@@ -567,6 +623,8 @@ def aggregate_school_to_university_data(file_path):
 
     # Aggregate across entire university (all schools)
     aggregated_row = {'Faculty': 'University'}
+    if 'Date' in df.columns and reporting_period is not None:
+        aggregated_row['Date'] = parse_reporting_date(reporting_period)
 
     # Sum the raw number columns
     for col in sum_columns:
@@ -662,10 +720,13 @@ def aggregate_school_to_university_data(file_path):
         if col in university_df.columns:
             university_df[col] = university_df[col].round(2)
 
+    if 'Date' in university_df.columns:
+        university_df['Date'] = university_df['Date'].apply(format_reporting_date)
+
     return university_df
 
 
-def filter_and_order_columns(df, use_school=False):
+def filter_and_order_columns(df, use_school=False, include_date=False):
     """
     Filters and orders DataFrame columns to match the exact specification.
     
@@ -678,8 +739,11 @@ def filter_and_order_columns(df, use_school=False):
     """
     # Exact column order as specified
     first_column = 'School' if use_school else 'Faculty'
-    required_columns = [
-        first_column,
+    required_columns = [first_column]
+    if include_date:
+        required_columns.append('Date')
+
+    required_columns.extend([
         'Number of Arrangements',
         '% of Written Arrangements Complete',
         'Number of Risk Assessments on Register',
@@ -704,7 +768,7 @@ def filter_and_order_columns(df, use_school=False):
         'Percentage Coverage of Risk Assessments',
         '% of Training identified in Matrix that is accessible',
         '% of Staff who are in date with all training requirements'
-    ]
+    ])
     
     # Filter to only include columns that exist in the dataframe
     available_columns = [col for col in required_columns if col in df.columns]
@@ -715,7 +779,7 @@ def filter_and_order_columns(df, use_school=False):
     # For school raw data, use "/" only for complete non-returns, 0 for partial data
     if use_school:
         # Convert numeric columns to object dtype to allow mixed data types
-        numeric_kpi_columns = [col for col in filtered_df.columns if col != 'School' and 
+        numeric_kpi_columns = [col for col in filtered_df.columns if col not in ('School', 'Date') and
                               ('Number of' in col or '% of' in col or 'Percentage' in col or 'Total' in col)]
         
         for col in numeric_kpi_columns:
@@ -739,14 +803,14 @@ def filter_and_order_columns(df, use_school=False):
             else:
                 # Partial data: use 0 for NaN/empty numeric values, preserve text columns
                 for col in filtered_df.columns:
-                    if col != 'School':  # Don't modify school names
+                    if col not in ('School', 'Date'):  # Don't modify school names or date labels
                         if pd.isna(filtered_df.at[idx, col]) or filtered_df.at[idx, col] == "":
                             filtered_df.at[idx, col] = 0
     
     return filtered_df
 
 
-def create_school_raw_data(file_path):
+def create_school_raw_data(file_path, reporting_period=None, include_date=False):
     """
     Extracts raw school-level data and filters to specified columns.
     
@@ -756,8 +820,13 @@ def create_school_raw_data(file_path):
     Returns:
         pd.DataFrame: School-level data with specified columns only
     """
-    # Read the Excel file
-    df = pd.read_excel(file_path, sheet_name='Sheet 1 - Return_Structure_KPI')
+    # Read and pre-clean data
+    df = load_kpi_sheet(file_path)
+
+    if reporting_period is not None and 'Date' in df.columns:
+        period = parse_reporting_date(reporting_period)
+        if not pd.isna(period):
+            df = df[df['Date'] == period].copy()
     
     # Clean percentage data - strip % symbols and normalize formats
     for col in df.columns:
@@ -785,8 +854,11 @@ def create_school_raw_data(file_path):
     near_misses_col = df.get('Number of Near Misses', pd.Series(0, index=df.index)).fillna(0)
     df['Total Incidents (Accidents + Near Misses)'] = accidents_col + near_misses_col
     
+    if 'Date' in df.columns:
+        df['Date'] = df['Date'].apply(format_reporting_date)
+
     # Filter and order columns, using School instead of Faculty
-    return filter_and_order_columns(df, use_school=True)
+    return filter_and_order_columns(df, use_school=True, include_date=include_date)
 
 
 def create_faculty_summary_table(file_path, output_path=None):
@@ -854,6 +926,9 @@ def create_faculty_summary_table(file_path, output_path=None):
             ['% of Training identified in Matrix that is accessible'],
             ['% of Staff who are in date with all training requirements']
         ]
+
+        if 'Date' in full_data.columns:
+            summary_column_groups.insert(1, ['Date'])
 
         # Create a copy of full_data and add the special calculated column
         summary_df = full_data.copy()
@@ -956,6 +1031,9 @@ def create_university_summary_table(file_path, output_path=None):
             ['% of Training identified in Matrix that is accessible'],
             ['% of Staff who are in date with all training requirements']
         ]
+
+        if 'Date' in full_data.columns:
+            summary_column_groups.insert(1, ['Date'])
 
         # Create a copy of full_data and add the special calculated column
         summary_df = full_data.copy()
@@ -1135,48 +1213,86 @@ def main():
     print("\nStep 3: Processing data...")
 
     try:
-        # Create both faculty and university summary tables
+        periods = get_available_reporting_periods(input_file)
+        if not periods:
+            raise ValueError("No reporting periods found in source file.")
+
+        latest_period = periods[-1]
+        latest_period_label = format_reporting_date(latest_period)
+        period_labels = ", ".join(format_reporting_date(p) for p in periods)
+        print(f"Detected reporting periods: {period_labels}")
+        print(f"Latest reporting period: {latest_period_label}")
+
+        # Create summaries for the latest period (for dashboard compatibility)
         print("Creating Faculty level aggregation...")
-        faculty_summary = create_faculty_summary_table(input_file, None)  # Don't save yet
+        faculty_summary = aggregate_school_to_faculty_data(input_file, reporting_period=latest_period)
 
         print("Creating University level aggregation...")
-        university_summary = create_university_summary_table(input_file, None)  # Don't save yet
+        university_summary = aggregate_school_to_university_data(input_file, reporting_period=latest_period)
 
-        # Save the 3 tabs with filtered columns
+        # Save latest-period tabs plus multi-period history tabs
         if output_file:
-            # Get full aggregated data and apply column filtering
-            faculty_full_data = aggregate_school_to_faculty_data(input_file)
+            # Latest-period data for existing dashboards
+            faculty_full_data = faculty_summary.copy()
             accidents_col = faculty_full_data.get('Number of Accidents/Illness', pd.Series(0, index=faculty_full_data.index)).fillna(0)
             near_misses_col = faculty_full_data.get('Number of Near Misses', pd.Series(0, index=faculty_full_data.index)).fillna(0)
             faculty_full_data['Total Incidents (Accidents + Near Misses)'] = accidents_col + near_misses_col
             
-            university_full_data = aggregate_school_to_university_data(input_file)
+            university_full_data = university_summary.copy()
             accidents_col_uni = university_full_data.get('Number of Accidents/Illness', pd.Series(0, index=university_full_data.index)).fillna(0)
             near_misses_col_uni = university_full_data.get('Number of Near Misses', pd.Series(0, index=university_full_data.index)).fillna(0)
             university_full_data['Total Incidents (Accidents + Near Misses)'] = accidents_col_uni + near_misses_col_uni
             
-            # Get school raw data
-            school_raw_data = create_school_raw_data(input_file)
+            # Get school raw data for latest period
+            school_raw_data = create_school_raw_data(input_file, reporting_period=latest_period, include_date=False)
+
+            # Build history across all periods for trend-ready dashboards
+            faculty_history_parts = []
+            university_history_parts = []
+            school_history_parts = []
+
+            for period in periods:
+                faculty_period = aggregate_school_to_faculty_data(input_file, reporting_period=period)
+                university_period = aggregate_school_to_university_data(input_file, reporting_period=period)
+                school_period = create_school_raw_data(input_file, reporting_period=period, include_date=True)
+
+                faculty_history_parts.append(faculty_period)
+                university_history_parts.append(university_period)
+                school_history_parts.append(school_period)
+
+            faculty_history = pd.concat(faculty_history_parts, ignore_index=True) if faculty_history_parts else pd.DataFrame()
+            university_history = pd.concat(university_history_parts, ignore_index=True) if university_history_parts else pd.DataFrame()
+            school_history = pd.concat(school_history_parts, ignore_index=True) if school_history_parts else pd.DataFrame()
             
             # Apply column filtering to all datasets
             university_filtered = filter_and_order_columns(university_full_data)
             faculty_filtered = filter_and_order_columns(faculty_full_data)
+            university_history_filtered = filter_and_order_columns(university_history, include_date=True)
+            faculty_history_filtered = filter_and_order_columns(faculty_history, include_date=True)
             
             with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
-                # 3 tabs with exact column order
+                # Core tabs (latest period, compatible with existing dashboards)
                 university_filtered.to_excel(writer, sheet_name='University_Summary', index=False)
                 faculty_filtered.to_excel(writer, sheet_name='Faculty_Summary', index=False)
                 school_raw_data.to_excel(writer, sheet_name='School_Raw_Data', index=False)
+
+                # Multi-period history tabs (for progress/trend analytics)
+                university_history_filtered.to_excel(writer, sheet_name='University_Summary_History', index=False)
+                faculty_history_filtered.to_excel(writer, sheet_name='Faculty_Summary_History', index=False)
+                school_history.to_excel(writer, sheet_name='School_Raw_Data_History', index=False)
                 
                 # Add Question Tooltips sheet
                 tooltips_df = create_tooltips_dataframe()
                 tooltips_df.to_excel(writer, sheet_name='Question Tooltips', index=False)
             
             print(f"\n✓ Results saved to: {output_file}")
-            print("  4 Tabs Created:")
-            print("  - University_Summary (University totals with specified columns)")
-            print("  - Faculty_Summary (Faculty breakdowns with specified columns)")
-            print("  - School_Raw_Data (Original school data with specified columns)")
+            print("  7 Tabs Created:")
+            print(f"  - University_Summary (latest period: {latest_period_label})")
+            print(f"  - Faculty_Summary (latest period: {latest_period_label})")
+            print(f"  - School_Raw_Data (latest period: {latest_period_label})")
+            print("  - University_Summary_History (all periods)")
+            print("  - Faculty_Summary_History (all periods)")
+            print("  - School_Raw_Data_History (all periods)")
             print("  - Question Tooltips (KPI metric descriptions for dashboards)")
 
         print("\nStep 4: Results")

@@ -1,0 +1,13 @@
+input_csv: Return_Structure_KPI-2.csv
+periods: ['01/08/2025', '01/02/2026']
+latest_period: 01/02/2026
+rows_tidy_sheet: 66
+rows_university_summary: 1
+rows_faculty_summary: 9
+rows_school_raw: 33
+rows_university_history: 2
+rows_faculty_history: 18
+rows_school_history: 66
+faculty_html_count: 9
+faculty_html_files: ['Arts_Faculty_Report.html', 'Engineering_Faculty_Report.html', 'Estates_Faculty_Report.html', 'Finance_and_Infrastructure_Faculty_Report.html', 'HR_Faculty_Report.html', 'Medicine__Health_Sciences_Faculty_Report.html', 'Registrars_Faculty_Report.html', 'Science_Faculty_Report.html', 'Social_Sciences_Faculty_Report.html']
+university_html_file: University_KPI_Report.html

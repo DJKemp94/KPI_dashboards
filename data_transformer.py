@@ -6,6 +6,8 @@ from pathlib import Path
 
 class KPIDataTransformer:
     def __init__(self):
+        self.training_percentage_cutover = pd.Timestamp("2026-02-01")
+        self.excluded_schools = {"Health and Safety"}
         self.faculty_school_mapping = self._define_faculty_school_mapping()
         self.tooltip_mapping = self._define_tooltip_mapping()
         
@@ -147,6 +149,24 @@ class KPIDataTransformer:
         except (ValueError, TypeError, ZeroDivisionError):
             return np.nan
 
+    def parse_period_date(self, value):
+        """Parse report period dates that arrive in UK format."""
+        if pd.isna(value) or value == "":
+            return None
+        parsed = pd.to_datetime(value, dayfirst=True, errors='coerce')
+        if pd.isna(parsed):
+            return None
+        return parsed
+
+    def normalize_percentage_value(self, value):
+        """Normalize mixed percentage formats (e.g. 0.75, 75, 75%)."""
+        numeric = self.clean_numeric_value(value)
+        if pd.isna(numeric):
+            return np.nan
+        if 0 < numeric <= 1:
+            return numeric * 100
+        return numeric
+
     def _create_tooltips_sheet(self, workbook):
         """Create Question Tooltips sheet in the workbook"""
         # Create new worksheet for tooltips
@@ -197,12 +217,39 @@ class KPIDataTransformer:
         # Add headers as first row of data
         transformed_data.append(headers)
         
+        # Exclude entities that should not be reported in dashboards/aggregations.
+        if 'School' in raw_df.columns:
+            raw_df = raw_df[~raw_df['School'].astype(str).str.strip().isin(self.excluded_schools)].copy()
+
         print("Processing school data...")
         
         # Process each school
         for idx, row in raw_df.iterrows():
             school_name = row['School']
             faculty_name = self.faculty_school_mapping.get(school_name, "Unknown")
+            period_date = self.parse_period_date(row.get('Date', ''))
+            training_is_percentage_mode = (
+                period_date is not None and period_date >= self.training_percentage_cutover
+            )
+
+            staff_count = self.clean_numeric_value(row.get('H&S Training1'))
+
+            if training_is_percentage_mode:
+                hs_induction_pct = self.normalize_percentage_value(row.get('H&S Training2'))
+                fire_training_pct = self.normalize_percentage_value(row.get('H&S Training3'))
+
+                hs_induction_count = np.nan
+                fire_training_count = np.nan
+                if pd.notna(staff_count) and staff_count > 0:
+                    if pd.notna(hs_induction_pct):
+                        hs_induction_count = staff_count * hs_induction_pct / 100.0
+                    if pd.notna(fire_training_pct):
+                        fire_training_count = staff_count * fire_training_pct / 100.0
+            else:
+                hs_induction_count = self.clean_numeric_value(row.get('H&S Training2'))
+                fire_training_count = self.clean_numeric_value(row.get('H&S Training3'))
+                hs_induction_pct = self.safe_divide(hs_induction_count, staff_count)
+                fire_training_pct = self.safe_divide(fire_training_count, staff_count)
             
             
             # Build the transformed row
@@ -223,11 +270,11 @@ class KPIDataTransformer:
                 row.get('Risk Assessment3', ''),  # Percentage Coverage of Risk Assessments (direct from raw)
                 
                 # H&S Training
-                row.get('H&S Training1', ''),  # Number of Staff
-                row.get('H&S Training2', ''),  # No of Staff Completing H&S Training
-                self.safe_divide(row.get('H&S Training2'), row.get('H&S Training1')),  # % H&S Induction
-                row.get('H&S Training3', ''),  # no of Staff Completing Fire Training
-                self.safe_divide(row.get('H&S Training3'), row.get('H&S Training1')),  # % Fire Training
+                staff_count,  # Number of Staff
+                hs_induction_count,  # No of Staff Completing H&S Training
+                hs_induction_pct,  # % H&S Induction
+                fire_training_count,  # no of Staff Completing Fire Training
+                fire_training_pct,  # % Fire Training
                 row.get('H&S Training4', ''),  # % of Training identified in Matrix that is accessible
                 row.get('H&S Training5', ''),  # % of Staff who are in date with all training requirements
                 

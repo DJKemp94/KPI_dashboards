@@ -1,0 +1,10 @@
+Percentage bounds issues detected:
+- sheet=Faculty_Summary col=% of Fire Drills Carried out type=>100 count=1 extreme=110.0
+- sheet=Faculty_Summary col=% of Inspections Carried out against Monitoring Schedule type=>100 count=3 extreme=111.84
+- sheet=School_Raw_Data col=% of Fire Drills Carried out type=>100 count=1 extreme=112.5
+- sheet=School_Raw_Data col=% of Incidents + Near Missed Investigated type=>100 count=1 extreme=200.0
+- sheet=School_Raw_Data col=% of Inspections Carried out against Monitoring Schedule type=>100 count=2 extreme=150.0
+- sheet=Faculty_Summary_History col=% of Fire Drills Carried out type=>100 count=1 extreme=110.0
+- sheet=Faculty_Summary_History col=% of PEEPS that are tested/drilled type=>100 count=1 extreme=450.0
+- sheet=Faculty_Summary_History col=% of Inspections Carried out against Monitoring Schedule type=>100 count=4 extreme=111.84
+- sheet=Faculty_Summary_History col=% of Leadership Walkarounds Carried out type=>100 count=1 extreme=114.29
