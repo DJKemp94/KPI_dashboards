@@ -174,10 +174,18 @@ class FacultyDashboardGenerator:
         for kpi_name, kpi_def in self.kpi_definitions.items():
             series = []
             for _, row in scoped.iterrows():
+                row_missing_return = self._is_no_return_row(row)
                 perc = row.get(kpi_def["percentage_col"], None)
                 num = row.get(kpi_def["number_col"], None) if kpi_def["number_col"] else None
                 perc_val = self._safe_float(perc) if not self._is_empty(perc) else None
                 num_val = self._safe_float(num) if not self._is_empty(num) else None
+                if row_missing_return:
+                    perc_val = None
+                    num_val = None
+                # For count-based KPIs, a missing denominator means no return was submitted.
+                # Only apply this when the denominator column exists in this sheet/row.
+                if kpi_def["number_col"] and kpi_def["number_col"] in row.index and num_val is None:
+                    perc_val = None
                 applicable = self._is_kpi_applicable(kpi_name, num_val)
                 if 'Date' in scoped.columns:
                     date_label = row.get('Date', '')
@@ -254,12 +262,20 @@ class FacultyDashboardGenerator:
 
     def _extract_kpi_data(self, data_row, entity_name):
         kpi_data = {"name": entity_name, "kpis": {}}
+        row_missing_return = self._is_no_return_row(data_row)
         for kpi_name, kpi_def in self.kpi_definitions.items():
             perc_val = data_row.get(kpi_def["percentage_col"], None)
             num_val = data_row.get(kpi_def["number_col"], None) if kpi_def["number_col"] else None
             
             perc_val = self._safe_float(perc_val) if not self._is_empty(perc_val) else None
             num_val = self._safe_float(num_val) if not self._is_empty(num_val) else None
+            if row_missing_return:
+                perc_val = None
+                num_val = None
+            # For count-based KPIs, a missing denominator means no return was submitted.
+            # Only apply this when the denominator column exists in this sheet/row.
+            if kpi_def["number_col"] and kpi_def["number_col"] in data_row.index and num_val is None:
+                perc_val = None
             
             kpi_data["kpis"][kpi_name] = {
                 "percentage": perc_val,
@@ -270,13 +286,43 @@ class FacultyDashboardGenerator:
         return kpi_data
 
     def _is_empty(self, value):
-        return pd.isna(value) or value == '/' or value == ''
+        if pd.isna(value):
+            return True
+        if isinstance(value, str):
+            cleaned = value.strip()
+            return cleaned in {'', '/', '-', '–', '—'}
+        return False
 
     def _safe_float(self, value):
         try:
             return float(value)
         except (ValueError, TypeError):
             return None
+
+    def _is_no_return_row(self, row):
+        """
+        Treat a row as 'no return' when it looks like an untouched template row:
+        - at least one explicit missing marker is present ('/', '-', blank), and
+        - all KPI denominator/percentage values are either missing or zero.
+        """
+        denominator_cols = [cfg["number_col"] for cfg in self.kpi_definitions.values() if cfg.get("number_col")]
+        percentage_cols = [cfg["percentage_col"] for cfg in self.kpi_definitions.values() if cfg.get("percentage_col")]
+        if not denominator_cols and not percentage_cols:
+            return False
+
+        has_explicit_missing = False
+        for col in denominator_cols + percentage_cols:
+            value = row.get(col, None)
+            if self._is_empty(value):
+                has_explicit_missing = True
+                continue
+            numeric = self._safe_float(value)
+            if numeric is None:
+                has_explicit_missing = True
+                continue
+            if abs(float(numeric)) > 1e-9:
+                return False
+        return has_explicit_missing
 
     def _is_kpi_applicable(self, kpi_name, number):
         number_col = self.kpi_definitions.get(kpi_name, {}).get("number_col")

@@ -45,29 +45,44 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
 .change-down{background:#fee2e2;color:#b91c1c}
 .change-flat{background:#e2e8f0;color:#475569}
 .change-na{background:#e0f2fe;color:#0f4c81}
-.kpi-title{font-size:15px;font-weight:700;color:#0f172a;line-height:1.25;margin-bottom:8px;text-align:left}
+.change-missing{background:#fff1f2;color:#9f1239}
+.change-prev-submitted{background:#ecfeff;color:#155e75}
+.change-prev-missing{background:#fff1f2;color:#9f1239}
+.kpi-title-wrap{display:flex;align-items:flex-start;gap:6px;margin-bottom:8px}
+.kpi-title{font-size:15px;font-weight:700;color:#0f172a;line-height:1.25;margin:0;text-align:left}
+.missing-return-flag{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:999px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:11px;font-weight:700;line-height:1.2;vertical-align:middle}
+.missing-return-flag::before{content:'!';display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:#f97316;color:#fff;font-size:10px;font-weight:800;flex:0 0 14px}
 .kpi-question{font-size:12px;color:#475569;line-height:1.35;text-align:left;margin-top:0;margin-bottom:8px}
 .kpi-value{font-size:15px;font-weight:700;color:white;padding:8px 12px;border-radius:8px;text-align:center;box-shadow:none;margin:0 0 10px 0;display:inline-flex;width:auto;min-width:0}
 .expand-icon{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:12px;color:#94a3b8;transition:all 0.2s ease;cursor:pointer}
 .kpi-card.expanded .expand-icon{transform:translateX(-50%) rotate(180deg);color:#3b82f6}
 .compressed-view .kpi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start}
-.compressed-view .kpi-card{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;column-gap:10px;align-items:center;padding:10px 12px;margin-bottom:0;cursor:default;transform:none;border-radius:10px;min-height:0;position:relative;align-self:stretch;box-sizing:border-box}
+.compressed-view .kpi-card{display:grid;grid-template-columns:minmax(0,1fr) 260px 126px 14px;column-gap:8px;align-items:center;padding:10px 12px;margin-bottom:0;cursor:pointer;transform:none;border-radius:10px;min-height:0;position:relative;align-self:start;box-sizing:border-box}
 .compressed-view .kpi-card .school-breakdown-content{grid-column:1/-1;width:100%}
 .compressed-view .kpi-card.expanded{margin-bottom:8px}
 .compressed-view .kpi-card:hover{transform:none;box-shadow:0 4px 12px rgba(15,23,42,0.08)}
 .compressed-view .kpi-card::before{display:none}
-.compressed-view .kpi-title{font-size:14px;font-weight:700;margin:0;line-height:1.3;align-self:center;display:flex;align-items:center}
+.compressed-view .kpi-title-wrap{margin:0;align-items:center}
+.compressed-view .kpi-title{font-size:14px;font-weight:700;line-height:1.3;align-self:center;display:block}
+.compressed-view .missing-return-slot{display:block;min-height:18px;margin-top:4px}
+.compressed-view .missing-return-slot:empty::before{content:' '}
+.compressed-view .missing-return-slot .missing-return-flag{margin-left:0}
 .compressed-view .kpi-question{display:none}
-.compressed-view .kpi-value{font-size:13px;padding:4px 8px;margin:0;border-radius:6px;justify-self:end;text-align:center;display:inline-flex;align-items:center;justify-content:center;line-height:1.2;min-height:0;max-height:none;overflow:hidden}
-.compressed-view .university-comparison{background:transparent;border:none;padding:0;margin:0;flex:none;width:auto;justify-self:end;display:flex;justify-content:flex-end;align-items:center;align-self:center}
+.compressed-view .kpi-value{font-size:13px;padding:4px 8px;margin:0;border-radius:6px;justify-self:stretch;text-align:left;display:inline-flex;align-items:center;justify-content:flex-start;line-height:1.2;min-height:0;max-height:none;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;width:100%}
+.compressed-view .university-comparison{background:transparent;border:none;padding:0;margin:0;flex:none;width:auto;justify-self:start;display:grid;grid-template-rows:auto auto;row-gap:2px;align-items:start;align-self:center}
 .compressed-view .comparison-top{gap:6px}
 .compressed-view .comparison-text{display:none}
-.compressed-view .change-badge{display:none}
-.compressed-view .comparison-values{margin:0;gap:8px;justify-content:flex-end;align-items:center}
-.compressed-view .university-value{font-size:13px;color:#64748b;font-weight:600}
-.compressed-view .comparison-indicator{font-size:14px;width:24px;height:24px;margin-left:0}
+.compressed-view .change-badge{display:inline-flex;font-size:11px;font-weight:700;padding:2px 6px;line-height:1.15;border-radius:999px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.compressed-view .comparison-values{margin:0;gap:4px;justify-content:flex-start;align-items:center}
+.compressed-view .university-value{font-size:11px;color:#64748b;font-weight:700;white-space:nowrap;line-height:1}
+.compressed-view .comparison-indicator{font-size:10px;font-weight:800;width:auto;height:auto;margin-left:0;line-height:1;border-radius:0;box-shadow:none;padding:0}
+.compressed-view .comparison-indicator{order:0}
+.compressed-view .university-value{order:1}
+.compressed-view .comparison-above{background:none;color:#2563eb}
+.compressed-view .comparison-below{background:none;color:#dc2626}
+.compressed-view .comparison-equal{background:none;color:#64748b}
 .compressed-view .expand-icon{display:block;position:static;transform:none;margin-left:0;font-size:12px;color:#9ca3af;z-index:1;pointer-events:none;justify-self:end;align-self:center;grid-column:4;grid-row:1}.compressed-view .kpi-card.expanded .expand-icon{transform:rotate(180deg);color:#3b82f6}
-.compressed-view .tooltip-trigger{margin-left:6px}
+.compressed-view .tooltip-trigger{margin-left:0}
 .compressed-view .trend-wrap{display:none}
 .school-breakdown-content{max-height:0;overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;opacity:0;margin-top:0}
 .kpi-card.expanded .school-breakdown-content{max-height:10000px;opacity:1;margin-top:18px;padding-top:18px;border-top:1px solid #e5e7eb}
@@ -89,6 +104,27 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
 .school-percentage-label.label-on-fill{color:white}
 .school-percentage-label.label-no-data{color:white}
 .school-percentage-label.label-zero-count{color:#475569;font-style:italic}
+.compressed-school-table{display:flex;flex-direction:column;gap:6px}
+.compressed-school-row{display:grid;grid-template-columns:minmax(180px,2fr) minmax(130px,1fr) minmax(110px,0.9fr) minmax(110px,0.9fr) minmax(125px,1fr);gap:8px;align-items:center;padding:7px 8px;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0;font-size:12px;color:#334155}
+.compressed-school-row.header{font-weight:700;color:#475569;background:#eef2f7}
+.compressed-school-row .school-name{font-weight:600;color:#1f2937}
+.compressed-school-row .school-scope{color:#475569}
+.compressed-school-row .school-prev{font-weight:500;color:#64748b}
+.compressed-school-row .school-current{font-weight:700;color:#0f172a}
+.compressed-school-row .school-change{font-weight:800;padding:2px 8px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;min-width:88px}
+.compressed-school-row .up{color:#14532d;background:#dcfce7}
+.compressed-school-row .down{color:#991b1b;background:#fee2e2}
+.compressed-school-row .flat{color:#334155;background:#e2e8f0}
+.compressed-school-row .na{color:#1e3a8a;background:#dbeafe}
+.no-return{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:999px;background:#fff1f2;border:1px solid #fecdd3;color:#9f1239;font-weight:700;line-height:1.2}
+.no-return::before{content:'!';display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:#e11d48;color:#fff;font-size:10px;font-weight:800;flex:0 0 14px}
+.no-prior{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;font-weight:700;line-height:1.2}
+.no-prior::before{content:'i';display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:#1d4ed8;color:#fff;font-size:10px;font-weight:800;flex:0 0 14px}
+.kpi-value .no-return{white-space:nowrap}
+.kpi-card.no-return-current{border-color:#fda4af;box-shadow:0 0 0 2px rgba(244,63,94,0.18),0 4px 14px rgba(15,23,42,0.08)}
+.kpi-card.no-return-current::before{opacity:1;background:linear-gradient(90deg,#e11d48,#fb7185)}
+.compressed-school-row .tooltip-trigger{margin-left:4px;color:#64748b}
+.compressed-school-row .tooltip-trigger svg{width:14px;height:14px}
 .performance-excellent{background:linear-gradient(135deg,#3b82f6,#1d4ed8);box-shadow:0 4px 15px rgba(59,130,246,0.3)}
 .performance-good{background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 15px rgba(16,185,129,0.3)}
 .performance-warning{background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 4px 15px rgba(245,158,11,0.3)}
@@ -99,16 +135,17 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
 .tooltip-trigger:hover{color:#3b82f6}
 .data-warning{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#dc2626;color:white;font-size:12px;font-weight:700;margin-left:6px;vertical-align:middle;cursor:default}
 .school-warning{margin-left:6px}
+.school-missing{margin-left:6px}
 .trend-wrap{margin:8px 0 12px;padding:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px}
 .trend-title{font-size:12px;color:#64748b;font-weight:600;margin-bottom:6px}
-.trend-canvas{width:100%!important;height:184px!important}
+.trend-canvas{width:100%!important;height:206px!important}
 .tooltip-content{visibility:hidden;opacity:0;position:fixed;z-index:9999;background-color:#1f2937;color:white;padding:16px;border-radius:8px;font-size:14px;line-height:1.5;max-width:320px;width:max-content;box-shadow:0 10px 25px rgba(0,0,0,0.3);transition:opacity 0.3s,visibility 0.3s;pointer-events:none}
 .guide-panel{background:#ffffff;border:1px solid #dbe2ea;border-radius:12px;padding:12px 14px;margin-bottom:14px;box-shadow:0 2px 8px rgba(15,23,42,0.04)}
 .guide-title{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:8px}
 .guide-line{font-size:13px;color:#334155;line-height:1.45}
 .guide-note{font-size:12px;color:#64748b;line-height:1.4;margin-top:6px}
 @media (max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:768px){.kpi-grid{grid-template-columns:1fr}.container{padding:12px}.header{padding:18px}.header h1{font-size:1.55rem}.kpi-card{padding:12px}.kpi-title{font-size:14px}.kpi-value{font-size:13px}.view-button,.sort-button{padding:7px 12px;font-size:13px;margin:0 2px}.compressed-view .kpi-grid{grid-template-columns:1fr}.compressed-view .kpi-card{grid-template-columns:minmax(0,1fr) auto auto;padding:10px}.compressed-view .university-comparison{grid-column:1/-1;justify-self:start}.compressed-view .expand-icon{grid-column:3;grid-row:1}}
+@media (max-width:768px){.kpi-grid{grid-template-columns:1fr}.container{padding:12px}.header{padding:18px}.header h1{font-size:1.55rem}.kpi-card{padding:12px}.kpi-title{font-size:14px}.kpi-value{font-size:13px}.view-button,.sort-button{padding:7px 12px;font-size:13px;margin:0 2px}.compressed-view .kpi-grid{grid-template-columns:1fr}.compressed-view .kpi-card{grid-template-columns:minmax(0,1fr) 200px 110px 14px;padding:10px}.compressed-view .kpi-value{font-size:12px;padding:4px 6px}.compressed-view .university-comparison{grid-column:3;justify-self:start}.compressed-view .expand-icon{grid-column:4;grid-row:1}.compressed-school-row{grid-template-columns:minmax(130px,1.6fr) minmax(100px,1fr) minmax(82px,0.8fr) minmax(82px,0.8fr) minmax(100px,1fr);font-size:11px;padding:6px}}
 </style>
 </head>
 <body>
@@ -123,7 +160,9 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
 <div class="guide-line">Percentages show current performance. Bracketed counts show how many items were in scope.</div>
 <div class="guide-line">Comparison text shows the gap to university, and the badge shows movement since the previous applicable return.</div>
 <div class="guide-line">Not applicable means 0 items were in scope for that period, so it is excluded from change calculations.</div>
+<div class="guide-line"><span class="no-return">No return</span> marks missing submissions for that KPI/department return.</div>
 <div class="guide-note"><span class="data-warning">!</span> marks a source percentage outside 0-100 and should be reviewed with the submitting department.</div>
+<div class="guide-note">Values above 100% can occur when more tasks were completed than originally planned, or where source data was entered incorrectly.</div>
 </div>
 <div class="overview-title">Faculty KPI Overview</div>
 <p id="instructions" style="text-align:center;color:#64748b;margin-bottom:20px;font-size:15px">Click any KPI card to view school performance breakdown</p>
@@ -1117,12 +1156,19 @@ const facultyData={
 function createTooltip(kpiName,tooltipText){if(!tooltipText)return '';return `<span class="tooltip-trigger" data-tooltip="${encodeURIComponent(tooltipText)}" data-kpi="${kpiName}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9,9h0a3,3,0,0,1,6,0c0,2-3,3-3,3"></path><path d="m12,17h0"></path></svg></span>`;}
 function createGlobalTooltip(){if(globalTooltip)return;globalTooltip=document.createElement('div');globalTooltip.className='tooltip-content';globalTooltip.style.visibility='hidden';globalTooltip.style.opacity='0';document.body.appendChild(globalTooltip);}
 function positionTooltips(){createGlobalTooltip();document.querySelectorAll('.tooltip-trigger').forEach(trigger=>{trigger.removeEventListener('mouseenter',handleTooltipShow);trigger.removeEventListener('mouseleave',handleTooltipHide);trigger.addEventListener('mouseenter',handleTooltipShow);trigger.addEventListener('mouseleave',handleTooltipHide);});}
+function applyCompressedValueTitles(){
+  if(currentViewMode!=='compressed') return;
+  document.querySelectorAll('.compressed-view .kpi-value').forEach((valueEl)=>{
+    const fullText = valueEl.textContent.replace(/\s+/g,' ').trim();
+    if(fullText) valueEl.setAttribute('title', fullText);
+  });
+}
 function handleTooltipShow(event){const trigger=event.currentTarget;const tooltipText=decodeURIComponent(trigger.getAttribute('data-tooltip'));if(!tooltipText||!globalTooltip)return;showTooltip(trigger,tooltipText);}
 function handleTooltipHide(event){hideTooltip();}
 function showTooltip(trigger,tooltipText){if(!globalTooltip)return;globalTooltip.innerHTML=tooltipText;const triggerRect=trigger.getBoundingClientRect();const viewportWidth=window.innerWidth;const viewportHeight=window.innerHeight;globalTooltip.style.visibility='visible';globalTooltip.style.opacity='0';globalTooltip.style.left='0px';globalTooltip.style.top='0px';const tooltipRect=globalTooltip.getBoundingClientRect();const triggerCenterX=triggerRect.left+(triggerRect.width/2);const triggerTopY=triggerRect.top;let left=triggerCenterX-(tooltipRect.width/2);let top=triggerTopY-tooltipRect.height-12;if(left<10){left=10;}else if(left+tooltipRect.width>viewportWidth-10){left=viewportWidth-tooltipRect.width-10;}if(top<10){top=triggerRect.bottom+12;}globalTooltip.style.left=left+'px';globalTooltip.style.top=top+'px';globalTooltip.style.visibility='visible';globalTooltip.style.opacity='1';}
 function hideTooltip(){if(globalTooltip){globalTooltip.style.visibility='hidden';globalTooltip.style.opacity='0';}}
 function isOutOfRangePercentage(percentage){if(percentage===null||percentage===undefined)return false;const numericPercentage=parseFloat(percentage);if(Number.isNaN(numericPercentage))return false;return numericPercentage<0||numericPercentage>100;}
-function createOutOfRangeBadge(percentage,extraClass=''){if(!isOutOfRangePercentage(percentage))return '';const cls=extraClass?`data-warning ${extraClass}`:'data-warning';return `<span class="${cls}" title="Out-of-range percentage in source data">!</span>`;}
+function createOutOfRangeBadge(percentage,extraClass=''){if(!isOutOfRangePercentage(percentage))return '';const cls=extraClass?`data-warning ${extraClass}`:'data-warning';return `<span class="${cls}" title="Source percentage is outside 0-100. This can happen when plans changed or where source data may have been entered incorrectly.">!</span>`;}
 function normalizeTrendHistory(history){
   if(!Array.isArray(history)) return [];
   return history
@@ -1134,6 +1180,16 @@ function normalizeTrendHistory(history){
       number: typeof point.number === 'number' ? point.number : null,
       applicable: point.applicable !== false
     }));
+}
+function kpiUsesDenominator(kpiName){
+  return !!(kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label);
+}
+function isImplicitNoReturnPoint(kpiName, point){
+  if(!point || point.applicable === false) return false;
+  if(!kpiUsesDenominator(kpiName)) return false;
+  const missingCount = point.number === null || point.number === undefined || Number.isNaN(point.number);
+  const raw = typeof point.rawPercentage === 'number' ? point.rawPercentage : point.percentage;
+  return missingCount && typeof raw === 'number' && Math.abs(raw) < 1e-9;
 }
 function buildTrendBounds(seriesList){
   const values = [];
@@ -1181,28 +1237,49 @@ function getChangeSummary(history, kpiName){
   const cleaned = normalizeTrendHistory(history);
   if(cleaned.length === 0) return null;
   const currentPoint = cleaned[cleaned.length - 1];
+  const explicitMissing = currentPoint.applicable !== false
+    && (currentPoint.percentage === null || currentPoint.percentage === undefined)
+    && (currentPoint.rawPercentage === null || currentPoint.rawPercentage === undefined);
+  if(explicitMissing) {
+    return {
+      label: 'No return submitted this period',
+      shortLabel: 'No return',
+      className: 'change-missing',
+      symbol: '!',
+      delta: null
+    };
+  }
+  if(isImplicitNoReturnPoint(kpiName, currentPoint)) {
+    return {
+      label: 'No return submitted this period',
+      shortLabel: 'No return',
+      className: 'change-missing',
+      symbol: '!',
+      delta: null
+    };
+  }
   if(currentPoint.applicable === false) {
     const priorPoint = getLastApplicablePoint(cleaned.slice(0, -1));
     const naText = getNotApplicableText(kpiName);
     if(priorPoint) {
       return {
         label: `${naText}. Last applicable return: ${priorPoint.percentage.toFixed(1)}% (${priorPoint.date}).`,
-        shortLabel: `N/A | Last ${priorPoint.percentage.toFixed(1)}%`,
+        shortLabel: `N/A | Last applicable ${priorPoint.percentage.toFixed(1)}%`,
         className: 'change-na',
         symbol: '○',
         delta: null
       };
     }
     return {
-      label: `${naText}. No prior applicable return.`,
-      shortLabel: 'N/A | No prior',
+      label: `${naText}. No previous applicable return to compare.`,
+      shortLabel: 'N/A | No previous applicable return',
       className: 'change-na',
       symbol: '○',
       delta: null
     };
   }
-  const applicable = cleaned.filter((point) => point.applicable && typeof point.percentage === 'number');
-  if(applicable.length < 2) return { label: 'No prior applicable return', shortLabel: 'No prior applicable', className: 'change-flat', symbol: '→', delta: null };
+  const applicable = cleaned.filter((point) => point.applicable && typeof point.percentage === 'number' && !isImplicitNoReturnPoint(kpiName, point));
+  if(applicable.length < 2) return { label: 'No previous applicable return', shortLabel: 'No previous applicable', className: 'change-flat', symbol: '→', delta: null };
   const previous = applicable[applicable.length - 2].percentage;
   const current = applicable[applicable.length - 1].percentage;
   if(typeof previous !== 'number' || typeof current !== 'number') return null;
@@ -1219,12 +1296,80 @@ function hasHistoryAnomaly(history){
   const cleaned = normalizeTrendHistory(history);
   return cleaned.slice(-2).some((point) => typeof point.rawPercentage === 'number' && (point.rawPercentage < 0 || point.rawPercentage > 100));
 }
-function createChangeBadge(history, kpiName, compact=false){
+function createChangeBadge(history, kpiName, compact=false, includeLastPrefix=false){
   const summary = getChangeSummary(history, kpiName);
   if(!summary) return '';
-  const text = compact ? summary.shortLabel : summary.label;
-  const anomaly = hasHistoryAnomaly(history) ? '<span class="data-warning" title="Historic source percentage outside 0-100">!</span>' : '';
-  return `<span class="change-badge ${summary.className}" title="${summary.label}">${summary.symbol} ${text}${anomaly}</span>`;
+  let text = summary.label;
+  if(compact){
+    if(includeLastPrefix){
+      if(summary.className === 'change-up' || summary.className === 'change-down'){
+        text = `Last: ${summary.shortLabel}`;
+      } else if(summary.className === 'change-missing'){
+        text = 'Last: No return';
+      } else if(summary.className === 'change-flat'){
+        text = summary.delta === null ? 'Last: No prior' : 'Last: No change';
+      } else {
+        text = 'Last: N/A';
+      }
+    } else {
+      text = summary.shortLabel;
+    }
+  }
+  return `<span class="change-badge ${summary.className}" title="${summary.label}">${summary.symbol} ${text}</span>`;
+}
+function formatPercentCell(point, kpiName, fallbackText='No return'){
+  if(!point) {
+    if(String(fallbackText).toLowerCase().includes('prior')) return '<span class="no-prior">No previous applicable return</span>';
+    return `<span class="no-return">${fallbackText}</span>`;
+  }
+  if(isImplicitNoReturnPoint(kpiName, point)) return '<span class="no-return">No return submitted</span>';
+  if(point.applicable === false) return `N/A ${createTooltip(kpiName, getNotApplicableText(kpiName))}`;
+  if(typeof point.percentage === 'number') return `${point.percentage.toFixed(1)}%`;
+  return '<span class="no-return">No return submitted</span>';
+}
+function getPreviousAndCurrentPoints(history){
+  const cleaned = normalizeTrendHistory(history);
+  if(cleaned.length === 0) return { previous: null, current: null };
+  const current = cleaned[cleaned.length - 1];
+  let previous = null;
+  for(let i = cleaned.length - 2; i >= 0; i--){
+    const candidate = cleaned[i];
+    if(candidate && candidate.applicable && typeof candidate.percentage === 'number'){
+      previous = candidate;
+      break;
+    }
+  }
+  return { previous, current };
+}
+function didSubmitReturnForPoint(kpiName, point){
+  if(!point) return false;
+  if(isImplicitNoReturnPoint(kpiName, point)) return false;
+  if(point.applicable === false) return true;
+  if(typeof point.percentage === 'number') return true;
+  if(typeof point.rawPercentage === 'number') return true;
+  if(point.number !== null && point.number !== undefined && !Number.isNaN(Number(point.number))) return true;
+  return false;
+}
+function createPreviousReturnStatusBadge(history, kpiName){
+  const cleaned = normalizeTrendHistory(history);
+  if(cleaned.length < 2) return '<span class="change-badge change-flat">→ Prev: No prior period</span>';
+  const previousPoint = cleaned[cleaned.length - 2];
+  if(didSubmitReturnForPoint(kpiName, previousPoint)){
+    return '<span class="change-badge change-prev-submitted" title="Previous reporting period had a submitted return">✓ Prev return: Submitted</span>';
+  }
+  return '<span class="change-badge change-prev-missing" title="Previous reporting period did not have a submitted return">! Prev return: No return</span>';
+}
+function getCompressedChangeCell(history, kpiName){
+  const summary = getChangeSummary(history, kpiName);
+  if(!summary) return '<span class="school-change na">N/A</span>';
+  if(summary.className === 'change-missing') return '<span class="school-change down">No return</span>';
+  if(summary.className === 'change-up') return `<span class="school-change up">↑ ${summary.delta.toFixed(1)}pp</span>`;
+  if(summary.className === 'change-down') return `<span class="school-change down">↓ ${summary.delta.toFixed(1)}pp</span>`;
+  if(summary.className === 'change-flat') {
+    if(summary.delta === null) return '<span class="school-change flat">No previous return</span>';
+    return '<span class="school-change flat">→ 0.0pp</span>';
+  }
+  return '<span class="school-change na">N/A</span>';
 }
 function createTrendMarkup(kpiData,kpiName){
   const facultyHistory = normalizeTrendHistory(kpiData.history);
@@ -1238,11 +1383,15 @@ function createTrendMarkup(kpiData,kpiName){
 }
 function createSchoolTrendMarkup(history,kpiName,schoolName){
   const cleaned = normalizeTrendHistory(history);
-  if(cleaned.length < 2) return '<div class="school-trend-empty">No prior period</div>';
+  if(cleaned.length < 2) return `<div class="school-trend-inline"><div class="school-trend-empty">No prior period</div>${createPreviousReturnStatusBadge(cleaned,kpiName)}</div>`;
   const safeId = `school-trend-${schoolName.replace(/[^a-zA-Z0-9]/g,'-')}-${kpiName.replace(/[^a-zA-Z0-9]/g,'-')}`;
   const safeKpi = encodeURIComponent(kpiName);
   const historyData = encodeURIComponent(JSON.stringify(cleaned));
-  return `<div class="school-trend-inline"><canvas id="${safeId}" class="school-trend-canvas" data-kpi-name="${safeKpi}" data-school-history="${historyData}"></canvas>${createChangeBadge(cleaned,kpiName,true)}</div>`;
+  const summary = getChangeSummary(cleaned, kpiName);
+  const trendBadge = summary && summary.className === 'change-missing'
+    ? createPreviousReturnStatusBadge(cleaned, kpiName)
+    : createChangeBadge(cleaned, kpiName, true);
+  return `<div class="school-trend-inline"><canvas id="${safeId}" class="school-trend-canvas" data-kpi-name="${safeKpi}" data-school-history="${historyData}"></canvas>${trendBadge}</div>`;
 }
 function renderTrendCharts(){
   document.querySelectorAll('.trend-canvas').forEach((canvas) => {
@@ -1407,9 +1556,23 @@ function renderSchoolTrendCharts(){
   });
 }
 function getPerformanceClass(percentage,applicable=true){if(applicable===false)return 'performance-not-applicable';if(percentage===null||percentage===undefined)return 'performance-no-data';if(percentage>=95)return 'performance-excellent';if(percentage>=80)return 'performance-good';if(percentage>=60)return 'performance-warning';return 'performance-poor';}
+function isMissingReturnValue(value){
+  return value===null||value===undefined||(typeof value==='string'&&['/','-','–','—',''].includes(value.trim()));
+}
+function isImplicitNoReturnRecord(kpiName, percentage, number, applicable=true){
+  if(applicable===false) return false;
+  if(!kpiUsesDenominator(kpiName)) return false;
+  const missingCount = number===null || number===undefined || Number.isNaN(Number(number));
+  return missingCount && typeof Number(percentage)==='number' && !Number.isNaN(Number(percentage)) && Math.abs(Number(percentage)) < 1e-9;
+}
+function isMissingCurrentForKpi(kpiName, percentage, number, applicable=true){
+  if(applicable===false) return false;
+  return isMissingReturnValue(percentage) || isImplicitNoReturnRecord(kpiName, percentage, number, applicable);
+}
 function formatValue(percentage,number,applicable=true,kpiName=''){
   if(applicable===false) return getNotApplicableText(kpiName);
-  if(percentage===null||percentage===undefined) return 'No return submitted';
+  if(isImplicitNoReturnRecord(kpiName, percentage, number, applicable)) return '<span class="no-return">No return submitted</span>';
+  if(isMissingReturnValue(percentage)) return '<span class="no-return">No return submitted</span>';
   const zeroScoreText = getZeroScoreText(kpiName);
   if(zeroScoreText && Math.abs(Number(percentage)) < 1e-9) return zeroScoreText;
   if(number===null||number===undefined) return `${percentage.toFixed(1)}%`;
@@ -1417,7 +1580,8 @@ function formatValue(percentage,number,applicable=true,kpiName=''){
 }
 function formatDisplayTextWithCount(kpiName,percentage,number,applicable=true){
   if(applicable===false) return getNotApplicableText(kpiName);
-  if(percentage===null||percentage===undefined) return 'No return submitted';
+  if(isImplicitNoReturnRecord(kpiName, percentage, number, applicable)) return '<span class="no-return">No return submitted</span>';
+  if(isMissingReturnValue(percentage)) return '<span class="no-return">No return submitted</span>';
   const zeroScoreText = getZeroScoreText(kpiName);
   if(zeroScoreText && Math.abs(Number(percentage)) < 1e-9) return zeroScoreText;
   if(number===null||number===undefined) return `${percentage.toFixed(1)}%`;
@@ -1428,7 +1592,7 @@ function createUniversityComparison(kpiName,kpiData){
   const facultyPercentage=kpiData.percentage;
   const universityPercentage=kpiData.university_percentage;
   const comparison=kpiData.comparison;
-  const changeBadge=createChangeBadge(kpiData.history,kpiName);
+  const changeBadge=createChangeBadge(kpiData.history,kpiName,currentViewMode==='compressed',currentViewMode==='compressed');
   if(kpiData.applicable===false||kpiData.university_applicable===false||facultyPercentage===null||universityPercentage===null){
     if(!changeBadge) return '';
     return `<div class="university-comparison"><div class="comparison-top"><div class="comparison-text">University comparison unavailable this period</div></div>${changeBadge}</div>`;
@@ -1446,11 +1610,11 @@ function createUniversityComparison(kpiName,kpiData){
       if(!changeBadge) return '';
       return `<div class="university-comparison"><div class="comparison-top"><div class="comparison-text">University comparison unavailable this period</div></div>${changeBadge}</div>`;
   }
-  return `<div class="university-comparison"><div class="comparison-top"><div class="comparison-text">${summary}</div><div class="comparison-values"><span class="university-value">Uni: ${universityPercentage.toFixed(1)}%</span><span class="comparison-indicator ${indicatorClass}" title="${summary}">${indicatorText}</span></div></div>${changeBadge}</div>`;
+  return `<div class="university-comparison"><div class="comparison-top"><div class="comparison-text">${summary}</div><div class="comparison-values"><span class="university-value">Uni Avg: ${universityPercentage.toFixed(1)}%</span><span class="comparison-indicator ${indicatorClass}" title="${summary}">${indicatorText}</span></div></div>${changeBadge}</div>`;
 }
 function toggleCard(cardElement,kpiName){cardElement.classList.toggle('expanded');}
-function sortFacultyCards(order){currentSortOrder=order;document.getElementById('sortHighLow').classList.toggle('active',order==='highLow');document.getElementById('sortLowHigh').classList.toggle('active',order==='lowHigh');initializeFacultyDashboard();setTimeout(()=>{positionTooltips();renderTrendCharts();renderSchoolTrendCharts();},100);}
-function toggleViewMode(mode){currentViewMode=mode;document.getElementById('detailedView').classList.toggle('active',mode==='detailed');document.getElementById('compressedView').classList.toggle('active',mode==='compressed');const container=document.querySelector('.faculty-overview');const instructions=document.getElementById('instructions');if(mode==='compressed'){container.classList.add('compressed-view');instructions.textContent='Compact view showing faculty and university averages for all KPIs';}else{container.classList.remove('compressed-view');instructions.textContent='Click any KPI card to view school performance breakdown';}initializeFacultyDashboard();setTimeout(()=>{positionTooltips();renderTrendCharts();renderSchoolTrendCharts();},100);}
+function sortFacultyCards(order){currentSortOrder=order;document.getElementById('sortHighLow').classList.toggle('active',order==='highLow');document.getElementById('sortLowHigh').classList.toggle('active',order==='lowHigh');initializeFacultyDashboard();setTimeout(()=>{positionTooltips();applyCompressedValueTitles();renderTrendCharts();renderSchoolTrendCharts();},100);}
+function toggleViewMode(mode){currentViewMode=mode;document.getElementById('detailedView').classList.toggle('active',mode==='detailed');document.getElementById('compressedView').classList.toggle('active',mode==='compressed');const container=document.querySelector('.faculty-overview');const instructions=document.getElementById('instructions');if(mode==='compressed'){container.classList.add('compressed-view');instructions.textContent='Compact view showing faculty and university averages for all KPIs';}else{container.classList.remove('compressed-view');instructions.textContent='Click any KPI card to view school performance breakdown';}initializeFacultyDashboard();setTimeout(()=>{positionTooltips();applyCompressedValueTitles();renderTrendCharts();renderSchoolTrendCharts();},100);}
 function initializeFacultyDashboard(){
   const facultyKpisContainer = document.getElementById('facultyKpis');
   facultyKpisContainer.innerHTML = '';
@@ -1474,6 +1638,9 @@ function initializeFacultyDashboard(){
   for(const [kpiName, kpiData] of kpiEntries){
     const card = document.createElement('div');
     card.className = 'kpi-card';
+    let cardHasMissingReturns = isMissingCurrentForKpi(kpiName, kpiData.percentage, kpiData.number, kpiData.applicable);
+    let missingReturnsCount = 0;
+    if(cardHasMissingReturns) card.classList.add('no-return-current');
     card.id = `card-${kpiName.replace(/[^a-zA-Z0-9]/g, '-')}`;
     const performanceClass = getPerformanceClass(kpiData.percentage, kpiData.applicable);
     let schoolBreakdownHtml = '';
@@ -1481,6 +1648,11 @@ function initializeFacultyDashboard(){
     const hasSchools = facultyData.schools && Object.keys(facultyData.schools).length > 0;
     if(hasSchools){
       let schoolEntries = Object.entries(facultyData.schools).filter(([schoolName, schoolData]) => schoolData.kpis && schoolData.kpis[kpiName]);
+      missingReturnsCount = schoolEntries.reduce((count, [, schoolData]) => {
+        const schoolKpi = schoolData.kpis[kpiName];
+        return count + (isMissingCurrentForKpi(kpiName, schoolKpi.percentage, schoolKpi.number, schoolKpi.applicable) ? 1 : 0);
+      }, 0);
+      if(missingReturnsCount > 0) cardHasMissingReturns = true;
 
       if(currentSortOrder === 'highLow') {
         schoolEntries.sort((a, b) => {
@@ -1501,96 +1673,130 @@ function initializeFacultyDashboard(){
       }
 
       if(schoolEntries.length > 0){
-        schoolBreakdownHtml = `<div class="school-breakdown-content"><div class="school-breakdown-title">School Performance (${schoolEntries.length} schools):</div>`;
+        const breakdownTitle = currentViewMode === 'compressed'
+          ? `Department Snapshot (${schoolEntries.length} departments):`
+          : `School Performance (${schoolEntries.length} schools):`;
+        schoolBreakdownHtml = `<div class="school-breakdown-content"><div class="school-breakdown-title">${breakdownTitle}</div>`;
 
-        for(const [schoolName, schoolData] of schoolEntries){
-          const schoolKpi = schoolData.kpis[kpiName];
-          const percentage = schoolKpi.percentage;
-          const number = schoolKpi.number;
-          const applicable = schoolKpi.applicable !== false;
-          let barWidth = 0;
-          let barColor = '#6b7280';
-          const labelClasses = ['school-percentage-label'];
-          const barClasses = ['school-percentage-bar'];
-          let labelText = '';
+        if(currentViewMode === 'compressed'){
+          schoolBreakdownHtml += '<div class="compressed-school-table"><div class="compressed-school-row header"><div>Department</div><div>In Scope</div><div>Previous</div><div>Current</div><div>Change</div></div>';
+          for(const [schoolName, schoolData] of schoolEntries){
+            const schoolKpi = schoolData.kpis[kpiName];
+            const schoolLabel = (kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label) ? kpiMeta[kpiName].denominator_label : 'records';
+            const number = schoolKpi.number;
+            const countValue = (number !== null && number !== undefined && number !== '/' && !isNaN(parseFloat(number))) ? parseFloat(number) : null;
+            const scopeText = countValue === null ? '<span class="no-return">No return</span>' : `${Math.round(countValue)} ${schoolLabel}`;
+            const points = getPreviousAndCurrentPoints(schoolKpi.history);
+            if(isMissingCurrentForKpi(kpiName, schoolKpi.percentage, schoolKpi.number, schoolKpi.applicable)) cardHasMissingReturns = true;
+            const previousText = formatPercentCell(points.previous, kpiName, 'No prior applicable return');
+            const currentText = formatPercentCell(points.current, kpiName, 'No return');
+            const changeText = getCompressedChangeCell(schoolKpi.history, kpiName);
+            const schoolWarning = createOutOfRangeBadge(schoolKpi.percentage, 'school-warning');
+            schoolBreakdownHtml += `<div class="compressed-school-row"><div class="school-name">${schoolName}${schoolWarning}</div><div class="school-scope">${scopeText}</div><div class="school-prev">${previousText}</div><div class="school-current">${currentText}</div><div>${changeText}</div></div>`;
+          }
+          schoolBreakdownHtml += '</div>';
+        } else {
+          for(const [schoolName, schoolData] of schoolEntries){
+            const schoolKpi = schoolData.kpis[kpiName];
+            const percentage = schoolKpi.percentage;
+            const number = schoolKpi.number;
+            const applicable = schoolKpi.applicable !== false;
+            let barWidth = 0;
+            let barColor = '#6b7280';
+            const labelClasses = ['school-percentage-label'];
+            const barClasses = ['school-percentage-bar'];
+            let labelText = '';
 
-          const hasNumber = (number !== null && number !== undefined && number !== '/' && !isNaN(parseFloat(number)));
-          const countValue = hasNumber ? parseFloat(number) : null;
-          const hasZeroCount = countValue === 0;
-          const zeroScoreText = getZeroScoreText(kpiName);
+            const hasNumber = (number !== null && number !== undefined && number !== '/' && !isNaN(parseFloat(number)));
+            const countValue = hasNumber ? parseFloat(number) : null;
+            const hasZeroCount = countValue === 0;
+            const zeroScoreText = getZeroScoreText(kpiName);
+            const missingCurrent = isMissingCurrentForKpi(kpiName, percentage, number, applicable);
 
-          if(hasZeroCount) barClasses.push('zero-count-bar');
+            if(hasZeroCount) barClasses.push('zero-count-bar');
 
-          if(!applicable){
-            labelText = getNotApplicableText(kpiName);
-            labelClasses.push('label-zero-count');
-          } else if(percentage === null || percentage === undefined || (typeof percentage === 'string' && percentage.trim() === '/')) {
-            labelText = 'No return submitted';
-            labelClasses.push('label-no-data');
-            barClasses.push('no-data-bar');
-          } else {
-            const numericPercentage = parseFloat(percentage);
-            if(!isNaN(numericPercentage)) {
-              if(zeroScoreText && Math.abs(numericPercentage) < 1e-9) {
-                labelText = zeroScoreText;
-                labelClasses.push('label-zero-count');
-                barClasses.push('zero-count-bar');
-              } else {
-                const boundedPercentage = Math.max(0, Math.min(100, numericPercentage));
-                if(hasZeroCount) {
-                  labelText = getNotApplicableText(kpiName);
-                  labelClasses.push('label-zero-count');
-                } else {
-                  barWidth = boundedPercentage;
-                  const schoolPerfClass = getPerformanceClass(numericPercentage, true);
-                  switch(schoolPerfClass){
-                    case 'performance-excellent': barColor = '#3b82f6'; break;
-                    case 'performance-good': barColor = '#10b981'; break;
-                    case 'performance-warning': barColor = '#f59e0b'; break;
-                    case 'performance-poor': barColor = '#ef4444'; break;
-                    default: barColor = '#6b7280';
-                  }
-                  labelText = `${numericPercentage.toFixed(1)}%${createOutOfRangeBadge(numericPercentage, 'school-warning')}`;
-                  if(boundedPercentage >= 60) labelClasses.push('label-on-fill');
-                }
-              }
-            } else {
+            if(missingCurrent){
+              cardHasMissingReturns = true;
+              labelText = '<span class="no-return">No return submitted</span>';
+              labelClasses.push('label-no-data');
+              barClasses.push('no-data-bar');
+            } else if(!applicable){
+              labelText = getNotApplicableText(kpiName);
+              labelClasses.push('label-zero-count');
+            } else if(percentage === null || percentage === undefined || (typeof percentage === 'string' && percentage.trim() === '/')) {
               labelText = 'No return submitted';
               labelClasses.push('label-no-data');
               barClasses.push('no-data-bar');
+            } else {
+              const numericPercentage = parseFloat(percentage);
+              if(!isNaN(numericPercentage)) {
+                if(zeroScoreText && Math.abs(numericPercentage) < 1e-9) {
+                  labelText = zeroScoreText;
+                  labelClasses.push('label-zero-count');
+                  barClasses.push('zero-count-bar');
+                } else {
+                  const boundedPercentage = Math.max(0, Math.min(100, numericPercentage));
+                  if(hasZeroCount) {
+                    labelText = getNotApplicableText(kpiName);
+                    labelClasses.push('label-zero-count');
+                  } else {
+                    barWidth = boundedPercentage;
+                    const schoolPerfClass = getPerformanceClass(numericPercentage, true);
+                    switch(schoolPerfClass){
+                      case 'performance-excellent': barColor = '#3b82f6'; break;
+                      case 'performance-good': barColor = '#10b981'; break;
+                      case 'performance-warning': barColor = '#f59e0b'; break;
+                      case 'performance-poor': barColor = '#ef4444'; break;
+                      default: barColor = '#6b7280';
+                    }
+                    labelText = `${numericPercentage.toFixed(1)}%`;
+                    if(boundedPercentage >= 60) labelClasses.push('label-on-fill');
+                  }
+                }
+              } else {
+                labelText = 'No return submitted';
+                labelClasses.push('label-no-data');
+                barClasses.push('no-data-bar');
+              }
             }
+
+            if(labelText === '') {
+              labelText = 'No return submitted';
+              if(!labelClasses.includes('label-no-data')) labelClasses.push('label-no-data');
+              if(!barClasses.includes('no-data-bar')) barClasses.push('no-data-bar');
+            }
+
+            const labelClass = labelClasses.join(' ');
+            const barClass = barClasses.join(' ');
+            const schoolLabel = (kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label) ? kpiMeta[kpiName].denominator_label : 'records';
+            const countDisplay = countValue !== null ? `<div class="school-count">In scope: ${Math.round(countValue)} ${schoolLabel}</div>` : '';
+            const schoolTrendHtml = createSchoolTrendMarkup(schoolKpi.history, kpiName, schoolName);
+            const fillMarkup = !hasZeroCount && barWidth > 0 ? `<div class="school-percentage-fill" style="width:${barWidth}%;background:${barColor};"></div>` : '';
+
+            const schoolWarning = createOutOfRangeBadge(schoolKpi.percentage, 'school-warning');
+            const schoolMissing = missingCurrent ? '<span class="missing-return-flag school-missing" title="No return submitted for this KPI this period">No return</span>' : '';
+            schoolBreakdownHtml += `<div class="school-bar-inline"><div class="school-bar-header"><div class="school-bar-name-inline">${schoolName}${schoolWarning}${schoolMissing}</div>${countDisplay}</div><div class="school-trend-row">${schoolTrendHtml}</div><div class="school-bar-container"><div class="${barClass}">${fillMarkup}<div class="${labelClass}">${labelText}</div></div></div></div>`;
           }
-
-          if(labelText === '') {
-            labelText = 'No return submitted';
-            if(!labelClasses.includes('label-no-data')) labelClasses.push('label-no-data');
-            if(!barClasses.includes('no-data-bar')) barClasses.push('no-data-bar');
-          }
-
-          const labelClass = labelClasses.join(' ');
-          const barClass = barClasses.join(' ');
-          const schoolLabel = (kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label) ? kpiMeta[kpiName].denominator_label : 'records';
-          const countDisplay = countValue !== null ? `<div class="school-count">In scope: ${Math.round(countValue)} ${schoolLabel}</div>` : '';
-          const schoolTrendHtml = createSchoolTrendMarkup(schoolKpi.history, kpiName, schoolName);
-          const fillMarkup = !hasZeroCount && barWidth > 0 ? `<div class="school-percentage-fill" style="width:${barWidth}%;background:${barColor};"></div>` : '';
-
-          schoolBreakdownHtml += `<div class="school-bar-inline"><div class="school-bar-header"><div class="school-bar-name-inline">${schoolName}</div>${countDisplay}</div><div class="school-trend-row">${schoolTrendHtml}</div><div class="school-bar-container"><div class="${barClass}">${fillMarkup}<div class="${labelClass}">${labelText}</div></div></div></div>`;
         }
 
         schoolBreakdownHtml += '</div>';
       }
     }
 
-    const trendHtml = createTrendMarkup(kpiData, kpiName);
+    if(missingReturnsCount === 0 && cardHasMissingReturns) missingReturnsCount = 1;
+
+    const trendHtml = currentViewMode === 'compressed' ? '' : createTrendMarkup(kpiData, kpiName);
     const hasExpandableContent = schoolBreakdownHtml !== '';
     const expandIcon = hasExpandableContent ? '<div class="expand-icon">▼</div>' : '';
     const tooltipHtml = createTooltip(kpiName, tooltipData[kpiName]);
     const warningBadgeHtml = createOutOfRangeBadge(kpiData.percentage);
+    const missingBadgeText = `${missingReturnsCount} Missing Return(s)`;
+    const missingCardBadge = cardHasMissingReturns ? `<span class="missing-return-flag" title="Departments with no return for this KPI this period">${missingBadgeText}</span>` : '';
     const universityComparisonHtml = createUniversityComparison(kpiName, kpiData);
     const questionText = (kpiMeta[kpiName] && kpiMeta[kpiName].question) ? kpiMeta[kpiName].question : '';
 
     if(currentViewMode === 'compressed') {
-      card.innerHTML = `<div class="kpi-title">${kpiName} ${tooltipHtml} ${warningBadgeHtml}</div><div class="kpi-value ${performanceClass}">${formatDisplayTextWithCount(kpiName, kpiData.percentage, kpiData.number, kpiData.applicable)}</div>${universityComparisonHtml}${trendHtml}${schoolBreakdownHtml}${expandIcon}`;
+      card.innerHTML = `<div class="kpi-title-wrap">${tooltipHtml}<div class="kpi-title">${kpiName} ${warningBadgeHtml}<span class="missing-return-slot">${missingCardBadge}</span></div></div><div class="kpi-value ${performanceClass}">${formatDisplayTextWithCount(kpiName, kpiData.percentage, kpiData.number, kpiData.applicable)}</div>${universityComparisonHtml}${trendHtml}${schoolBreakdownHtml}${expandIcon}`;
       if(hasExpandableContent) {
         card.onclick = () => toggleCard(card, kpiName);
       } else {
@@ -1599,7 +1805,7 @@ function initializeFacultyDashboard(){
       }
     } else {
       card.onclick = () => toggleCard(card, kpiName);
-      card.innerHTML = `<div class="kpi-header"><div class="kpi-title">${kpiName} ${tooltipHtml} ${warningBadgeHtml}</div><div class="kpi-question">${questionText}</div><div class="kpi-value ${performanceClass}">${formatDisplayTextWithCount(kpiName, kpiData.percentage, kpiData.number, kpiData.applicable)}</div></div>${universityComparisonHtml}${trendHtml}${schoolBreakdownHtml}${expandIcon}`;
+      card.innerHTML = `<div class="kpi-header"><div class="kpi-title-wrap">${tooltipHtml}<div class="kpi-title">${kpiName} ${warningBadgeHtml} ${missingCardBadge}</div></div><div class="kpi-question">${questionText}</div><div class="kpi-value ${performanceClass}">${formatDisplayTextWithCount(kpiName, kpiData.percentage, kpiData.number, kpiData.applicable)}</div></div>${universityComparisonHtml}${trendHtml}${schoolBreakdownHtml}${expandIcon}`;
       if(!hasExpandableContent) {
         card.style.cursor = 'default';
         card.onclick = null;
@@ -1610,8 +1816,8 @@ function initializeFacultyDashboard(){
   }
 }
 initializeFacultyDashboard();
-setTimeout(()=>{positionTooltips();renderTrendCharts();renderSchoolTrendCharts();},100);
-window.addEventListener('resize',()=>{setTimeout(()=>{positionTooltips();renderTrendCharts();renderSchoolTrendCharts();},100);});
+setTimeout(()=>{positionTooltips();applyCompressedValueTitles();renderTrendCharts();renderSchoolTrendCharts();},100);
+window.addEventListener('resize',()=>{setTimeout(()=>{positionTooltips();applyCompressedValueTitles();renderTrendCharts();renderSchoolTrendCharts();},100);});
 </script>
 </body>
 </html>
