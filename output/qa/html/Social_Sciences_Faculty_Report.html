@@ -120,6 +120,12 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
 .no-return::before{content:'!';display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:#e11d48;color:#fff;font-size:10px;font-weight:800;flex:0 0 14px}
 .no-prior{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;font-weight:700;line-height:1.2}
 .no-prior::before{content:'i';display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:#1d4ed8;color:#fff;font-size:10px;font-weight:800;flex:0 0 14px}
+.exceeded-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;background:#f1f5f9;border:1px solid #cbd5e1;color:#334155;font-weight:700;line-height:1.2}
+.compressed-school-row .cell-no-return{color:#9f1239;font-weight:600;font-style:italic;font-size:11px}
+.compressed-school-row .cell-no-prior{color:#1e40af;font-weight:600;font-style:italic;font-size:11px}
+.compressed-school-row .cell-exceeded{color:#475569;font-weight:600;font-style:italic;font-size:11px}
+.compressed-school-row.no-return-row{grid-template-columns:minmax(180px,2fr) 1fr;background:#fff8f8;border-color:#fecdd3}
+.compressed-school-row.no-return-row .row-no-return-msg{display:inline-flex;align-items:center;gap:5px;color:#9f1239;font-weight:600;font-size:11px;font-style:italic}
 .kpi-value .no-return{white-space:nowrap}
 .kpi-card.no-return-current{border-color:#fda4af;box-shadow:0 0 0 2px rgba(244,63,94,0.18),0 4px 14px rgba(15,23,42,0.08)}
 .kpi-card.no-return-current::before{opacity:1;background:linear-gradient(90deg,#e11d48,#fb7185)}
@@ -187,6 +193,8 @@ const facultyData={
       "percentage": 100.0,
       "number": 173.0,
       "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
       "display_text": "100.0% (173 arrangements in scope)",
       "university_percentage": 94.06,
       "university_applicable": true,
@@ -196,14 +204,16 @@ const facultyData={
           "percentage": 100.0,
           "raw_percentage": 100.0,
           "number": 157.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 100.0,
           "raw_percentage": 100.0,
           "number": 173.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "university_history": [
@@ -212,14 +222,16 @@ const facultyData={
           "percentage": 86.71,
           "raw_percentage": 86.71,
           "number": 715.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 94.06,
           "raw_percentage": 94.06,
           "number": 741.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "comparison": "above"
@@ -228,6 +240,8 @@ const facultyData={
       "percentage": 48.06,
       "number": 387.0,
       "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
       "display_text": "48.1% (387 risk assessments in scope)",
       "university_percentage": 66.47,
       "university_applicable": true,
@@ -237,14 +251,16 @@ const facultyData={
           "percentage": 38.62,
           "raw_percentage": 38.62,
           "number": 334.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 48.06,
           "raw_percentage": 48.06,
           "number": 387.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "university_history": [
@@ -253,14 +269,16 @@ const facultyData={
           "percentage": 71.49,
           "raw_percentage": 71.49,
           "number": 3701.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 66.47,
           "raw_percentage": 66.47,
           "number": 3993.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "comparison": "below"
@@ -269,6 +287,8 @@ const facultyData={
       "percentage": 73.69,
       "number": 949.0,
       "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
       "display_text": "73.7% (949 staff in scope)",
       "university_percentage": 81.9,
       "university_applicable": true,
@@ -278,14 +298,16 @@ const facultyData={
           "percentage": 90.38,
           "raw_percentage": 90.38,
           "number": 936.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 73.69,
           "raw_percentage": 73.69,
           "number": 949.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "university_history": [
@@ -294,14 +316,16 @@ const facultyData={
           "percentage": 80.09,
           "raw_percentage": 80.09,
           "number": 7472.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 81.9,
           "raw_percentage": 81.9,
           "number": 6437.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "comparison": "below"
@@ -310,6 +334,8 @@ const facultyData={
       "percentage": 63.99,
       "number": 949.0,
       "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
       "display_text": "64.0% (949 staff in scope)",
       "university_percentage": 77.84,
       "university_applicable": true,
@@ -319,14 +345,16 @@ const facultyData={
           "percentage": 98.29,
           "raw_percentage": 98.29,
           "number": 936.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 63.99,
           "raw_percentage": 63.99,
           "number": 949.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "university_history": [
@@ -335,14 +363,16 @@ const facultyData={
           "percentage": 89.0,
           "raw_percentage": 89.0,
           "number": 7472.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 77.84,
           "raw_percentage": 77.84,
           "number": 6437.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "comparison": "below"
@@ -351,6 +381,8 @@ const facultyData={
       "percentage": 100.0,
       "number": 11.0,
       "applicable": true,
+      "exceeded": false,
+      "completed_count": 11,
       "display_text": "100.0% (11 buildings in scope)",
       "university_percentage": 90.32,
       "university_applicable": true,
@@ -360,14 +392,16 @@ const facultyData={
           "percentage": 27.27,
           "raw_percentage": 27.27,
           "number": 11.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 100.0,
           "raw_percentage": 100.0,
           "number": 11.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "university_history": [
@@ -376,14 +410,16 @@ const facultyData={
           "percentage": 80.0,
           "raw_percentage": 80.0,
           "number": 100.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 90.32,
           "raw_percentage": 90.32,
           "number": 62.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "comparison": "above"
@@ -392,6 +428,8 @@ const facultyData={
       "percentage": 66.67,
       "number": 3.0,
       "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
       "display_text": "66.7% (3 PEEPs in scope)",
       "university_percentage": 83.72,
       "university_applicable": true,
@@ -401,14 +439,16 @@ const facultyData={
           "percentage": 100.0,
           "raw_percentage": 100.0,
           "number": 2.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 66.67,
           "raw_percentage": 66.67,
           "number": 3.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "university_history": [
@@ -417,14 +457,16 @@ const facultyData={
           "percentage": 89.74,
           "raw_percentage": 89.74,
           "number": 39.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 83.72,
           "raw_percentage": 83.72,
           "number": 43.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "comparison": "below"
@@ -433,6 +475,8 @@ const facultyData={
       "percentage": 33.33,
       "number": 3.0,
       "applicable": true,
+      "exceeded": false,
+      "completed_count": 1,
       "display_text": "33.3% (3 PEEPs in scope)",
       "university_percentage": 23.26,
       "university_applicable": true,
@@ -442,14 +486,16 @@ const facultyData={
           "percentage": 0.0,
           "raw_percentage": 0.0,
           "number": 2.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 33.33,
           "raw_percentage": 33.33,
           "number": 3.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "university_history": [
@@ -458,14 +504,16 @@ const facultyData={
           "percentage": 41.03,
           "raw_percentage": 41.03,
           "number": 39.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 23.26,
           "raw_percentage": 23.26,
           "number": 43.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "comparison": "above"
@@ -474,6 +522,8 @@ const facultyData={
       "percentage": 0.0,
       "number": 0.0,
       "applicable": false,
+      "exceeded": false,
+      "completed_count": null,
       "display_text": "No department-owned assets that require inspection",
       "university_percentage": 96.51,
       "university_applicable": true,
@@ -483,14 +533,16 @@ const facultyData={
           "percentage": null,
           "raw_percentage": 0.0,
           "number": 0.0,
-          "applicable": false
+          "applicable": false,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": null,
           "raw_percentage": 0.0,
           "number": 0.0,
-          "applicable": false
+          "applicable": false,
+          "exceeded": false
         }
       ],
       "university_history": [
@@ -499,14 +551,16 @@ const facultyData={
           "percentage": 96.94,
           "raw_percentage": 96.94,
           "number": 3622.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 96.51,
           "raw_percentage": 96.51,
           "number": 3383.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "comparison": "unknown"
@@ -515,6 +569,8 @@ const facultyData={
       "percentage": 0.0,
       "number": 0.0,
       "applicable": false,
+      "exceeded": false,
+      "completed_count": null,
       "display_text": "No department-owned assets that require inspection",
       "university_percentage": 96.51,
       "university_applicable": true,
@@ -524,14 +580,16 @@ const facultyData={
           "percentage": null,
           "raw_percentage": 0.0,
           "number": 0.0,
-          "applicable": false
+          "applicable": false,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": null,
           "raw_percentage": 0.0,
           "number": 0.0,
-          "applicable": false
+          "applicable": false,
+          "exceeded": false
         }
       ],
       "university_history": [
@@ -540,14 +598,16 @@ const facultyData={
           "percentage": 96.94,
           "raw_percentage": 96.94,
           "number": 3622.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 96.51,
           "raw_percentage": 96.51,
           "number": 3383.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "comparison": "unknown"
@@ -556,6 +616,8 @@ const facultyData={
       "percentage": 92.86,
       "number": 14.0,
       "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
       "display_text": "92.9% (14 incidents/near misses in scope)",
       "university_percentage": 82.14,
       "university_applicable": true,
@@ -565,14 +627,16 @@ const facultyData={
           "percentage": 100.0,
           "raw_percentage": 100.0,
           "number": null,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 92.86,
           "raw_percentage": 92.86,
           "number": null,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "university_history": [
@@ -581,14 +645,16 @@ const facultyData={
           "percentage": 80.0,
           "raw_percentage": 80.0,
           "number": null,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 82.14,
           "raw_percentage": 82.14,
           "number": null,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "comparison": "above"
@@ -597,6 +663,8 @@ const facultyData={
       "percentage": 100.0,
       "number": 108.0,
       "applicable": true,
+      "exceeded": false,
+      "completed_count": 108,
       "display_text": "100.0% (108 inspections in scope)",
       "university_percentage": 53.07,
       "university_applicable": true,
@@ -606,14 +674,16 @@ const facultyData={
           "percentage": 100.0,
           "raw_percentage": 100.0,
           "number": 486.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 100.0,
           "raw_percentage": 100.0,
           "number": 108.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "university_history": [
@@ -622,14 +692,16 @@ const facultyData={
           "percentage": 51.68,
           "raw_percentage": 51.68,
           "number": 19092.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 53.07,
           "raw_percentage": 53.07,
           "number": 54924.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "comparison": "above"
@@ -638,6 +710,8 @@ const facultyData={
       "percentage": 72.73,
       "number": 11.0,
       "applicable": true,
+      "exceeded": false,
+      "completed_count": 8,
       "display_text": "72.7% (11 walkarounds in scope)",
       "university_percentage": 78.85,
       "university_applicable": true,
@@ -647,14 +721,16 @@ const facultyData={
           "percentage": 114.29,
           "raw_percentage": 114.29,
           "number": 7.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": true
         },
         {
           "date": "01/02/2026",
           "percentage": 72.73,
           "raw_percentage": 72.73,
           "number": 11.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "university_history": [
@@ -663,14 +739,16 @@ const facultyData={
           "percentage": 93.75,
           "raw_percentage": 93.75,
           "number": 64.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 78.85,
           "raw_percentage": 78.85,
           "number": 52.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "comparison": "below"
@@ -679,6 +757,8 @@ const facultyData={
       "percentage": 91.67,
       "number": null,
       "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
       "display_text": "91.7%",
       "university_percentage": 87.07,
       "university_applicable": true,
@@ -688,14 +768,16 @@ const facultyData={
           "percentage": 92.56,
           "raw_percentage": 92.56,
           "number": null,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 91.67,
           "raw_percentage": 91.67,
           "number": null,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "university_history": [
@@ -704,14 +786,16 @@ const facultyData={
           "percentage": 81.83,
           "raw_percentage": 81.83,
           "number": null,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 87.07,
           "raw_percentage": 87.07,
           "number": null,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "comparison": "above"
@@ -720,6 +804,8 @@ const facultyData={
       "percentage": 92.56,
       "number": null,
       "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
       "display_text": "92.6%",
       "university_percentage": 94.07,
       "university_applicable": true,
@@ -729,14 +815,16 @@ const facultyData={
           "percentage": 95.62,
           "raw_percentage": 95.62,
           "number": null,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 92.56,
           "raw_percentage": 92.56,
           "number": null,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "university_history": [
@@ -745,14 +833,16 @@ const facultyData={
           "percentage": 94.04,
           "raw_percentage": 94.04,
           "number": null,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 94.07,
           "raw_percentage": 94.07,
           "number": null,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "comparison": "below"
@@ -761,6 +851,8 @@ const facultyData={
       "percentage": 70.22,
       "number": 949.0,
       "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
       "display_text": "70.2% (949 staff in scope)",
       "university_percentage": 67.23,
       "university_applicable": true,
@@ -770,14 +862,16 @@ const facultyData={
           "percentage": 82.12,
           "raw_percentage": 82.12,
           "number": 936.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 70.22,
           "raw_percentage": 70.22,
           "number": 949.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "university_history": [
@@ -786,14 +880,16 @@ const facultyData={
           "percentage": 66.48,
           "raw_percentage": 66.48,
           "number": 7472.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         },
         {
           "date": "01/02/2026",
           "percentage": 67.23,
           "raw_percentage": 67.23,
           "number": 6437.0,
-          "applicable": true
+          "applicable": true,
+          "exceeded": false
         }
       ],
       "comparison": "above"
@@ -807,6 +903,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (1 arrangements in scope)",
           "history": [
             {
@@ -814,14 +912,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -829,6 +929,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 4.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (4 risk assessments in scope)",
           "history": [
             {
@@ -836,14 +938,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 4.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 4.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -851,6 +955,8 @@ const facultyData={
           "percentage": 45.0,
           "number": 106.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "45.0% (106 staff in scope)",
           "history": [
             {
@@ -858,14 +964,16 @@ const facultyData={
               "percentage": 50.0,
               "raw_percentage": 50.0,
               "number": 108.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 45.0,
               "raw_percentage": 45.0,
               "number": 106.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -873,6 +981,8 @@ const facultyData={
           "percentage": 42.0,
           "number": 106.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "42.0% (106 staff in scope)",
           "history": [
             {
@@ -880,14 +990,16 @@ const facultyData={
               "percentage": 69.444444,
               "raw_percentage": 69.444444,
               "number": 108.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 42.0,
               "raw_percentage": 42.0,
               "number": 106.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -895,6 +1007,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 1,
           "display_text": "100.0% (1 buildings in scope)",
           "history": [
             {
@@ -902,14 +1016,16 @@ const facultyData={
               "percentage": 0.0,
               "raw_percentage": 0.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -917,6 +1033,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (1 PEEPs in scope)",
           "history": [
             {
@@ -924,14 +1042,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -939,6 +1059,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 0,
           "display_text": "0.0% (1 PEEPs in scope)",
           "history": [
             {
@@ -946,14 +1068,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 0.0,
               "raw_percentage": 0.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -961,6 +1085,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -968,14 +1094,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -983,6 +1111,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -990,14 +1120,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -1005,6 +1137,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No incidents reported in period",
           "history": [
             {
@@ -1012,14 +1146,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -1027,6 +1163,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 8.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 8,
           "display_text": "100.0% (8 inspections in scope)",
           "history": [
             {
@@ -1034,14 +1172,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 89.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 8.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1049,6 +1189,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 2.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 2,
           "display_text": "100.0% (2 walkarounds in scope)",
           "history": [
             {
@@ -1056,14 +1198,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 2.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1071,6 +1215,8 @@ const facultyData={
           "percentage": 100.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0%",
           "history": [
             {
@@ -1078,14 +1224,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1093,6 +1241,8 @@ const facultyData={
           "percentage": 100.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0%",
           "history": [
             {
@@ -1100,14 +1250,16 @@ const facultyData={
               "percentage": 85.0,
               "raw_percentage": 85.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1115,6 +1267,8 @@ const facultyData={
           "percentage": 24.0,
           "number": 106.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "24.0% (106 staff in scope)",
           "history": [
             {
@@ -1122,14 +1276,16 @@ const facultyData={
               "percentage": 47.0,
               "raw_percentage": 47.0,
               "number": 108.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 24.0,
               "raw_percentage": 24.0,
               "number": 106.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         }
@@ -1142,6 +1298,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 26.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (26 arrangements in scope)",
           "history": [
             {
@@ -1149,14 +1307,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 26.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 26.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1164,6 +1324,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 53.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (53 risk assessments in scope)",
           "history": [
             {
@@ -1171,14 +1333,16 @@ const facultyData={
               "percentage": 97.916667,
               "raw_percentage": 97.916667,
               "number": 48.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 53.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1186,6 +1350,8 @@ const facultyData={
           "percentage": 88.0,
           "number": 262.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "88.0% (262 staff in scope)",
           "history": [
             {
@@ -1193,14 +1359,16 @@ const facultyData={
               "percentage": 89.84375,
               "raw_percentage": 89.84375,
               "number": 256.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 88.0,
               "raw_percentage": 88.0,
               "number": 262.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1208,6 +1376,8 @@ const facultyData={
           "percentage": 76.0,
           "number": 262.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "76.0% (262 staff in scope)",
           "history": [
             {
@@ -1215,14 +1385,16 @@ const facultyData={
               "percentage": 82.8125,
               "raw_percentage": 82.8125,
               "number": 256.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 76.0,
               "raw_percentage": 76.0,
               "number": 262.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1230,6 +1402,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 3.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 3,
           "display_text": "100.0% (3 buildings in scope)",
           "history": [
             {
@@ -1237,14 +1411,16 @@ const facultyData={
               "percentage": 66.666667,
               "raw_percentage": 66.666667,
               "number": 3.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 3.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1252,6 +1428,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No PEEPs identified as required",
           "history": [
             {
@@ -1259,14 +1437,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -1274,6 +1454,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No PEEPs identified as required",
           "history": [
             {
@@ -1281,14 +1463,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -1296,6 +1480,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -1303,14 +1489,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -1318,6 +1506,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -1325,14 +1515,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -1340,6 +1532,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 2.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (2 incidents/near misses in scope)",
           "history": [
             {
@@ -1347,14 +1541,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 2.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1362,6 +1558,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 35.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 35,
           "display_text": "100.0% (35 inspections in scope)",
           "history": [
             {
@@ -1369,14 +1567,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 3.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 35.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1384,6 +1584,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 0,
           "display_text": "0.0% (1 walkarounds in scope)",
           "history": [
             {
@@ -1391,14 +1593,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 0.0,
               "raw_percentage": 0.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1406,6 +1610,8 @@ const facultyData={
           "percentage": 100.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0%",
           "history": [
             {
@@ -1413,14 +1619,16 @@ const facultyData={
               "percentage": 98.0,
               "raw_percentage": 98.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1428,6 +1636,8 @@ const facultyData={
           "percentage": 100.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0%",
           "history": [
             {
@@ -1435,14 +1645,16 @@ const facultyData={
               "percentage": 0.0,
               "raw_percentage": 0.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1450,6 +1662,8 @@ const facultyData={
           "percentage": 80.0,
           "number": 262.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "80.0% (262 staff in scope)",
           "history": [
             {
@@ -1457,14 +1671,16 @@ const facultyData={
               "percentage": 83.0,
               "raw_percentage": 83.0,
               "number": 256.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 80.0,
               "raw_percentage": 80.0,
               "number": 262.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         }
@@ -1477,6 +1693,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 25.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (25 arrangements in scope)",
           "history": [
             {
@@ -1484,14 +1702,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 25.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 25.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1499,6 +1719,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 6.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (6 risk assessments in scope)",
           "history": [
             {
@@ -1506,14 +1728,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 5.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 6.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1521,6 +1745,8 @@ const facultyData={
           "percentage": 75.0,
           "number": 164.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "75.0% (164 staff in scope)",
           "history": [
             {
@@ -1528,14 +1754,16 @@ const facultyData={
               "percentage": 108.333333,
               "raw_percentage": 108.333333,
               "number": 156.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 75.0,
               "raw_percentage": 75.0,
               "number": 164.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1543,6 +1771,8 @@ const facultyData={
           "percentage": 67.0,
           "number": 164.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "67.0% (164 staff in scope)",
           "history": [
             {
@@ -1550,14 +1780,16 @@ const facultyData={
               "percentage": 108.974359,
               "raw_percentage": 108.974359,
               "number": 156.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 67.0,
               "raw_percentage": 67.0,
               "number": 164.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1565,6 +1797,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 1,
           "display_text": "100.0% (1 buildings in scope)",
           "history": [
             {
@@ -1572,14 +1806,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1587,6 +1823,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No PEEPs identified as required",
           "history": [
             {
@@ -1594,14 +1832,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -1609,6 +1849,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No PEEPs identified as required",
           "history": [
             {
@@ -1616,14 +1858,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -1631,6 +1875,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -1638,14 +1884,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -1653,6 +1901,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -1660,14 +1910,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -1675,6 +1927,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 5.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (5 incidents/near misses in scope)",
           "history": [
             {
@@ -1682,14 +1936,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 5.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1697,6 +1953,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 8.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 8,
           "display_text": "100.0% (8 inspections in scope)",
           "history": [
             {
@@ -1704,14 +1962,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 141.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 8.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1719,6 +1979,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 1,
           "display_text": "100.0% (1 walkarounds in scope)",
           "history": [
             {
@@ -1726,14 +1988,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1741,6 +2005,8 @@ const facultyData={
           "percentage": 80.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "80.0%",
           "history": [
             {
@@ -1748,14 +2014,16 @@ const facultyData={
               "percentage": 80.0,
               "raw_percentage": 80.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 80.0,
               "raw_percentage": 80.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1763,6 +2031,8 @@ const facultyData={
           "percentage": 100.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0%",
           "history": [
             {
@@ -1770,14 +2040,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1785,6 +2057,8 @@ const facultyData={
           "percentage": 80.0,
           "number": 164.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "80.0% (164 staff in scope)",
           "history": [
             {
@@ -1792,14 +2066,16 @@ const facultyData={
               "percentage": 80.0,
               "raw_percentage": 80.0,
               "number": 156.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 80.0,
               "raw_percentage": 80.0,
               "number": 164.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         }
@@ -1812,6 +2088,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (1 arrangements in scope)",
           "history": [
             {
@@ -1819,14 +2097,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1834,6 +2114,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 6.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (6 risk assessments in scope)",
           "history": [
             {
@@ -1841,14 +2123,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 6.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 6.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1856,6 +2140,8 @@ const facultyData={
           "percentage": 68.0,
           "number": 103.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "68.0% (103 staff in scope)",
           "history": [
             {
@@ -1863,14 +2149,16 @@ const facultyData={
               "percentage": 38.135593,
               "raw_percentage": 38.135593,
               "number": 118.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 68.0,
               "raw_percentage": 68.0,
               "number": 103.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1878,6 +2166,8 @@ const facultyData={
           "percentage": 69.0,
           "number": 103.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "69.0% (103 staff in scope)",
           "history": [
             {
@@ -1885,14 +2175,16 @@ const facultyData={
               "percentage": 67.79661,
               "raw_percentage": 67.79661,
               "number": 118.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 69.0,
               "raw_percentage": 69.0,
               "number": 103.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1900,6 +2192,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 1,
           "display_text": "100.0% (1 buildings in scope)",
           "history": [
             {
@@ -1907,14 +2201,16 @@ const facultyData={
               "percentage": 0.0,
               "raw_percentage": 0.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -1922,6 +2218,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No PEEPs identified as required",
           "history": [
             {
@@ -1929,14 +2227,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -1944,6 +2244,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No PEEPs identified as required",
           "history": [
             {
@@ -1951,14 +2253,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -1966,6 +2270,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -1973,14 +2279,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -1988,6 +2296,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -1995,14 +2305,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -2010,6 +2322,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No incidents reported in period",
           "history": [
             {
@@ -2017,14 +2331,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -2032,6 +2348,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 9.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 9,
           "display_text": "100.0% (9 inspections in scope)",
           "history": [
             {
@@ -2039,14 +2357,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 89.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 9.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2054,6 +2374,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 1,
           "display_text": "100.0% (1 walkarounds in scope)",
           "history": [
             {
@@ -2061,14 +2383,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2076,6 +2400,8 @@ const facultyData={
           "percentage": 80.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "80.0%",
           "history": [
             {
@@ -2083,14 +2409,16 @@ const facultyData={
               "percentage": 80.0,
               "raw_percentage": 80.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 80.0,
               "raw_percentage": 80.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2098,6 +2426,8 @@ const facultyData={
           "percentage": 73.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "73.0%",
           "history": [
             {
@@ -2105,14 +2435,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 73.0,
               "raw_percentage": 73.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2120,6 +2452,8 @@ const facultyData={
           "percentage": 80.0,
           "number": 103.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "80.0% (103 staff in scope)",
           "history": [
             {
@@ -2127,14 +2461,16 @@ const facultyData={
               "percentage": 0.0,
               "raw_percentage": 0.0,
               "number": 118.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 80.0,
               "raw_percentage": 80.0,
               "number": 103.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         }
@@ -2147,6 +2483,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 22.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (22 arrangements in scope)",
           "history": [
             {
@@ -2154,14 +2492,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 22.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 22.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2169,6 +2509,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 5.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (5 risk assessments in scope)",
           "history": [
             {
@@ -2176,14 +2518,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 5.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 5.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2191,6 +2535,8 @@ const facultyData={
           "percentage": 75.0,
           "number": 65.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "75.0% (65 staff in scope)",
           "history": [
             {
@@ -2198,14 +2544,16 @@ const facultyData={
               "percentage": 90.47619,
               "raw_percentage": 90.47619,
               "number": 63.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 75.0,
               "raw_percentage": 75.0,
               "number": 65.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2213,6 +2561,8 @@ const facultyData={
           "percentage": 54.0,
           "number": 65.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "54.0% (65 staff in scope)",
           "history": [
             {
@@ -2220,14 +2570,16 @@ const facultyData={
               "percentage": 103.174603,
               "raw_percentage": 103.174603,
               "number": 63.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 54.0,
               "raw_percentage": 54.0,
               "number": 65.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2235,6 +2587,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 1,
           "display_text": "100.0% (1 buildings in scope)",
           "history": [
             {
@@ -2242,14 +2596,16 @@ const facultyData={
               "percentage": 0.0,
               "raw_percentage": 0.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2257,6 +2613,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (1 PEEPs in scope)",
           "history": [
             {
@@ -2264,14 +2622,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2279,6 +2639,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 1,
           "display_text": "100.0% (1 PEEPs in scope)",
           "history": [
             {
@@ -2286,14 +2648,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2301,6 +2665,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -2308,14 +2674,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -2323,6 +2691,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -2330,14 +2700,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -2345,6 +2717,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (1 incidents/near misses in scope)",
           "history": [
             {
@@ -2352,14 +2726,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2367,6 +2743,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 8.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 8,
           "display_text": "100.0% (8 inspections in scope)",
           "history": [
             {
@@ -2374,14 +2752,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 65.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 8.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2389,6 +2769,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 1,
           "display_text": "100.0% (1 walkarounds in scope)",
           "history": [
             {
@@ -2396,14 +2778,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2411,6 +2795,8 @@ const facultyData={
           "percentage": 90.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "90.0%",
           "history": [
             {
@@ -2418,14 +2804,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 90.0,
               "raw_percentage": 90.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2433,6 +2821,8 @@ const facultyData={
           "percentage": 80.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "80.0%",
           "history": [
             {
@@ -2440,14 +2830,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 80.0,
               "raw_percentage": 80.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2455,6 +2847,8 @@ const facultyData={
           "percentage": 90.0,
           "number": 65.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "90.0% (65 staff in scope)",
           "history": [
             {
@@ -2462,14 +2856,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 63.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 90.0,
               "raw_percentage": 90.0,
               "number": 65.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         }
@@ -2482,6 +2878,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 21.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (21 arrangements in scope)",
           "history": [
             {
@@ -2489,14 +2887,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 33.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 21.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2504,6 +2904,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 9.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (9 risk assessments in scope)",
           "history": [
             {
@@ -2511,14 +2913,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 6.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 9.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2526,6 +2930,8 @@ const facultyData={
           "percentage": 64.0,
           "number": 33.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "64.0% (33 staff in scope)",
           "history": [
             {
@@ -2533,14 +2939,16 @@ const facultyData={
               "percentage": 230.952381,
               "raw_percentage": 230.952381,
               "number": 42.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 64.0,
               "raw_percentage": 64.0,
               "number": 33.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2548,6 +2956,8 @@ const facultyData={
           "percentage": 61.0,
           "number": 33.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "61.0% (33 staff in scope)",
           "history": [
             {
@@ -2555,14 +2965,16 @@ const facultyData={
               "percentage": 230.952381,
               "raw_percentage": 230.952381,
               "number": 42.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 61.0,
               "raw_percentage": 61.0,
               "number": 33.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2570,6 +2982,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 1,
           "display_text": "100.0% (1 buildings in scope)",
           "history": [
             {
@@ -2577,14 +2991,16 @@ const facultyData={
               "percentage": 0.0,
               "raw_percentage": 0.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2592,6 +3008,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No PEEPs identified as required",
           "history": [
             {
@@ -2599,14 +3017,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -2614,6 +3034,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No PEEPs identified as required",
           "history": [
             {
@@ -2621,14 +3043,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -2636,6 +3060,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -2643,14 +3069,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -2658,6 +3086,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -2665,14 +3095,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -2680,6 +3112,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "0.0% (1 incidents/near misses in scope)",
           "history": [
             {
@@ -2687,14 +3121,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 0.0,
               "raw_percentage": 0.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2702,6 +3138,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 12.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 12,
           "display_text": "100.0% (12 inspections in scope)",
           "history": [
             {
@@ -2709,14 +3147,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 6.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 12.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2724,6 +3164,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 2.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 0,
           "display_text": "0.0% (2 walkarounds in scope)",
           "history": [
             {
@@ -2731,14 +3173,16 @@ const facultyData={
               "percentage": 200.0,
               "raw_percentage": 200.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": true
             },
             {
               "date": "01/02/2026",
               "percentage": 0.0,
               "raw_percentage": 0.0,
               "number": 2.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2746,6 +3190,8 @@ const facultyData={
           "percentage": 85.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "85.0%",
           "history": [
             {
@@ -2753,14 +3199,16 @@ const facultyData={
               "percentage": 85.0,
               "raw_percentage": 85.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 85.0,
               "raw_percentage": 85.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2768,6 +3216,8 @@ const facultyData={
           "percentage": 100.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0%",
           "history": [
             {
@@ -2775,14 +3225,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2790,6 +3242,8 @@ const facultyData={
           "percentage": 50.0,
           "number": 33.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "50.0% (33 staff in scope)",
           "history": [
             {
@@ -2797,14 +3251,16 @@ const facultyData={
               "percentage": 97.0,
               "raw_percentage": 97.0,
               "number": 42.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 50.0,
               "raw_percentage": 50.0,
               "number": 33.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         }
@@ -2817,6 +3273,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 23.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (23 arrangements in scope)",
           "history": [
             {
@@ -2824,14 +3282,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 23.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2839,6 +3299,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 7.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (7 risk assessments in scope)",
           "history": [
             {
@@ -2846,14 +3308,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 2.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 7.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2861,6 +3325,8 @@ const facultyData={
           "percentage": 64.0,
           "number": 103.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "64.0% (103 staff in scope)",
           "history": [
             {
@@ -2868,14 +3334,16 @@ const facultyData={
               "percentage": 84.444444,
               "raw_percentage": 84.444444,
               "number": 90.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 64.0,
               "raw_percentage": 64.0,
               "number": 103.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2883,6 +3351,8 @@ const facultyData={
           "percentage": 47.0,
           "number": 103.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "47.0% (103 staff in scope)",
           "history": [
             {
@@ -2890,14 +3360,16 @@ const facultyData={
               "percentage": 98.888889,
               "raw_percentage": 98.888889,
               "number": 90.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 47.0,
               "raw_percentage": 47.0,
               "number": 103.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2905,6 +3377,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 1,
           "display_text": "100.0% (1 buildings in scope)",
           "history": [
             {
@@ -2912,14 +3386,16 @@ const facultyData={
               "percentage": 0.0,
               "raw_percentage": 0.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -2927,6 +3403,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No PEEPs identified as required",
           "history": [
             {
@@ -2934,14 +3412,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -2949,6 +3429,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No PEEPs identified as required",
           "history": [
             {
@@ -2956,14 +3438,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -2971,6 +3455,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -2978,14 +3464,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -2993,6 +3481,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -3000,14 +3490,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -3015,6 +3507,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No incidents reported in period",
           "history": [
             {
@@ -3022,14 +3516,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -3037,6 +3533,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 9.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 9,
           "display_text": "100.0% (9 inspections in scope)",
           "history": [
             {
@@ -3044,14 +3542,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 68.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 9.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3059,6 +3559,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 1,
           "display_text": "100.0% (1 walkarounds in scope)",
           "history": [
             {
@@ -3066,14 +3568,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3081,6 +3585,8 @@ const facultyData={
           "percentage": 100.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0%",
           "history": [
             {
@@ -3088,14 +3594,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3103,6 +3611,8 @@ const facultyData={
           "percentage": 100.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0%",
           "history": [
             {
@@ -3110,14 +3620,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3125,6 +3637,8 @@ const facultyData={
           "percentage": 48.0,
           "number": 103.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "48.0% (103 staff in scope)",
           "history": [
             {
@@ -3132,14 +3646,16 @@ const facultyData={
               "percentage": 70.0,
               "raw_percentage": 70.0,
               "number": 90.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 48.0,
               "raw_percentage": 48.0,
               "number": 103.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         }
@@ -3152,6 +3668,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 33.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (33 arrangements in scope)",
           "history": [
             {
@@ -3159,14 +3677,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 33.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 33.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3174,6 +3694,8 @@ const facultyData={
           "percentage": 31.399317,
           "number": 293.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "31.4% (293 risk assessments in scope)",
           "history": [
             {
@@ -3181,14 +3703,16 @@ const facultyData={
               "percentage": 17.073171,
               "raw_percentage": 17.073171,
               "number": 246.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 31.399317,
               "raw_percentage": 31.399317,
               "number": 293.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3196,6 +3720,8 @@ const facultyData={
           "percentage": 83.0,
           "number": 81.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "83.0% (81 staff in scope)",
           "history": [
             {
@@ -3203,14 +3729,16 @@ const facultyData={
               "percentage": 90.666667,
               "raw_percentage": 90.666667,
               "number": 75.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 83.0,
               "raw_percentage": 83.0,
               "number": 81.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3218,6 +3746,8 @@ const facultyData={
           "percentage": 68.0,
           "number": 81.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "68.0% (81 staff in scope)",
           "history": [
             {
@@ -3225,14 +3755,16 @@ const facultyData={
               "percentage": 96.0,
               "raw_percentage": 96.0,
               "number": 75.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 68.0,
               "raw_percentage": 68.0,
               "number": 81.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3240,6 +3772,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 1,
           "display_text": "100.0% (1 buildings in scope)",
           "history": [
             {
@@ -3247,14 +3781,16 @@ const facultyData={
               "percentage": 0.0,
               "raw_percentage": 0.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3262,6 +3798,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "0.0% (1 PEEPs in scope)",
           "history": [
             {
@@ -3269,14 +3807,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 2.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 0.0,
               "raw_percentage": 0.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3284,6 +3824,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 0,
           "display_text": "0.0% (1 PEEPs in scope)",
           "history": [
             {
@@ -3291,14 +3833,16 @@ const facultyData={
               "percentage": 0.0,
               "raw_percentage": 0.0,
               "number": 2.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 0.0,
               "raw_percentage": 0.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3306,6 +3850,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -3313,14 +3859,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -3328,6 +3876,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -3335,14 +3885,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -3350,6 +3902,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 5.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (5 incidents/near misses in scope)",
           "history": [
             {
@@ -3357,14 +3911,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 9.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 5.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3372,6 +3928,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 12.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 12,
           "display_text": "100.0% (12 inspections in scope)",
           "history": [
             {
@@ -3379,14 +3937,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 10.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 12.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3394,6 +3954,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 1,
           "display_text": "100.0% (1 walkarounds in scope)",
           "history": [
             {
@@ -3401,14 +3963,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3416,6 +3980,8 @@ const facultyData={
           "percentage": 90.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "90.0%",
           "history": [
             {
@@ -3423,14 +3989,16 @@ const facultyData={
               "percentage": 90.0,
               "raw_percentage": 90.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 90.0,
               "raw_percentage": 90.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3438,6 +4006,8 @@ const facultyData={
           "percentage": 100.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0%",
           "history": [
             {
@@ -3445,14 +4015,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3460,6 +4032,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 81.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (81 staff in scope)",
           "history": [
             {
@@ -3467,14 +4041,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 75.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 81.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         }
@@ -3487,6 +4063,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 21.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (21 arrangements in scope)",
           "history": [
             {
@@ -3494,14 +4072,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 16.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 21.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3509,6 +4089,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 4.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0% (4 risk assessments in scope)",
           "history": [
             {
@@ -3516,14 +4098,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 12.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 4.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3531,6 +4115,8 @@ const facultyData={
           "percentage": 78.0,
           "number": 32.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "78.0% (32 staff in scope)",
           "history": [
             {
@@ -3538,14 +4124,16 @@ const facultyData={
               "percentage": 178.571429,
               "raw_percentage": 178.571429,
               "number": 28.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 78.0,
               "raw_percentage": 78.0,
               "number": 32.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3553,6 +4141,8 @@ const facultyData={
           "percentage": 75.0,
           "number": 32.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "75.0% (32 staff in scope)",
           "history": [
             {
@@ -3560,14 +4150,16 @@ const facultyData={
               "percentage": 214.285714,
               "raw_percentage": 214.285714,
               "number": 28.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 75.0,
               "raw_percentage": 75.0,
               "number": 32.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3575,6 +4167,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 1,
           "display_text": "100.0% (1 buildings in scope)",
           "history": [
             {
@@ -3582,14 +4176,16 @@ const facultyData={
               "percentage": 0.0,
               "raw_percentage": 0.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3597,6 +4193,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No PEEPs identified as required",
           "history": [
             {
@@ -3604,14 +4202,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -3619,6 +4219,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No PEEPs identified as required",
           "history": [
             {
@@ -3626,14 +4228,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -3641,6 +4245,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -3648,14 +4254,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -3663,6 +4271,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No department-owned assets that require inspection",
           "history": [
             {
@@ -3670,14 +4280,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -3685,6 +4297,8 @@ const facultyData={
           "percentage": 0.0,
           "number": 0.0,
           "applicable": false,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "No incidents reported in period",
           "history": [
             {
@@ -3692,14 +4306,16 @@ const facultyData={
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": null,
               "raw_percentage": 0.0,
               "number": 0.0,
-              "applicable": false
+              "applicable": false,
+              "exceeded": false
             }
           ]
         },
@@ -3707,6 +4323,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 7.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 7,
           "display_text": "100.0% (7 inspections in scope)",
           "history": [
             {
@@ -3714,14 +4332,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 15.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 7.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3729,6 +4349,8 @@ const facultyData={
           "percentage": 100.0,
           "number": 1.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": 1,
           "display_text": "100.0% (1 walkarounds in scope)",
           "history": [
             {
@@ -3736,14 +4358,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": 1.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3751,6 +4375,8 @@ const facultyData={
           "percentage": 100.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "100.0%",
           "history": [
             {
@@ -3758,14 +4384,16 @@ const facultyData={
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3773,6 +4401,8 @@ const facultyData={
           "percentage": 80.0,
           "number": null,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "80.0%",
           "history": [
             {
@@ -3780,14 +4410,16 @@ const facultyData={
               "percentage": 80.0,
               "raw_percentage": 80.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 80.0,
               "raw_percentage": 80.0,
               "number": null,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         },
@@ -3795,6 +4427,8 @@ const facultyData={
           "percentage": 80.0,
           "number": 32.0,
           "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
           "display_text": "80.0% (32 staff in scope)",
           "history": [
             {
@@ -3802,14 +4436,16 @@ const facultyData={
               "percentage": 80.0,
               "raw_percentage": 80.0,
               "number": 28.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             },
             {
               "date": "01/02/2026",
               "percentage": 80.0,
               "raw_percentage": 80.0,
               "number": 32.0,
-              "applicable": true
+              "applicable": true,
+              "exceeded": false
             }
           ]
         }
@@ -3856,10 +4492,75 @@ function normalizeTrendHistory(history){
     .map((point) => ({
       date: point.date,
       percentage: typeof point.percentage === 'number' ? point.percentage : null,
-      rawPercentage: typeof point.raw_percentage === 'number' ? point.raw_percentage : (typeof point.percentage === 'number' ? point.percentage : null),
+      rawPercentage: typeof point.raw_percentage === 'number'
+        ? point.raw_percentage
+        : (typeof point.rawPercentage === 'number' ? point.rawPercentage : (typeof point.percentage === 'number' ? point.percentage : null)),
       number: typeof point.number === 'number' ? point.number : null,
-      applicable: point.applicable !== false
+      applicable: point.applicable !== false,
+      exceeded: point.exceeded === true,
+      completed_count: typeof point.completed_count === 'number' ? point.completed_count : null
     }));
+}
+const exceededInferenceKpis = new Set([
+  'Inspections Carried Out',
+  'Leadership Walkarounds',
+  'PEEPS Drilled',
+  'Fire Drills Completed'
+]);
+function isFiniteNumber(value){
+  return typeof value === 'number' && Number.isFinite(value);
+}
+function applyExceededInference(){
+  if(!facultyData || !facultyData.kpis || !facultyData.schools) return;
+  const schoolEntries = Object.entries(facultyData.schools);
+  if(schoolEntries.length === 0) return;
+
+  for(const kpiName of exceededInferenceKpis){
+    const facultyKpi = facultyData.kpis[kpiName];
+    if(!facultyKpi || !isFiniteNumber(facultyKpi.number) || !isFiniteNumber(facultyKpi.percentage) || facultyKpi.number <= 0) continue;
+    const facultyCompleted = Math.round((facultyKpi.percentage * facultyKpi.number) / 100);
+
+    let knownCompleted = 0;
+    const zeroScopeCandidates = [];
+
+    schoolEntries.forEach(([schoolName, schoolData]) => {
+      const schoolKpi = schoolData.kpis && schoolData.kpis[kpiName];
+      if(!schoolKpi) return;
+      if(isMissingCurrentForKpi(kpiName, schoolKpi.percentage, schoolKpi.number, schoolKpi.applicable)) return;
+      const num = Number(schoolKpi.number);
+      const perc = Number(schoolKpi.percentage);
+      if(!Number.isFinite(num) || !Number.isFinite(perc)) return;
+
+      if(num > 0){
+        knownCompleted += Math.round((perc * num) / 100);
+        return;
+      }
+      if(Math.abs(num) < 1e-9 && Math.abs(perc) < 1e-9 && schoolKpi.applicable === false){
+        zeroScopeCandidates.push([schoolName, schoolKpi]);
+      }
+    });
+
+    const extraCompleted = facultyCompleted - knownCompleted;
+    if(extraCompleted > 0 && zeroScopeCandidates.length === 1){
+      const [, inferredSchoolKpi] = zeroScopeCandidates[0];
+      inferredSchoolKpi.exceeded = true;
+      inferredSchoolKpi.applicable = true;
+      inferredSchoolKpi.completed_count = extraCompleted;
+      if(!isFiniteNumber(inferredSchoolKpi.percentage)) inferredSchoolKpi.percentage = 0;
+
+      const history = normalizeTrendHistory(inferredSchoolKpi.history);
+      if(history.length > 0){
+        const current = history[history.length - 1];
+        current.exceeded = true;
+        current.applicable = true;
+        current.completed_count = extraCompleted;
+        if(!isFiniteNumber(current.percentage)){
+          current.percentage = isFiniteNumber(current.rawPercentage) ? current.rawPercentage : 0;
+        }
+        inferredSchoolKpi.history = history;
+      }
+    }
+  }
 }
 function kpiUsesDenominator(kpiName){
   return !!(kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label);
@@ -3997,6 +4698,16 @@ function createChangeBadge(history, kpiName, compact=false, includeLastPrefix=fa
   }
   return `<span class="change-badge ${summary.className}" title="${summary.label}">${summary.symbol} ${text}</span>`;
 }
+function formatPercentCellCompressed(point, kpiName, fallbackText='No return'){
+  if(!point) {
+    if(String(fallbackText).toLowerCase().includes('prior')) return '<span class="cell-no-prior">No prior return</span>';
+    return `<span class="cell-no-return">${fallbackText}</span>`;
+  }
+  if(isImplicitNoReturnPoint(kpiName, point)) return '<span class="cell-no-return">No return</span>';
+  if(point.applicable === false) return `N/A ${createTooltip(kpiName, getNotApplicableText(kpiName))}`;
+  if(typeof point.percentage === 'number') return `${point.percentage.toFixed(1)}%`;
+  return '<span class="cell-no-return">No return</span>';
+}
 function formatPercentCell(point, kpiName, fallbackText='No return'){
   if(!point) {
     if(String(fallbackText).toLowerCase().includes('prior')) return '<span class="no-prior">No previous applicable return</span>';
@@ -4035,9 +4746,9 @@ function createPreviousReturnStatusBadge(history, kpiName){
   if(cleaned.length < 2) return '<span class="change-badge change-flat">→ Prev: No prior period</span>';
   const previousPoint = cleaned[cleaned.length - 2];
   if(didSubmitReturnForPoint(kpiName, previousPoint)){
-    return '<span class="change-badge change-prev-submitted" title="Previous reporting period had a submitted return">✓ Prev return: Submitted</span>';
+    return '<span class="change-badge change-prev-submitted" title="Previous reporting period had a submitted return">✓ Prev: Submitted</span>';
   }
-  return '<span class="change-badge change-prev-missing" title="Previous reporting period did not have a submitted return">! Prev return: No return</span>';
+  return '<span class="change-badge change-prev-missing" title="Previous reporting period did not have a submitted return">! Prev: No return</span>';
 }
 function getCompressedChangeCell(history, kpiName){
   const summary = getChangeSummary(history, kpiName);
@@ -4258,7 +4969,20 @@ function formatValue(percentage,number,applicable=true,kpiName=''){
   if(number===null||number===undefined) return `${percentage.toFixed(1)}%`;
   return `${percentage.toFixed(1)}%`;
 }
-function formatDisplayTextWithCount(kpiName,percentage,number,applicable=true){
+function formatDisplayTextWithCount(kpiName,percentage,number,applicable=true,exceeded=false,completedCount=null){
+  if(exceeded){
+    const label=kpiMeta[kpiName]&&kpiMeta[kpiName].denominator_label?kpiMeta[kpiName].denominator_label:'items';
+    if(number !== null && number !== undefined && Math.abs(Number(number)) < 1e-9){
+      if(completedCount !== null){
+        return `<span class="exceeded-badge">Activity reported (0 ${label} scheduled, ${completedCount} carried out)</span>`;
+      }
+      return `<span class="exceeded-badge">Activity reported (0 ${label} scheduled)</span>`;
+    }
+    if(completedCount !== null){
+      return `${percentage.toFixed(1)}% (${completedCount} carried out, ${Math.round(number)} ${label} scheduled)`;
+    }
+    return `${percentage.toFixed(1)}% (${Math.round(number)} ${label} in scope)`;
+  }
   if(applicable===false) return getNotApplicableText(kpiName);
   if(isImplicitNoReturnRecord(kpiName, percentage, number, applicable)) return '<span class="no-return">No return submitted</span>';
   if(isMissingReturnValue(percentage)) return '<span class="no-return">No return submitted</span>';
@@ -4296,6 +5020,7 @@ function toggleCard(cardElement,kpiName){cardElement.classList.toggle('expanded'
 function sortFacultyCards(order){currentSortOrder=order;document.getElementById('sortHighLow').classList.toggle('active',order==='highLow');document.getElementById('sortLowHigh').classList.toggle('active',order==='lowHigh');initializeFacultyDashboard();setTimeout(()=>{positionTooltips();applyCompressedValueTitles();renderTrendCharts();renderSchoolTrendCharts();},100);}
 function toggleViewMode(mode){currentViewMode=mode;document.getElementById('detailedView').classList.toggle('active',mode==='detailed');document.getElementById('compressedView').classList.toggle('active',mode==='compressed');const container=document.querySelector('.faculty-overview');const instructions=document.getElementById('instructions');if(mode==='compressed'){container.classList.add('compressed-view');instructions.textContent='Compact view showing faculty and university averages for all KPIs';}else{container.classList.remove('compressed-view');instructions.textContent='Click any KPI card to view school performance breakdown';}initializeFacultyDashboard();setTimeout(()=>{positionTooltips();applyCompressedValueTitles();renderTrendCharts();renderSchoolTrendCharts();},100);}
 function initializeFacultyDashboard(){
+  applyExceededInference();
   const facultyKpisContainer = document.getElementById('facultyKpis');
   facultyKpisContainer.innerHTML = '';
   if(!facultyData.kpis) return;
@@ -4365,14 +5090,30 @@ function initializeFacultyDashboard(){
             const schoolLabel = (kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label) ? kpiMeta[kpiName].denominator_label : 'records';
             const number = schoolKpi.number;
             const countValue = (number !== null && number !== undefined && number !== '/' && !isNaN(parseFloat(number))) ? parseFloat(number) : null;
-            const scopeText = countValue === null ? '<span class="no-return">No return</span>' : `${Math.round(countValue)} ${schoolLabel}`;
             const points = getPreviousAndCurrentPoints(schoolKpi.history);
             if(isMissingCurrentForKpi(kpiName, schoolKpi.percentage, schoolKpi.number, schoolKpi.applicable)) cardHasMissingReturns = true;
-            const previousText = formatPercentCell(points.previous, kpiName, 'No prior applicable return');
-            const currentText = formatPercentCell(points.current, kpiName, 'No return');
-            const changeText = getCompressedChangeCell(schoolKpi.history, kpiName);
             const schoolWarning = createOutOfRangeBadge(schoolKpi.percentage, 'school-warning');
-            schoolBreakdownHtml += `<div class="compressed-school-row"><div class="school-name">${schoolName}${schoolWarning}</div><div class="school-scope">${scopeText}</div><div class="school-prev">${previousText}</div><div class="school-current">${currentText}</div><div>${changeText}</div></div>`;
+            const hasNoScope = countValue === null;
+            const isExceeded = schoolKpi.exceeded === true;
+            const hasNoCurrent = !isExceeded && (!points.current || isImplicitNoReturnPoint(kpiName, points.current) || (points.current.applicable !== false && typeof points.current.percentage !== 'number'));
+            if(hasNoScope && hasNoCurrent){
+              schoolBreakdownHtml += `<div class="compressed-school-row no-return-row"><div class="school-name">${schoolName}${schoolWarning}</div><div class="row-no-return-msg">No return submitted for this period</div></div>`;
+            } else {
+              let scopeText;
+              if(isExceeded && countValue !== null && countValue === 0){
+                scopeText = schoolKpi.completed_count !== null
+                  ? `<span class="cell-exceeded">0 scheduled, ${schoolKpi.completed_count} carried out</span>`
+                  : `<span class="cell-exceeded">0 scheduled</span>`;
+              } else if(hasNoScope){
+                scopeText = '<span class="cell-no-return">No return</span>';
+              } else {
+                scopeText = `${Math.round(countValue)} ${schoolLabel}`;
+              }
+              const previousText = formatPercentCellCompressed(points.previous, kpiName, 'No prior applicable return');
+              const currentText = formatPercentCellCompressed(points.current, kpiName, 'No return');
+              const changeText = getCompressedChangeCell(schoolKpi.history, kpiName);
+              schoolBreakdownHtml += `<div class="compressed-school-row"><div class="school-name">${schoolName}${schoolWarning}</div><div class="school-scope">${scopeText}</div><div class="school-prev">${previousText}</div><div class="school-current">${currentText}</div><div>${changeText}</div></div>`;
+            }
           }
           schoolBreakdownHtml += '</div>';
         } else {
@@ -4416,9 +5157,17 @@ function initializeFacultyDashboard(){
                   barClasses.push('zero-count-bar');
                 } else {
                   const boundedPercentage = Math.max(0, Math.min(100, numericPercentage));
-                  if(hasZeroCount) {
+                  if(hasZeroCount && !schoolKpi.exceeded) {
                     labelText = getNotApplicableText(kpiName);
                     labelClasses.push('label-zero-count');
+                  } else if(hasZeroCount && schoolKpi.exceeded) {
+                    barWidth = 100;
+                    barColor = '#10b981';
+                    const excLabel = kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label ? kpiMeta[kpiName].denominator_label : 'items';
+                    labelText = schoolKpi.completed_count !== null
+                      ? `Activity reported (0 ${excLabel} scheduled, ${schoolKpi.completed_count} carried out)`
+                      : `Activity reported (0 ${excLabel} scheduled)`;
+                    labelClasses.push('label-on-fill');
                   } else {
                     barWidth = boundedPercentage;
                     const schoolPerfClass = getPerformanceClass(numericPercentage, true);
@@ -4451,7 +5200,8 @@ function initializeFacultyDashboard(){
             const schoolLabel = (kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label) ? kpiMeta[kpiName].denominator_label : 'records';
             const countDisplay = countValue !== null ? `<div class="school-count">In scope: ${Math.round(countValue)} ${schoolLabel}</div>` : '';
             const schoolTrendHtml = createSchoolTrendMarkup(schoolKpi.history, kpiName, schoolName);
-            const fillMarkup = !hasZeroCount && barWidth > 0 ? `<div class="school-percentage-fill" style="width:${barWidth}%;background:${barColor};"></div>` : '';
+            const canFill = barWidth > 0 && (!hasZeroCount || schoolKpi.exceeded);
+            const fillMarkup = canFill ? `<div class="school-percentage-fill" style="width:${barWidth}%;background:${barColor};"></div>` : '';
 
             const schoolWarning = createOutOfRangeBadge(schoolKpi.percentage, 'school-warning');
             const schoolMissing = missingCurrent ? '<span class="missing-return-flag school-missing" title="No return submitted for this KPI this period">No return</span>' : '';
@@ -4476,7 +5226,7 @@ function initializeFacultyDashboard(){
     const questionText = (kpiMeta[kpiName] && kpiMeta[kpiName].question) ? kpiMeta[kpiName].question : '';
 
     if(currentViewMode === 'compressed') {
-      card.innerHTML = `<div class="kpi-title-wrap">${tooltipHtml}<div class="kpi-title">${kpiName} ${warningBadgeHtml}<span class="missing-return-slot">${missingCardBadge}</span></div></div><div class="kpi-value ${performanceClass}">${formatDisplayTextWithCount(kpiName, kpiData.percentage, kpiData.number, kpiData.applicable)}</div>${universityComparisonHtml}${trendHtml}${schoolBreakdownHtml}${expandIcon}`;
+      card.innerHTML = `<div class="kpi-title-wrap">${tooltipHtml}<div class="kpi-title">${kpiName} ${warningBadgeHtml}<span class="missing-return-slot">${missingCardBadge}</span></div></div><div class="kpi-value ${performanceClass}">${formatDisplayTextWithCount(kpiName, kpiData.percentage, kpiData.number, kpiData.applicable, kpiData.exceeded, kpiData.completed_count)}</div>${universityComparisonHtml}${trendHtml}${schoolBreakdownHtml}${expandIcon}`;
       if(hasExpandableContent) {
         card.onclick = () => toggleCard(card, kpiName);
       } else {
@@ -4485,7 +5235,7 @@ function initializeFacultyDashboard(){
       }
     } else {
       card.onclick = () => toggleCard(card, kpiName);
-      card.innerHTML = `<div class="kpi-header"><div class="kpi-title-wrap">${tooltipHtml}<div class="kpi-title">${kpiName} ${warningBadgeHtml} ${missingCardBadge}</div></div><div class="kpi-question">${questionText}</div><div class="kpi-value ${performanceClass}">${formatDisplayTextWithCount(kpiName, kpiData.percentage, kpiData.number, kpiData.applicable)}</div></div>${universityComparisonHtml}${trendHtml}${schoolBreakdownHtml}${expandIcon}`;
+      card.innerHTML = `<div class="kpi-header"><div class="kpi-title-wrap">${tooltipHtml}<div class="kpi-title">${kpiName} ${warningBadgeHtml} ${missingCardBadge}</div></div><div class="kpi-question">${questionText}</div><div class="kpi-value ${performanceClass}">${formatDisplayTextWithCount(kpiName, kpiData.percentage, kpiData.number, kpiData.applicable, kpiData.exceeded, kpiData.completed_count)}</div></div>${universityComparisonHtml}${trendHtml}${schoolBreakdownHtml}${expandIcon}`;
       if(!hasExpandableContent) {
         card.style.cursor = 'default';
         card.onclick = null;

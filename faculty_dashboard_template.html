@@ -120,6 +120,12 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
 .no-return::before{content:'!';display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:#e11d48;color:#fff;font-size:10px;font-weight:800;flex:0 0 14px}
 .no-prior{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;font-weight:700;line-height:1.2}
 .no-prior::before{content:'i';display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:#1d4ed8;color:#fff;font-size:10px;font-weight:800;flex:0 0 14px}
+.exceeded-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;background:#f1f5f9;border:1px solid #cbd5e1;color:#334155;font-weight:700;line-height:1.2}
+.compressed-school-row .cell-no-return{color:#9f1239;font-weight:600;font-style:italic;font-size:11px}
+.compressed-school-row .cell-no-prior{color:#1e40af;font-weight:600;font-style:italic;font-size:11px}
+.compressed-school-row .cell-exceeded{color:#475569;font-weight:600;font-style:italic;font-size:11px}
+.compressed-school-row.no-return-row{grid-template-columns:minmax(180px,2fr) 1fr;background:#fff8f8;border-color:#fecdd3}
+.compressed-school-row.no-return-row .row-no-return-msg{display:inline-flex;align-items:center;gap:5px;color:#9f1239;font-weight:600;font-size:11px;font-style:italic}
 .kpi-value .no-return{white-space:nowrap}
 .kpi-card.no-return-current{border-color:#fda4af;box-shadow:0 0 0 2px rgba(244,63,94,0.18),0 4px 14px rgba(15,23,42,0.08)}
 .kpi-card.no-return-current::before{opacity:1;background:linear-gradient(90deg,#e11d48,#fb7185)}
@@ -204,10 +210,75 @@ function normalizeTrendHistory(history){
     .map((point) => ({
       date: point.date,
       percentage: typeof point.percentage === 'number' ? point.percentage : null,
-      rawPercentage: typeof point.raw_percentage === 'number' ? point.raw_percentage : (typeof point.percentage === 'number' ? point.percentage : null),
+      rawPercentage: typeof point.raw_percentage === 'number'
+        ? point.raw_percentage
+        : (typeof point.rawPercentage === 'number' ? point.rawPercentage : (typeof point.percentage === 'number' ? point.percentage : null)),
       number: typeof point.number === 'number' ? point.number : null,
-      applicable: point.applicable !== false
+      applicable: point.applicable !== false,
+      exceeded: point.exceeded === true,
+      completed_count: typeof point.completed_count === 'number' ? point.completed_count : null
     }));
+}
+const exceededInferenceKpis = new Set([
+  'Inspections Carried Out',
+  'Leadership Walkarounds',
+  'PEEPS Drilled',
+  'Fire Drills Completed'
+]);
+function isFiniteNumber(value){
+  return typeof value === 'number' && Number.isFinite(value);
+}
+function applyExceededInference(){
+  if(!facultyData || !facultyData.kpis || !facultyData.schools) return;
+  const schoolEntries = Object.entries(facultyData.schools);
+  if(schoolEntries.length === 0) return;
+
+  for(const kpiName of exceededInferenceKpis){
+    const facultyKpi = facultyData.kpis[kpiName];
+    if(!facultyKpi || !isFiniteNumber(facultyKpi.number) || !isFiniteNumber(facultyKpi.percentage) || facultyKpi.number <= 0) continue;
+    const facultyCompleted = Math.round((facultyKpi.percentage * facultyKpi.number) / 100);
+
+    let knownCompleted = 0;
+    const zeroScopeCandidates = [];
+
+    schoolEntries.forEach(([schoolName, schoolData]) => {
+      const schoolKpi = schoolData.kpis && schoolData.kpis[kpiName];
+      if(!schoolKpi) return;
+      if(isMissingCurrentForKpi(kpiName, schoolKpi.percentage, schoolKpi.number, schoolKpi.applicable)) return;
+      const num = Number(schoolKpi.number);
+      const perc = Number(schoolKpi.percentage);
+      if(!Number.isFinite(num) || !Number.isFinite(perc)) return;
+
+      if(num > 0){
+        knownCompleted += Math.round((perc * num) / 100);
+        return;
+      }
+      if(Math.abs(num) < 1e-9 && Math.abs(perc) < 1e-9 && schoolKpi.applicable === false){
+        zeroScopeCandidates.push([schoolName, schoolKpi]);
+      }
+    });
+
+    const extraCompleted = facultyCompleted - knownCompleted;
+    if(extraCompleted > 0 && zeroScopeCandidates.length === 1){
+      const [, inferredSchoolKpi] = zeroScopeCandidates[0];
+      inferredSchoolKpi.exceeded = true;
+      inferredSchoolKpi.applicable = true;
+      inferredSchoolKpi.completed_count = extraCompleted;
+      if(!isFiniteNumber(inferredSchoolKpi.percentage)) inferredSchoolKpi.percentage = 0;
+
+      const history = normalizeTrendHistory(inferredSchoolKpi.history);
+      if(history.length > 0){
+        const current = history[history.length - 1];
+        current.exceeded = true;
+        current.applicable = true;
+        current.completed_count = extraCompleted;
+        if(!isFiniteNumber(current.percentage)){
+          current.percentage = isFiniteNumber(current.rawPercentage) ? current.rawPercentage : 0;
+        }
+        inferredSchoolKpi.history = history;
+      }
+    }
+  }
 }
 function kpiUsesDenominator(kpiName){
   return !!(kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label);
@@ -345,6 +416,16 @@ function createChangeBadge(history, kpiName, compact=false, includeLastPrefix=fa
   }
   return `<span class="change-badge ${summary.className}" title="${summary.label}">${summary.symbol} ${text}</span>`;
 }
+function formatPercentCellCompressed(point, kpiName, fallbackText='No return'){
+  if(!point) {
+    if(String(fallbackText).toLowerCase().includes('prior')) return '<span class="cell-no-prior">No prior return</span>';
+    return `<span class="cell-no-return">${fallbackText}</span>`;
+  }
+  if(isImplicitNoReturnPoint(kpiName, point)) return '<span class="cell-no-return">No return</span>';
+  if(point.applicable === false) return `N/A ${createTooltip(kpiName, getNotApplicableText(kpiName))}`;
+  if(typeof point.percentage === 'number') return `${point.percentage.toFixed(1)}%`;
+  return '<span class="cell-no-return">No return</span>';
+}
 function formatPercentCell(point, kpiName, fallbackText='No return'){
   if(!point) {
     if(String(fallbackText).toLowerCase().includes('prior')) return '<span class="no-prior">No previous applicable return</span>';
@@ -383,9 +464,9 @@ function createPreviousReturnStatusBadge(history, kpiName){
   if(cleaned.length < 2) return '<span class="change-badge change-flat">→ Prev: No prior period</span>';
   const previousPoint = cleaned[cleaned.length - 2];
   if(didSubmitReturnForPoint(kpiName, previousPoint)){
-    return '<span class="change-badge change-prev-submitted" title="Previous reporting period had a submitted return">✓ Prev return: Submitted</span>';
+    return '<span class="change-badge change-prev-submitted" title="Previous reporting period had a submitted return">✓ Prev: Submitted</span>';
   }
-  return '<span class="change-badge change-prev-missing" title="Previous reporting period did not have a submitted return">! Prev return: No return</span>';
+  return '<span class="change-badge change-prev-missing" title="Previous reporting period did not have a submitted return">! Prev: No return</span>';
 }
 function getCompressedChangeCell(history, kpiName){
   const summary = getChangeSummary(history, kpiName);
@@ -606,7 +687,20 @@ function formatValue(percentage,number,applicable=true,kpiName=''){
   if(number===null||number===undefined) return `${percentage.toFixed(1)}%`;
   return `${percentage.toFixed(1)}%`;
 }
-function formatDisplayTextWithCount(kpiName,percentage,number,applicable=true){
+function formatDisplayTextWithCount(kpiName,percentage,number,applicable=true,exceeded=false,completedCount=null){
+  if(exceeded){
+    const label=kpiMeta[kpiName]&&kpiMeta[kpiName].denominator_label?kpiMeta[kpiName].denominator_label:'items';
+    if(number !== null && number !== undefined && Math.abs(Number(number)) < 1e-9){
+      if(completedCount !== null){
+        return `<span class="exceeded-badge">Activity reported (0 ${label} scheduled, ${completedCount} carried out)</span>`;
+      }
+      return `<span class="exceeded-badge">Activity reported (0 ${label} scheduled)</span>`;
+    }
+    if(completedCount !== null){
+      return `${percentage.toFixed(1)}% (${completedCount} carried out, ${Math.round(number)} ${label} scheduled)`;
+    }
+    return `${percentage.toFixed(1)}% (${Math.round(number)} ${label} in scope)`;
+  }
   if(applicable===false) return getNotApplicableText(kpiName);
   if(isImplicitNoReturnRecord(kpiName, percentage, number, applicable)) return '<span class="no-return">No return submitted</span>';
   if(isMissingReturnValue(percentage)) return '<span class="no-return">No return submitted</span>';
@@ -644,6 +738,7 @@ function toggleCard(cardElement,kpiName){cardElement.classList.toggle('expanded'
 function sortFacultyCards(order){currentSortOrder=order;document.getElementById('sortHighLow').classList.toggle('active',order==='highLow');document.getElementById('sortLowHigh').classList.toggle('active',order==='lowHigh');initializeFacultyDashboard();setTimeout(()=>{positionTooltips();applyCompressedValueTitles();renderTrendCharts();renderSchoolTrendCharts();},100);}
 function toggleViewMode(mode){currentViewMode=mode;document.getElementById('detailedView').classList.toggle('active',mode==='detailed');document.getElementById('compressedView').classList.toggle('active',mode==='compressed');const container=document.querySelector('.faculty-overview');const instructions=document.getElementById('instructions');if(mode==='compressed'){container.classList.add('compressed-view');instructions.textContent='Compact view showing faculty and university averages for all KPIs';}else{container.classList.remove('compressed-view');instructions.textContent='Click any KPI card to view school performance breakdown';}initializeFacultyDashboard();setTimeout(()=>{positionTooltips();applyCompressedValueTitles();renderTrendCharts();renderSchoolTrendCharts();},100);}
 function initializeFacultyDashboard(){
+  applyExceededInference();
   const facultyKpisContainer = document.getElementById('facultyKpis');
   facultyKpisContainer.innerHTML = '';
   if(!facultyData.kpis) return;
@@ -713,14 +808,30 @@ function initializeFacultyDashboard(){
             const schoolLabel = (kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label) ? kpiMeta[kpiName].denominator_label : 'records';
             const number = schoolKpi.number;
             const countValue = (number !== null && number !== undefined && number !== '/' && !isNaN(parseFloat(number))) ? parseFloat(number) : null;
-            const scopeText = countValue === null ? '<span class="no-return">No return</span>' : `${Math.round(countValue)} ${schoolLabel}`;
             const points = getPreviousAndCurrentPoints(schoolKpi.history);
             if(isMissingCurrentForKpi(kpiName, schoolKpi.percentage, schoolKpi.number, schoolKpi.applicable)) cardHasMissingReturns = true;
-            const previousText = formatPercentCell(points.previous, kpiName, 'No prior applicable return');
-            const currentText = formatPercentCell(points.current, kpiName, 'No return');
-            const changeText = getCompressedChangeCell(schoolKpi.history, kpiName);
             const schoolWarning = createOutOfRangeBadge(schoolKpi.percentage, 'school-warning');
-            schoolBreakdownHtml += `<div class="compressed-school-row"><div class="school-name">${schoolName}${schoolWarning}</div><div class="school-scope">${scopeText}</div><div class="school-prev">${previousText}</div><div class="school-current">${currentText}</div><div>${changeText}</div></div>`;
+            const hasNoScope = countValue === null;
+            const isExceeded = schoolKpi.exceeded === true;
+            const hasNoCurrent = !isExceeded && (!points.current || isImplicitNoReturnPoint(kpiName, points.current) || (points.current.applicable !== false && typeof points.current.percentage !== 'number'));
+            if(hasNoScope && hasNoCurrent){
+              schoolBreakdownHtml += `<div class="compressed-school-row no-return-row"><div class="school-name">${schoolName}${schoolWarning}</div><div class="row-no-return-msg">No return submitted for this period</div></div>`;
+            } else {
+              let scopeText;
+              if(isExceeded && countValue !== null && countValue === 0){
+                scopeText = schoolKpi.completed_count !== null
+                  ? `<span class="cell-exceeded">0 scheduled, ${schoolKpi.completed_count} carried out</span>`
+                  : `<span class="cell-exceeded">0 scheduled</span>`;
+              } else if(hasNoScope){
+                scopeText = '<span class="cell-no-return">No return</span>';
+              } else {
+                scopeText = `${Math.round(countValue)} ${schoolLabel}`;
+              }
+              const previousText = formatPercentCellCompressed(points.previous, kpiName, 'No prior applicable return');
+              const currentText = formatPercentCellCompressed(points.current, kpiName, 'No return');
+              const changeText = getCompressedChangeCell(schoolKpi.history, kpiName);
+              schoolBreakdownHtml += `<div class="compressed-school-row"><div class="school-name">${schoolName}${schoolWarning}</div><div class="school-scope">${scopeText}</div><div class="school-prev">${previousText}</div><div class="school-current">${currentText}</div><div>${changeText}</div></div>`;
+            }
           }
           schoolBreakdownHtml += '</div>';
         } else {
@@ -764,9 +875,17 @@ function initializeFacultyDashboard(){
                   barClasses.push('zero-count-bar');
                 } else {
                   const boundedPercentage = Math.max(0, Math.min(100, numericPercentage));
-                  if(hasZeroCount) {
+                  if(hasZeroCount && !schoolKpi.exceeded) {
                     labelText = getNotApplicableText(kpiName);
                     labelClasses.push('label-zero-count');
+                  } else if(hasZeroCount && schoolKpi.exceeded) {
+                    barWidth = 100;
+                    barColor = '#10b981';
+                    const excLabel = kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label ? kpiMeta[kpiName].denominator_label : 'items';
+                    labelText = schoolKpi.completed_count !== null
+                      ? `Activity reported (0 ${excLabel} scheduled, ${schoolKpi.completed_count} carried out)`
+                      : `Activity reported (0 ${excLabel} scheduled)`;
+                    labelClasses.push('label-on-fill');
                   } else {
                     barWidth = boundedPercentage;
                     const schoolPerfClass = getPerformanceClass(numericPercentage, true);
@@ -799,7 +918,8 @@ function initializeFacultyDashboard(){
             const schoolLabel = (kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label) ? kpiMeta[kpiName].denominator_label : 'records';
             const countDisplay = countValue !== null ? `<div class="school-count">In scope: ${Math.round(countValue)} ${schoolLabel}</div>` : '';
             const schoolTrendHtml = createSchoolTrendMarkup(schoolKpi.history, kpiName, schoolName);
-            const fillMarkup = !hasZeroCount && barWidth > 0 ? `<div class="school-percentage-fill" style="width:${barWidth}%;background:${barColor};"></div>` : '';
+            const canFill = barWidth > 0 && (!hasZeroCount || schoolKpi.exceeded);
+            const fillMarkup = canFill ? `<div class="school-percentage-fill" style="width:${barWidth}%;background:${barColor};"></div>` : '';
 
             const schoolWarning = createOutOfRangeBadge(schoolKpi.percentage, 'school-warning');
             const schoolMissing = missingCurrent ? '<span class="missing-return-flag school-missing" title="No return submitted for this KPI this period">No return</span>' : '';
@@ -824,7 +944,7 @@ function initializeFacultyDashboard(){
     const questionText = (kpiMeta[kpiName] && kpiMeta[kpiName].question) ? kpiMeta[kpiName].question : '';
 
     if(currentViewMode === 'compressed') {
-      card.innerHTML = `<div class="kpi-title-wrap">${tooltipHtml}<div class="kpi-title">${kpiName} ${warningBadgeHtml}<span class="missing-return-slot">${missingCardBadge}</span></div></div><div class="kpi-value ${performanceClass}">${formatDisplayTextWithCount(kpiName, kpiData.percentage, kpiData.number, kpiData.applicable)}</div>${universityComparisonHtml}${trendHtml}${schoolBreakdownHtml}${expandIcon}`;
+      card.innerHTML = `<div class="kpi-title-wrap">${tooltipHtml}<div class="kpi-title">${kpiName} ${warningBadgeHtml}<span class="missing-return-slot">${missingCardBadge}</span></div></div><div class="kpi-value ${performanceClass}">${formatDisplayTextWithCount(kpiName, kpiData.percentage, kpiData.number, kpiData.applicable, kpiData.exceeded, kpiData.completed_count)}</div>${universityComparisonHtml}${trendHtml}${schoolBreakdownHtml}${expandIcon}`;
       if(hasExpandableContent) {
         card.onclick = () => toggleCard(card, kpiName);
       } else {
@@ -833,7 +953,7 @@ function initializeFacultyDashboard(){
       }
     } else {
       card.onclick = () => toggleCard(card, kpiName);
-      card.innerHTML = `<div class="kpi-header"><div class="kpi-title-wrap">${tooltipHtml}<div class="kpi-title">${kpiName} ${warningBadgeHtml} ${missingCardBadge}</div></div><div class="kpi-question">${questionText}</div><div class="kpi-value ${performanceClass}">${formatDisplayTextWithCount(kpiName, kpiData.percentage, kpiData.number, kpiData.applicable)}</div></div>${universityComparisonHtml}${trendHtml}${schoolBreakdownHtml}${expandIcon}`;
+      card.innerHTML = `<div class="kpi-header"><div class="kpi-title-wrap">${tooltipHtml}<div class="kpi-title">${kpiName} ${warningBadgeHtml} ${missingCardBadge}</div></div><div class="kpi-question">${questionText}</div><div class="kpi-value ${performanceClass}">${formatDisplayTextWithCount(kpiName, kpiData.percentage, kpiData.number, kpiData.applicable, kpiData.exceeded, kpiData.completed_count)}</div></div>${universityComparisonHtml}${trendHtml}${schoolBreakdownHtml}${expandIcon}`;
       if(!hasExpandableContent) {
         card.style.cursor = 'default';
         card.onclick = null;

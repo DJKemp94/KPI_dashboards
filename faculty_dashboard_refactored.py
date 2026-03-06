@@ -105,6 +105,11 @@ class FacultyDashboardGenerator:
             }
         }
         self.faculty_school_mapping = {"CLAS": "Arts", "English": "Arts", "Humanities": "Arts", "Engineering": "Engineering", "Estates": "Estates", "Finance and Infrastructure": "Finance and Infrastructure", "HR": "HR", "BDI": "Medicine & Health Sciences", "Life Sciences": "Medicine & Health Sciences", "Medicine": "Medicine & Health Sciences", "Veterinary Medicine and Science": "Medicine & Health Sciences", "Clinical Skills": "Medicine & Health Sciences", "Health Sciences": "Medicine & Health Sciences", "Libraries": "Registrars", "Sport": "Registrars", "BSU": "Registrars", "Student & Public Facing Services": "Registrars", "Computer Sciences": "Science", "Biosciences": "Science", "Chemistry": "Science", "Mathematical Sciences": "Science", "Pharmacy": "Science", "Physics and Astronomy": "Science", "Psychology": "Science", "Economics": "Social Sciences", "Business School": "Social Sciences", "Education": "Social Sciences", "Law": "Social Sciences", "Politics and IR": "Social Sciences", "Rights Lab": "Social Sciences", "Sociology": "Social Sciences", "Geography": "Social Sciences", "Faculty Office": "Social Sciences"}
+        # KPIs where more can be done than was scheduled (e.g. extra inspections beyond the plan)
+        self.exceedable_kpis = {
+            "Inspections Carried Out", "Fire Drills Completed",
+            "Leadership Walkarounds", "PEEPS Drilled"
+        }
         self.kpi_tooltips = {kpi: kpi_def["percentage_col"] for kpi, kpi_def in self.kpi_definitions.items()}
 
     def select_file_and_output(self):
@@ -187,16 +192,23 @@ class FacultyDashboardGenerator:
                 if kpi_def["number_col"] and kpi_def["number_col"] in row.index and num_val is None:
                     perc_val = None
                 applicable = self._is_kpi_applicable(kpi_name, num_val)
+                exceeded = False
+                if kpi_name in self.exceedable_kpis and kpi_def["number_col"] and num_val is not None and perc_val is not None:
+                    if not applicable and perc_val > 0:
+                        exceeded = True
+                    elif perc_val > 100 and num_val > 0:
+                        exceeded = True
                 if 'Date' in scoped.columns:
                     date_label = row.get('Date', '')
                 else:
                     date_label = ''
                 series.append({
                     "date": str(date_label) if pd.notna(date_label) else "",
-                    "percentage": perc_val if applicable else None,
+                    "percentage": perc_val if (applicable or exceeded) else None,
                     "raw_percentage": perc_val,
                     "number": num_val,
-                    "applicable": applicable
+                    "applicable": applicable if not exceeded else True,
+                    "exceeded": exceeded
                 })
             result[kpi_name] = series
         return result
@@ -277,11 +289,29 @@ class FacultyDashboardGenerator:
             if kpi_def["number_col"] and kpi_def["number_col"] in data_row.index and num_val is None:
                 perc_val = None
             
+            # Detect exceeded-schedule cases (e.g. 1 inspection done, 0 scheduled)
+            applicable = self._is_kpi_applicable(kpi_name, num_val)
+            completed_count = None
+            exceeded = False
+            if kpi_name in self.exceedable_kpis and kpi_def["number_col"] and num_val is not None and perc_val is not None:
+                completed_count = round(perc_val * num_val / 100) if num_val > 0 else None
+                if not applicable and perc_val > 0:
+                    # 0 scheduled but percentage > 0 means work was done beyond schedule
+                    # We can't calculate completed from percentage alone when denominator is 0,
+                    # so we just know at least some were done
+                    exceeded = True
+                    completed_count = None  # unknown exact count
+                elif perc_val > 100 and num_val > 0:
+                    exceeded = True
+                    completed_count = round(perc_val * num_val / 100)
+
             kpi_data["kpis"][kpi_name] = {
                 "percentage": perc_val,
                 "number": num_val,
-                "applicable": self._is_kpi_applicable(kpi_name, num_val),
-                "display_text": self._format_display(kpi_name, perc_val, num_val)
+                "applicable": applicable if not exceeded else True,
+                "exceeded": exceeded,
+                "completed_count": completed_count,
+                "display_text": self._format_display(kpi_name, perc_val, num_val, exceeded, completed_count)
             }
         return kpi_data
 
@@ -330,10 +360,19 @@ class FacultyDashboardGenerator:
             return True
         return abs(float(number)) > 1e-9
 
-    def _format_display(self, kpi_name, percentage, number):
+    def _format_display(self, kpi_name, percentage, number, exceeded=False, completed_count=None):
         applicable = self._is_kpi_applicable(kpi_name, number)
         metadata = self.kpi_metadata.get(kpi_name, {})
         denominator_label = metadata.get("denominator_label")
+        if exceeded:
+            label = denominator_label or "items"
+            if number is not None and abs(float(number)) < 1e-9:
+                # 0 scheduled but work was done
+                return f"Exceeded (0 {label} scheduled)"
+            elif completed_count is not None:
+                return f"{percentage:.1f}% ({completed_count} carried out, {int(number)} {label} scheduled)"
+            else:
+                return f"{percentage:.1f}% ({int(number)} {label} in scope)"
         if not applicable:
             custom_na_message = metadata.get("na_message")
             if custom_na_message:
