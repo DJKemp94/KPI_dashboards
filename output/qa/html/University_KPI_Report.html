@@ -19,8 +19,8 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
 .kpi-label-wrap{display:flex;flex-direction:column;gap:4px}
 .kpi-question{font-size:12px;color:#475569;line-height:1.35}
 .kpi-value{font-size:14px;font-weight:700;color:white;padding:7px 11px;border-radius:8px;text-align:center;box-shadow:none;margin:0;display:inline-flex;align-items:center;justify-self:end;min-height:30px}
-.trend-wrap{grid-column:1/-1;height:94px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px}
-.trend-canvas{width:100%!important;height:76px!important}
+.trend-wrap{grid-column:1/-1;height:148px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px}
+.trend-canvas{width:100%!important;height:126px!important}
 .tooltip-trigger{display:inline-flex;align-items:center;cursor:help;margin-left:6px;font-size:14px;color:#6b7280;transition:color 0.2s ease}
 .tooltip-trigger:hover{color:#3b82f6}
 .data-warning{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#dc2626;color:#fff;font-size:12px;font-weight:700;margin-left:6px;vertical-align:middle;cursor:default}
@@ -45,7 +45,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
     </div>
     <div class="guide-panel">
       <div class="guide-title">How to read this</div>
-      <div class="guide-line">Each score is a percentage for the KPI. Where shown, <strong>base</strong> is the denominator used for that percentage.</div>
+      <div class="guide-line">Each score is a percentage for the KPI. Where shown, the bracketed count is the number of items in scope for that percentage.</div>
       <div class="guide-line"><span class="data-warning">!</span> means a source percentage is outside 0-100 and should be reviewed with the submitting department.</div>
       <div class="guide-line">Trend charts show reporting periods in date order.</div>
     </div>
@@ -60,7 +60,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
                     </div>
                     <div class="kpi-question">BU-owned assets without unresolved A/B defects.</div>
                 </div>
-                <span class="kpi-value performance-excellent">96.5% (base: 3383 assets)</span>
+                <span class="kpi-value performance-excellent">96.5% (3383 assets in scope)</span>
                 <span style="height:1px"></span>
                 <div class="trend-wrap"><canvas class="trend-canvas" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 96.94}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 96.51}]"></canvas></div>
             </div>
@@ -72,7 +72,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
                     </div>
                     <div class="kpi-question">BU-owned assets inspected by Allianz (not overdue / plant available).</div>
                 </div>
-                <span class="kpi-value performance-excellent">96.5% (base: 3383 assets)</span>
+                <span class="kpi-value performance-excellent">96.5% (3383 assets in scope)</span>
                 <span style="height:1px"></span>
                 <div class="trend-wrap"><canvas class="trend-canvas" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 96.94}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 96.51}]"></canvas></div>
             </div>
@@ -96,7 +96,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
                     </div>
                     <div class="kpi-question">Arrangements completed, reviewed, and approved out of arrangements relevant to the department.</div>
                 </div>
-                <span class="kpi-value performance-excellent">94.1% (base: 741 arrangements)</span>
+                <span class="kpi-value performance-excellent">94.1% (741 arrangements in scope)</span>
                 <span style="height:1px"></span>
                 <div class="trend-wrap"><canvas class="trend-canvas" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 86.71}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 94.06}]"></canvas></div>
             </div>
@@ -108,7 +108,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
                     </div>
                     <div class="kpi-question">Fire drills carried out in period out of buildings allocated to undertake a fire drill.</div>
                 </div>
-                <span class="kpi-value performance-excellent">90.3% (base: 62 buildings)</span>
+                <span class="kpi-value performance-excellent">90.3% (62 buildings in scope)</span>
                 <span style="height:1px"></span>
                 <div class="trend-wrap"><canvas class="trend-canvas" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 80.0}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 90.32}]"></canvas></div>
             </div>
@@ -132,7 +132,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
                     </div>
                     <div class="kpi-question">PEEPs in place (reviewed, communicated, controls in place) out of PEEPs required.</div>
                 </div>
-                <span class="kpi-value performance-good">83.7% (base: 43 PEEPs)</span>
+                <span class="kpi-value performance-good">83.7% (43 PEEPs in scope)</span>
                 <span style="height:1px"></span>
                 <div class="trend-wrap"><canvas class="trend-canvas" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 89.74}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 83.72}]"></canvas></div>
             </div>
@@ -144,7 +144,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
                     </div>
                     <div class="kpi-question">Investigations completed out of total incidents and near misses reported in the period.</div>
                 </div>
-                <span class="kpi-value performance-good">82.1% (base: 448 incidents/near misses)</span>
+                <span class="kpi-value performance-good">82.1% (448 incidents/near misses in scope)</span>
                 <span style="height:1px"></span>
                 <div class="trend-wrap"><canvas class="trend-canvas" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 80.0}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 82.14}]"></canvas></div>
             </div>
@@ -156,7 +156,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
                     </div>
                     <div class="kpi-question">Staff in-date for UoN H&S induction training (last 3 years).</div>
                 </div>
-                <span class="kpi-value performance-good">81.9% (base: 6437 staff)</span>
+                <span class="kpi-value performance-good">81.9% (6437 staff in scope)</span>
                 <span style="height:1px"></span>
                 <div class="trend-wrap"><canvas class="trend-canvas" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 80.09}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 81.9}]"></canvas></div>
             </div>
@@ -168,7 +168,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
                     </div>
                     <div class="kpi-question">Leadership walkarounds completed out of walkarounds on the monitoring schedule.</div>
                 </div>
-                <span class="kpi-value performance-good">78.8% (base: 52 walkarounds)</span>
+                <span class="kpi-value performance-good">78.8% (52 walkarounds in scope)</span>
                 <span style="height:1px"></span>
                 <div class="trend-wrap"><canvas class="trend-canvas" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 93.75}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 78.85}]"></canvas></div>
             </div>
@@ -180,7 +180,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
                     </div>
                     <div class="kpi-question">Staff in-date for UoN fire training (last 3 years).</div>
                 </div>
-                <span class="kpi-value performance-good">77.8% (base: 6437 staff)</span>
+                <span class="kpi-value performance-good">77.8% (6437 staff in scope)</span>
                 <span style="height:1px"></span>
                 <div class="trend-wrap"><canvas class="trend-canvas" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 89.0}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 77.84}]"></canvas></div>
             </div>
@@ -192,7 +192,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
                     </div>
                     <div class="kpi-question">Staff in-date with all required training.</div>
                 </div>
-                <span class="kpi-value performance-warning">67.2% (base: 6437 staff)</span>
+                <span class="kpi-value performance-warning">67.2% (6437 staff in scope)</span>
                 <span style="height:1px"></span>
                 <div class="trend-wrap"><canvas class="trend-canvas" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 66.48}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 67.23}]"></canvas></div>
             </div>
@@ -204,7 +204,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
                     </div>
                     <div class="kpi-question">Risk assessments updated in the last 2 years out of all risk assessments listed on the register.</div>
                 </div>
-                <span class="kpi-value performance-warning">66.5% (base: 3993 risk assessments)</span>
+                <span class="kpi-value performance-warning">66.5% (3993 risk assessments in scope)</span>
                 <span style="height:1px"></span>
                 <div class="trend-wrap"><canvas class="trend-canvas" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 71.49}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 66.47}]"></canvas></div>
             </div>
@@ -216,7 +216,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
                     </div>
                     <div class="kpi-question">Inspections carried out out of inspections on the monitoring schedule.</div>
                 </div>
-                <span class="kpi-value performance-warning">53.1% (base: 54924 inspections)</span>
+                <span class="kpi-value performance-warning">53.1% (54924 inspections in scope)</span>
                 <span style="height:1px"></span>
                 <div class="trend-wrap"><canvas class="trend-canvas" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 51.68}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 53.07}]"></canvas></div>
             </div>
@@ -228,7 +228,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
                     </div>
                     <div class="kpi-question">PEEPs tested/drilled in the period out of PEEPs required.</div>
                 </div>
-                <span class="kpi-value performance-poor">23.3% (base: 43 PEEPs)</span>
+                <span class="kpi-value performance-poor">23.3% (43 PEEPs in scope)</span>
                 <span style="height:1px"></span>
                 <div class="trend-wrap"><canvas class="trend-canvas" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 41.03}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 23.26}]"></canvas></div>
             </div>
@@ -260,7 +260,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
     "Written Arrangements Complete": {
       "percentage": 94.06,
       "number": 741.0,
-      "display_text": "94.1% (base: 741 arrangements)",
+      "display_text": "94.1% (741 arrangements in scope)",
       "history": [
         {
           "date": "01/08/2025",
@@ -275,7 +275,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
     "Risk Assessments in Register up to date": {
       "percentage": 66.47,
       "number": 3993.0,
-      "display_text": "66.5% (base: 3993 risk assessments)",
+      "display_text": "66.5% (3993 risk assessments in scope)",
       "history": [
         {
           "date": "01/08/2025",
@@ -290,7 +290,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
     "H&S Induction Completion": {
       "percentage": 81.9,
       "number": 6437.0,
-      "display_text": "81.9% (base: 6437 staff)",
+      "display_text": "81.9% (6437 staff in scope)",
       "history": [
         {
           "date": "01/08/2025",
@@ -305,7 +305,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
     "Fire Training Completion": {
       "percentage": 77.84,
       "number": 6437.0,
-      "display_text": "77.8% (base: 6437 staff)",
+      "display_text": "77.8% (6437 staff in scope)",
       "history": [
         {
           "date": "01/08/2025",
@@ -320,7 +320,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
     "Fire Drills Completed": {
       "percentage": 90.32,
       "number": 62.0,
-      "display_text": "90.3% (base: 62 buildings)",
+      "display_text": "90.3% (62 buildings in scope)",
       "history": [
         {
           "date": "01/08/2025",
@@ -335,7 +335,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
     "PEEPS in Place": {
       "percentage": 83.72,
       "number": 43.0,
-      "display_text": "83.7% (base: 43 PEEPs)",
+      "display_text": "83.7% (43 PEEPs in scope)",
       "history": [
         {
           "date": "01/08/2025",
@@ -350,7 +350,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
     "PEEPS Drilled": {
       "percentage": 23.26,
       "number": 43.0,
-      "display_text": "23.3% (base: 43 PEEPs)",
+      "display_text": "23.3% (43 PEEPs in scope)",
       "history": [
         {
           "date": "01/08/2025",
@@ -365,7 +365,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
     "Assets without A&B Defects": {
       "percentage": 96.51,
       "number": 3383.0,
-      "display_text": "96.5% (base: 3383 assets)",
+      "display_text": "96.5% (3383 assets in scope)",
       "history": [
         {
           "date": "01/08/2025",
@@ -380,7 +380,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
     "Assets Inspected by Allianz": {
       "percentage": 96.51,
       "number": 3383.0,
-      "display_text": "96.5% (base: 3383 assets)",
+      "display_text": "96.5% (3383 assets in scope)",
       "history": [
         {
           "date": "01/08/2025",
@@ -395,7 +395,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
     "Accidents and Incidents Investigated": {
       "percentage": 82.14,
       "number": 448.0,
-      "display_text": "82.1% (base: 448 incidents/near misses)",
+      "display_text": "82.1% (448 incidents/near misses in scope)",
       "history": [
         {
           "date": "01/08/2025",
@@ -410,7 +410,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
     "Inspections Carried Out": {
       "percentage": 53.07,
       "number": 54924.0,
-      "display_text": "53.1% (base: 54924 inspections)",
+      "display_text": "53.1% (54924 inspections in scope)",
       "history": [
         {
           "date": "01/08/2025",
@@ -425,7 +425,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
     "Leadership Walkarounds": {
       "percentage": 78.85,
       "number": 52.0,
-      "display_text": "78.8% (base: 52 walkarounds)",
+      "display_text": "78.8% (52 walkarounds in scope)",
       "history": [
         {
           "date": "01/08/2025",
@@ -470,7 +470,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
     "Staff Training Requirements": {
       "percentage": 67.23,
       "number": 6437.0,
-      "display_text": "67.2% (base: 6437 staff)",
+      "display_text": "67.2% (6437 staff in scope)",
       "history": [
         {
           "date": "01/08/2025",
@@ -530,6 +530,32 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
         data: cleaned.map(p => p.percentage)
       };
     }
+    function buildTrendBounds(seriesList){
+      const values = [];
+      seriesList.forEach((series) => {
+        if(Array.isArray(series)) {
+          series.forEach((value) => {
+            if(typeof value === 'number' && !Number.isNaN(value)) values.push(value);
+          });
+        }
+      });
+      if(values.length === 0) return { min: 0, max: 100 };
+      let min = Math.min(...values);
+      let max = Math.max(...values);
+      const span = max - min;
+      const padding = Math.max(4, span * 0.18);
+      if(span < 8) {
+        min -= 4;
+        max += 4;
+      } else {
+        min -= padding;
+        max += padding;
+      }
+      return {
+        min: Math.floor(min),
+        max: Math.ceil(max)
+      };
+    }
     function renderTrendCharts(){
       document.querySelectorAll('.trend-canvas').forEach(canvas => {
         const historyRaw = canvas.getAttribute('data-history') || '[]';
@@ -542,6 +568,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
           return;
         }
         const ctx = canvas.getContext('2d');
+        const bounds = buildTrendBounds([series.data]);
         new Chart(ctx, {
           type: 'line',
           data: {
@@ -562,7 +589,7 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
             plugins: { legend: { display: false }, tooltip: { enabled: true } },
             scales: {
               x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 4 }, grid: { display: false } },
-              y: { min: 0, max: 100, ticks: { callback: v => `${v}%` }, grid: { color: '#e5e7eb' } }
+              y: { min: bounds.min, max: bounds.max, ticks: { callback: v => `${v}%` }, grid: { color: '#e5e7eb' } }
             }
           }
         });

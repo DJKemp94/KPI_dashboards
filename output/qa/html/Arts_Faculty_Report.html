@@ -29,7 +29,8 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
 .kpi-card:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(15,23,42,0.10);border-color:#c0d0e5}
 .kpi-card:hover::before{opacity:1}
 .kpi-card.expanded{box-shadow:0 8px 20px rgba(15,23,42,0.12)}
-.university-comparison{background:#f8fafc;border:1px solid #dbe2ea;border-radius:10px;padding:8px 10px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.university-comparison{background:#f8fafc;border:1px solid #dbe2ea;border-radius:10px;padding:10px 12px;margin-bottom:10px;display:flex;flex-direction:column;align-items:stretch;gap:8px}
+.comparison-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .comparison-text{color:#334155;font-weight:600;font-size:13px;margin:0}
 .comparison-values{display:flex;align-items:center;gap:10px}
 .faculty-value{font-weight:700;color:#1e293b;font-size:16px}
@@ -38,6 +39,10 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
 .comparison-above{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:white}
 .comparison-below{background:linear-gradient(135deg,#ef4444,#dc2626);color:white}
 .comparison-equal{background:linear-gradient(135deg,#6b7280,#4b5563);color:white}
+.change-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;border-radius:999px;padding:4px 8px;width:fit-content}
+.change-up{background:#dcfce7;color:#166534}
+.change-down{background:#fee2e2;color:#b91c1c}
+.change-flat{background:#e2e8f0;color:#475569}
 .kpi-title{font-size:15px;font-weight:700;color:#0f172a;line-height:1.25;margin-bottom:8px;text-align:left}
 .kpi-question{font-size:12px;color:#475569;line-height:1.35;text-align:left;margin-top:0;margin-bottom:8px}
 .kpi-value{font-size:15px;font-weight:700;color:white;padding:8px 12px;border-radius:8px;text-align:center;box-shadow:none;margin:0 0 10px 0;display:inline-flex;width:auto;min-width:0}
@@ -53,7 +58,9 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
 .compressed-view .kpi-question{display:none}
 .compressed-view .kpi-value{font-size:13px;padding:4px 8px;margin:0;border-radius:6px;justify-self:end;text-align:center;display:inline-flex;align-items:center;justify-content:center;line-height:1.2;min-height:0;max-height:none;overflow:hidden}
 .compressed-view .university-comparison{background:transparent;border:none;padding:0;margin:0;flex:none;width:auto;justify-self:end;display:flex;justify-content:flex-end;align-items:center;align-self:center}
+.compressed-view .comparison-top{gap:6px}
 .compressed-view .comparison-text{display:none}
+.compressed-view .change-badge{display:none}
 .compressed-view .comparison-values{margin:0;gap:8px;justify-content:flex-end;align-items:center}
 .compressed-view .university-value{font-size:13px;color:#64748b;font-weight:600}
 .compressed-view .comparison-indicator{font-size:14px;width:24px;height:24px;margin-left:0}
@@ -67,6 +74,10 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
 .school-bar-header{display:flex;justify-content:space-between;width:100%;margin-bottom:9px}
 .school-bar-name-inline{font-size:14px;font-weight:600;color:#1f2937}
 .school-count{font-size:12px;color:#64748b}
+.school-trend-row{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;margin-bottom:10px}
+.school-trend-inline{display:flex;align-items:center;gap:10px;min-width:0}
+.school-trend-canvas{width:136px!important;height:40px!important}
+.school-trend-empty{font-size:11px;color:#94a3b8}
 .school-bar-container{width:100%;position:relative}
 .school-percentage-bar{height:22px;border-radius:11px;background:#e5e7eb;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:flex-start}
 .school-percentage-bar.zero-count-bar{border:1px dashed #cbd5f5;background:#f8fafc}
@@ -85,9 +96,9 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
 .tooltip-trigger:hover{color:#3b82f6}
 .data-warning{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#dc2626;color:white;font-size:12px;font-weight:700;margin-left:6px;vertical-align:middle;cursor:default}
 .school-warning{margin-left:6px}
-.trend-wrap{margin:8px 0 12px;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px}
+.trend-wrap{margin:8px 0 12px;padding:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px}
 .trend-title{font-size:12px;color:#64748b;font-weight:600;margin-bottom:6px}
-.trend-canvas{width:100%!important;height:120px!important}
+.trend-canvas{width:100%!important;height:168px!important}
 .tooltip-content{visibility:hidden;opacity:0;position:fixed;z-index:9999;background-color:#1f2937;color:white;padding:16px;border-radius:8px;font-size:14px;line-height:1.5;max-width:320px;width:max-content;box-shadow:0 10px 25px rgba(0,0,0,0.3);transition:opacity 0.3s,visibility 0.3s;pointer-events:none}
 .guide-panel{background:#ffffff;border:1px solid #dbe2ea;border-radius:12px;padding:12px 14px;margin-bottom:14px;box-shadow:0 2px 8px rgba(15,23,42,0.04)}
 .guide-title{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:8px}
@@ -105,8 +116,9 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
 <div class="faculty-overview">
 <div class="guide-panel">
 <div class="guide-title">How to read this</div>
-<div class="guide-line">Each KPI shows a percentage. Where shown, <strong>base</strong> is the denominator used for that percentage.</div>
+<div class="guide-line">Each KPI shows a percentage. Where shown, the bracketed count is the number of items in scope for that percentage.</div>
 <div class="guide-line">Comparison text states whether the faculty is above or below university, in percentage points.</div>
+<div class="guide-line">Expanded school rows now include a mini trend line and a change indicator since the previous return.</div>
 <div class="guide-line"><span class="data-warning">!</span> means a source percentage is outside 0-100 and should be reviewed with the submitting department.</div>
 </div>
 <div class="overview-title">Faculty KPI Overview</div>
@@ -131,7 +143,7 @@ const facultyData={
     "Written Arrangements Complete": {
       "percentage": 100.0,
       "number": 73.0,
-      "display_text": "100.0% (base: 73 arrangements)",
+      "display_text": "100.0% (73 arrangements in scope)",
       "university_percentage": 94.06,
       "history": [
         {
@@ -158,7 +170,7 @@ const facultyData={
     "Risk Assessments in Register up to date": {
       "percentage": 100.0,
       "number": 76.0,
-      "display_text": "100.0% (base: 76 risk assessments)",
+      "display_text": "100.0% (76 risk assessments in scope)",
       "university_percentage": 66.47,
       "history": [
         {
@@ -185,7 +197,7 @@ const facultyData={
     "H&S Induction Completion": {
       "percentage": 57.91,
       "number": 365.0,
-      "display_text": "57.9% (base: 365 staff)",
+      "display_text": "57.9% (365 staff in scope)",
       "university_percentage": 81.9,
       "history": [
         {
@@ -212,7 +224,7 @@ const facultyData={
     "Fire Training Completion": {
       "percentage": 54.5,
       "number": 365.0,
-      "display_text": "54.5% (base: 365 staff)",
+      "display_text": "54.5% (365 staff in scope)",
       "university_percentage": 77.84,
       "history": [
         {
@@ -239,7 +251,7 @@ const facultyData={
     "Fire Drills Completed": {
       "percentage": 100.0,
       "number": 4.0,
-      "display_text": "100.0% (base: 4 buildings)",
+      "display_text": "100.0% (4 buildings in scope)",
       "university_percentage": 90.32,
       "history": [
         {
@@ -266,7 +278,7 @@ const facultyData={
     "PEEPS in Place": {
       "percentage": 50.0,
       "number": 12.0,
-      "display_text": "50.0% (base: 12 PEEPs)",
+      "display_text": "50.0% (12 PEEPs in scope)",
       "university_percentage": 83.72,
       "history": [
         {
@@ -293,7 +305,7 @@ const facultyData={
     "PEEPS Drilled": {
       "percentage": 41.67,
       "number": 12.0,
-      "display_text": "41.7% (base: 12 PEEPs)",
+      "display_text": "41.7% (12 PEEPs in scope)",
       "university_percentage": 23.26,
       "history": [
         {
@@ -320,7 +332,7 @@ const facultyData={
     "Assets without A&B Defects": {
       "percentage": 100.0,
       "number": 4.0,
-      "display_text": "100.0% (base: 4 assets)",
+      "display_text": "100.0% (4 assets in scope)",
       "university_percentage": 96.51,
       "history": [
         {
@@ -347,7 +359,7 @@ const facultyData={
     "Assets Inspected by Allianz": {
       "percentage": 100.0,
       "number": 4.0,
-      "display_text": "100.0% (base: 4 assets)",
+      "display_text": "100.0% (4 assets in scope)",
       "university_percentage": 96.51,
       "history": [
         {
@@ -374,7 +386,7 @@ const facultyData={
     "Accidents and Incidents Investigated": {
       "percentage": 0.0,
       "number": 0.0,
-      "display_text": "0.0% (base: 0 incidents/near misses)",
+      "display_text": "0.0% (0 incidents/near misses in scope)",
       "university_percentage": 82.14,
       "history": [
         {
@@ -401,7 +413,7 @@ const facultyData={
     "Inspections Carried Out": {
       "percentage": 107.64,
       "number": 157.0,
-      "display_text": "107.6% (base: 157 inspections)",
+      "display_text": "107.6% (157 inspections in scope)",
       "university_percentage": 53.07,
       "history": [
         {
@@ -428,7 +440,7 @@ const facultyData={
     "Leadership Walkarounds": {
       "percentage": 100.0,
       "number": 5.0,
-      "display_text": "100.0% (base: 5 walkarounds)",
+      "display_text": "100.0% (5 walkarounds in scope)",
       "university_percentage": 78.85,
       "history": [
         {
@@ -509,7 +521,7 @@ const facultyData={
     "Staff Training Requirements": {
       "percentage": 46.67,
       "number": 365.0,
-      "display_text": "46.7% (base: 365 staff)",
+      "display_text": "46.7% (365 staff in scope)",
       "university_percentage": 67.23,
       "history": [
         {
@@ -541,77 +553,227 @@ const facultyData={
         "Written Arrangements Complete": {
           "percentage": 100.0,
           "number": 20.0,
-          "display_text": "100.0% (base: 20 arrangements)"
+          "display_text": "100.0% (20 arrangements in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "Risk Assessments in Register up to date": {
           "percentage": 100.0,
           "number": 6.0,
-          "display_text": "100.0% (base: 6 risk assessments)"
+          "display_text": "100.0% (6 risk assessments in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 50.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "H&S Induction Completion": {
           "percentage": 43.0,
           "number": 145.0,
-          "display_text": "43.0% (base: 145 staff)"
+          "display_text": "43.0% (145 staff in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 50.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 43.0
+            }
+          ]
         },
         "Fire Training Completion": {
           "percentage": 32.0,
           "number": 145.0,
-          "display_text": "32.0% (base: 145 staff)"
+          "display_text": "32.0% (145 staff in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 76.712329
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 32.0
+            }
+          ]
         },
         "Fire Drills Completed": {
           "percentage": 0.0,
           "number": 0.0,
-          "display_text": "0.0% (base: 0 buildings)"
+          "display_text": "0.0% (0 buildings in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 0.0
+            }
+          ]
         },
         "PEEPS in Place": {
           "percentage": 100.0,
           "number": 1.0,
-          "display_text": "100.0% (base: 1 PEEPs)"
+          "display_text": "100.0% (1 PEEPs in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 0.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "PEEPS Drilled": {
           "percentage": 0.0,
           "number": 1.0,
-          "display_text": "0.0% (base: 1 PEEPs)"
+          "display_text": "0.0% (1 PEEPs in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 0.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 0.0
+            }
+          ]
         },
         "Assets without A&B Defects": {
           "percentage": 0.0,
           "number": 0.0,
-          "display_text": "0.0% (base: 0 assets)"
+          "display_text": "0.0% (0 assets in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 0.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 0.0
+            }
+          ]
         },
         "Assets Inspected by Allianz": {
           "percentage": 0.0,
           "number": 0.0,
-          "display_text": "0.0% (base: 0 assets)"
+          "display_text": "0.0% (0 assets in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 0.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 0.0
+            }
+          ]
         },
         "Accidents and Incidents Investigated": {
           "percentage": 0.0,
           "number": 0.0,
-          "display_text": "0.0% (base: 0 incidents/near misses)"
+          "display_text": "0.0% (0 incidents/near misses in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 0.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 0.0
+            }
+          ]
         },
         "Inspections Carried Out": {
           "percentage": 100.0,
           "number": 64.0,
-          "display_text": "100.0% (base: 64 inspections)"
+          "display_text": "100.0% (64 inspections in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 52.238806
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "Leadership Walkarounds": {
           "percentage": 0.0,
           "number": 0.0,
-          "display_text": "0.0% (base: 0 walkarounds)"
+          "display_text": "0.0% (0 walkarounds in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 0.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 0.0
+            }
+          ]
         },
         "Risk Assessment Coverage": {
           "percentage": 100.0,
           "number": null,
-          "display_text": "100.0%"
+          "display_text": "100.0%",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 50.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "Training Matrix Coverage": {
           "percentage": 100.0,
           "number": null,
-          "display_text": "100.0%"
+          "display_text": "100.0%",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "Staff Training Requirements": {
           "percentage": 5.0,
           "number": 145.0,
-          "display_text": "5.0% (base: 145 staff)"
+          "display_text": "5.0% (145 staff in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 40.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 5.0
+            }
+          ]
         }
       }
     },
@@ -621,77 +783,227 @@ const facultyData={
         "Written Arrangements Complete": {
           "percentage": 100.0,
           "number": 23.0,
-          "display_text": "100.0% (base: 23 arrangements)"
+          "display_text": "100.0% (23 arrangements in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "Risk Assessments in Register up to date": {
           "percentage": 100.0,
           "number": 14.0,
-          "display_text": "100.0% (base: 14 risk assessments)"
+          "display_text": "100.0% (14 risk assessments in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "H&S Induction Completion": {
           "percentage": 63.0,
           "number": 71.0,
-          "display_text": "63.0% (base: 71 staff)"
+          "display_text": "63.0% (71 staff in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 45.454545
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 63.0
+            }
+          ]
         },
         "Fire Training Completion": {
           "percentage": 70.0,
           "number": 71.0,
-          "display_text": "70.0% (base: 71 staff)"
+          "display_text": "70.0% (71 staff in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 75.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 70.0
+            }
+          ]
         },
         "Fire Drills Completed": {
           "percentage": 100.0,
           "number": 1.0,
-          "display_text": "100.0% (base: 1 buildings)"
+          "display_text": "100.0% (1 buildings in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "PEEPS in Place": {
           "percentage": 100.0,
           "number": 1.0,
-          "display_text": "100.0% (base: 1 PEEPs)"
+          "display_text": "100.0% (1 PEEPs in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "PEEPS Drilled": {
           "percentage": 100.0,
           "number": 1.0,
-          "display_text": "100.0% (base: 1 PEEPs)"
+          "display_text": "100.0% (1 PEEPs in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "Assets without A&B Defects": {
           "percentage": 0.0,
           "number": 0.0,
-          "display_text": "0.0% (base: 0 assets)"
+          "display_text": "0.0% (0 assets in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 0.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 0.0
+            }
+          ]
         },
         "Assets Inspected by Allianz": {
           "percentage": 0.0,
           "number": 0.0,
-          "display_text": "0.0% (base: 0 assets)"
+          "display_text": "0.0% (0 assets in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 0.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 0.0
+            }
+          ]
         },
         "Accidents and Incidents Investigated": {
           "percentage": 0.0,
           "number": 0.0,
-          "display_text": "0.0% (base: 0 incidents/near misses)"
+          "display_text": "0.0% (0 incidents/near misses in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 0.0
+            }
+          ]
         },
         "Inspections Carried Out": {
           "percentage": 100.0,
           "number": 69.0,
-          "display_text": "100.0% (base: 69 inspections)"
+          "display_text": "100.0% (69 inspections in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 98.863636
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "Leadership Walkarounds": {
           "percentage": 100.0,
           "number": 2.0,
-          "display_text": "100.0% (base: 2 walkarounds)"
+          "display_text": "100.0% (2 walkarounds in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "Risk Assessment Coverage": {
           "percentage": 85.0,
           "number": null,
-          "display_text": "85.0%"
+          "display_text": "85.0%",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 85.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 85.0
+            }
+          ]
         },
         "Training Matrix Coverage": {
           "percentage": 95.0,
           "number": null,
-          "display_text": "95.0%"
+          "display_text": "95.0%",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 95.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 95.0
+            }
+          ]
         },
         "Staff Training Requirements": {
           "percentage": 75.0,
           "number": 71.0,
-          "display_text": "75.0% (base: 71 staff)"
+          "display_text": "75.0% (71 staff in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 60.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 75.0
+            }
+          ]
         }
       }
     },
@@ -701,77 +1013,227 @@ const facultyData={
         "Written Arrangements Complete": {
           "percentage": 100.0,
           "number": 30.0,
-          "display_text": "100.0% (base: 30 arrangements)"
+          "display_text": "100.0% (30 arrangements in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 93.548387
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "Risk Assessments in Register up to date": {
           "percentage": 100.0,
           "number": 56.0,
-          "display_text": "100.0% (base: 56 risk assessments)"
+          "display_text": "100.0% (56 risk assessments in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "H&S Induction Completion": {
           "percentage": 70.0,
           "number": 149.0,
-          "display_text": "70.0% (base: 149 staff)"
+          "display_text": "70.0% (149 staff in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 55.921053
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 70.0
+            }
+          ]
         },
         "Fire Training Completion": {
           "percentage": 69.0,
           "number": 149.0,
-          "display_text": "69.0% (base: 149 staff)"
+          "display_text": "69.0% (149 staff in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 65.789474
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 69.0
+            }
+          ]
         },
         "Fire Drills Completed": {
           "percentage": 100.0,
           "number": 3.0,
-          "display_text": "100.0% (base: 3 buildings)"
+          "display_text": "100.0% (3 buildings in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 0.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "PEEPS in Place": {
           "percentage": 40.0,
           "number": 10.0,
-          "display_text": "40.0% (base: 10 PEEPs)"
+          "display_text": "40.0% (10 PEEPs in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 40.0
+            }
+          ]
         },
         "PEEPS Drilled": {
           "percentage": 40.0,
           "number": 10.0,
-          "display_text": "40.0% (base: 10 PEEPs)"
+          "display_text": "40.0% (10 PEEPs in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 0.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 40.0
+            }
+          ]
         },
         "Assets without A&B Defects": {
           "percentage": 100.0,
           "number": 4.0,
-          "display_text": "100.0% (base: 4 assets)"
+          "display_text": "100.0% (4 assets in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "Assets Inspected by Allianz": {
           "percentage": 100.0,
           "number": 4.0,
-          "display_text": "100.0% (base: 4 assets)"
+          "display_text": "100.0% (4 assets in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "Accidents and Incidents Investigated": {
           "percentage": 0.0,
           "number": 0.0,
-          "display_text": "0.0% (base: 0 incidents/near misses)"
+          "display_text": "0.0% (0 incidents/near misses in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 0.0
+            }
+          ]
         },
         "Inspections Carried Out": {
           "percentage": 150.0,
           "number": 24.0,
-          "display_text": "150.0% (base: 24 inspections)"
+          "display_text": "150.0% (24 inspections in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 150.0
+            }
+          ]
         },
         "Leadership Walkarounds": {
           "percentage": 100.0,
           "number": 3.0,
-          "display_text": "100.0% (base: 3 walkarounds)"
+          "display_text": "100.0% (3 walkarounds in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 0.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0
+            }
+          ]
         },
         "Risk Assessment Coverage": {
           "percentage": 85.0,
           "number": null,
-          "display_text": "85.0%"
+          "display_text": "85.0%",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 85.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 85.0
+            }
+          ]
         },
         "Training Matrix Coverage": {
           "percentage": 90.0,
           "number": null,
-          "display_text": "90.0%"
+          "display_text": "90.0%",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 90.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 90.0
+            }
+          ]
         },
         "Staff Training Requirements": {
           "percentage": 60.0,
           "number": 149.0,
-          "display_text": "60.0% (base: 149 staff)"
+          "display_text": "60.0% (149 staff in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 60.0
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 60.0
+            }
+          ]
         }
       }
     }
@@ -806,6 +1268,53 @@ function normalizeTrendHistory(history){
   if(!Array.isArray(history)) return [];
   return history.filter(p => p && p.date && typeof p.percentage === 'number');
 }
+function buildTrendBounds(seriesList){
+  const values = [];
+  seriesList.forEach((series) => {
+    if(Array.isArray(series)) {
+      series.forEach((value) => {
+        if(typeof value === 'number' && !Number.isNaN(value)) values.push(value);
+      });
+    }
+  });
+  if(values.length === 0) return { min: 0, max: 100 };
+  let min = Math.min(...values);
+  let max = Math.max(...values);
+  const span = max - min;
+  const padding = Math.max(4, span * 0.18);
+  if(span < 8) {
+    min -= 4;
+    max += 4;
+  } else {
+    min -= padding;
+    max += padding;
+  }
+  return {
+    min: Math.floor(min),
+    max: Math.ceil(max)
+  };
+}
+function getChangeSummary(history){
+  const cleaned = normalizeTrendHistory(history);
+  if(cleaned.length < 2) return null;
+  const previous = cleaned[cleaned.length - 2].percentage;
+  const current = cleaned[cleaned.length - 1].percentage;
+  if(typeof previous !== 'number' || typeof current !== 'number') return null;
+  const delta = current - previous;
+  if(Math.abs(delta) < 0.05) {
+    return { label: 'No change since last return', shortLabel: 'No change', className: 'change-flat', symbol: '→', delta: 0 };
+  }
+  if(delta > 0) {
+    return { label: `Up +${delta.toFixed(1)}pp since last return`, shortLabel: `+${delta.toFixed(1)}pp`, className: 'change-up', symbol: '↑', delta: delta };
+  }
+  return { label: `Down ${delta.toFixed(1)}pp since last return`, shortLabel: `${delta.toFixed(1)}pp`, className: 'change-down', symbol: '↓', delta: delta };
+}
+function createChangeBadge(history, compact=false){
+  const summary = getChangeSummary(history);
+  if(!summary) return '';
+  const text = compact ? summary.shortLabel : summary.label;
+  return `<span class="change-badge ${summary.className}" title="${summary.label}">${summary.symbol} ${text}</span>`;
+}
 function createTrendMarkup(kpiData,kpiName){
   const facultyHistory = normalizeTrendHistory(kpiData.history);
   const universityHistory = normalizeTrendHistory(kpiData.university_history);
@@ -814,6 +1323,13 @@ function createTrendMarkup(kpiData,kpiName){
   const facData = encodeURIComponent(JSON.stringify(facultyHistory));
   const uniData = encodeURIComponent(JSON.stringify(universityHistory));
   return `<div class="trend-wrap"><div class="trend-title">Trend Across Reporting Periods</div><canvas id="${safeId}" class="trend-canvas" data-faculty-history="${facData}" data-university-history="${uniData}"></canvas></div>`;
+}
+function createSchoolTrendMarkup(history,kpiName,schoolName){
+  const cleaned = normalizeTrendHistory(history);
+  if(cleaned.length < 2) return '<div class="school-trend-empty">No prior return</div>';
+  const safeId = `school-trend-${schoolName.replace(/[^a-zA-Z0-9]/g,'-')}-${kpiName.replace(/[^a-zA-Z0-9]/g,'-')}`;
+  const historyData = encodeURIComponent(JSON.stringify(cleaned));
+  return `<div class="school-trend-inline"><canvas id="${safeId}" class="school-trend-canvas" data-school-history="${historyData}"></canvas>${createChangeBadge(cleaned,true)}</div>`;
 }
 function renderTrendCharts(){
   document.querySelectorAll('.trend-canvas').forEach((canvas) => {
@@ -846,6 +1362,7 @@ function renderTrendCharts(){
     const uniMap = Object.fromEntries(uni.map((p) => [p.date, p.percentage]));
     const facSeries = labels.map((l) => (facMap[l] ?? null));
     const uniSeries = labels.map((l) => (uniMap[l] ?? null));
+    const bounds = buildTrendBounds([facSeries, uniSeries]);
 
     new Chart(canvas.getContext('2d'), {
       type: 'line',
@@ -888,8 +1405,8 @@ function renderTrendCharts(){
             grid: { display: false }
           },
           y: {
-            min: 0,
-            max: 100,
+            min: bounds.min,
+            max: bounds.max,
             ticks: { callback: function(v) { return `${v}%`; } },
             grid: { color: '#e5e7eb' }
           }
@@ -899,13 +1416,68 @@ function renderTrendCharts(){
     canvas.dataset.rendered = 'true';
   });
 }
+function renderSchoolTrendCharts(){
+  document.querySelectorAll('.school-trend-canvas').forEach((canvas) => {
+    if(canvas.dataset.rendered === 'true') return;
+    let history = [];
+    try {
+      history = JSON.parse(decodeURIComponent(canvas.getAttribute('data-school-history') || '[]'));
+    } catch (e) {
+      history = [];
+    }
+    const cleaned = normalizeTrendHistory(history);
+    if(cleaned.length < 2) {
+      canvas.dataset.rendered = 'true';
+      return;
+    }
+    const series = cleaned.map((point) => point.percentage);
+    const bounds = buildTrendBounds([series]);
+    new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: cleaned.map((point) => point.date),
+        datasets: [{
+          data: series,
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37,99,235,0.12)',
+          fill: true,
+          tension: 0.35,
+          pointRadius: 0,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `${context.parsed.y.toFixed(1)}%`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: { display: false },
+          y: { display: false, min: bounds.min, max: bounds.max }
+        },
+        elements: {
+          line: { capBezierPoints: true }
+        }
+      }
+    });
+    canvas.dataset.rendered = 'true';
+  });
+}
 function getPerformanceClass(percentage){if(percentage===null||percentage===undefined)return 'performance-no-data';if(percentage>=95)return 'performance-excellent';if(percentage>=80)return 'performance-good';if(percentage>=60)return 'performance-warning';return 'performance-poor';}
 function formatValue(percentage,number){if(percentage===null||percentage===undefined)return 'No return submitted';if(number===null||number===undefined)return `${percentage.toFixed(1)}%`;return `${percentage.toFixed(1)}%`;}
-function formatDisplayTextWithCount(kpiName,percentage,number){if(percentage===null||percentage===undefined)return 'No return submitted';if(number===null||number===undefined)return `${percentage.toFixed(1)}%`;const label=kpiMeta[kpiName]&&kpiMeta[kpiName].denominator_label?kpiMeta[kpiName].denominator_label:'records';return `${percentage.toFixed(1)}% (base: ${Math.round(number)} ${label})`;}
-function createUniversityComparison(kpiData){const facultyPercentage=kpiData.percentage;const universityPercentage=kpiData.university_percentage;const comparison=kpiData.comparison;if(facultyPercentage===null||universityPercentage===null){return '';}let indicatorText='';let indicatorClass='';let summary='';const delta=(facultyPercentage-universityPercentage);const absDelta=Math.abs(delta).toFixed(1);switch(comparison){case 'above':indicatorText='▲';indicatorClass='comparison-above';summary=`Above university by +${absDelta}pp`;break;case 'below':indicatorText='▼';indicatorClass='comparison-below';summary=`Below university by -${absDelta}pp`;break;case 'equal':indicatorText='=';indicatorClass='comparison-equal';summary='Equal to university';break;default:return '';}return `<div class="university-comparison"><div class="comparison-text">${summary}</div><div class="comparison-values"><span class="university-value">Uni: ${universityPercentage.toFixed(1)}%</span><span class="comparison-indicator ${indicatorClass}" title="${summary}">${indicatorText}</span></div></div>`;}
+function formatDisplayTextWithCount(kpiName,percentage,number){if(percentage===null||percentage===undefined)return 'No return submitted';if(number===null||number===undefined)return `${percentage.toFixed(1)}%`;const label=kpiMeta[kpiName]&&kpiMeta[kpiName].denominator_label?kpiMeta[kpiName].denominator_label:'records';return `${percentage.toFixed(1)}% (${Math.round(number)} ${label} in scope)`;}
+function createUniversityComparison(kpiData){const facultyPercentage=kpiData.percentage;const universityPercentage=kpiData.university_percentage;const comparison=kpiData.comparison;if(facultyPercentage===null||universityPercentage===null){return '';}let indicatorText='';let indicatorClass='';let summary='';const delta=(facultyPercentage-universityPercentage);const absDelta=Math.abs(delta).toFixed(1);switch(comparison){case 'above':indicatorText='▲';indicatorClass='comparison-above';summary=`Above university by +${absDelta}pp`;break;case 'below':indicatorText='▼';indicatorClass='comparison-below';summary=`Below university by -${absDelta}pp`;break;case 'equal':indicatorText='=';indicatorClass='comparison-equal';summary='Equal to university';break;default:return '';}const changeBadge=createChangeBadge(kpiData.history);return `<div class="university-comparison"><div class="comparison-top"><div class="comparison-text">${summary}</div><div class="comparison-values"><span class="university-value">Uni: ${universityPercentage.toFixed(1)}%</span><span class="comparison-indicator ${indicatorClass}" title="${summary}">${indicatorText}</span></div></div>${changeBadge}</div>`;}
 function toggleCard(cardElement,kpiName){cardElement.classList.toggle('expanded');}
-function sortFacultyCards(order){currentSortOrder=order;document.getElementById('sortHighLow').classList.toggle('active',order==='highLow');document.getElementById('sortLowHigh').classList.toggle('active',order==='lowHigh');initializeFacultyDashboard();setTimeout(()=>{positionTooltips();renderTrendCharts();},100);}
-function toggleViewMode(mode){currentViewMode=mode;document.getElementById('detailedView').classList.toggle('active',mode==='detailed');document.getElementById('compressedView').classList.toggle('active',mode==='compressed');const container=document.querySelector('.faculty-overview');const instructions=document.getElementById('instructions');if(mode==='compressed'){container.classList.add('compressed-view');instructions.textContent='Compact view showing faculty and university averages for all KPIs';}else{container.classList.remove('compressed-view');instructions.textContent='Click any KPI card to view school performance breakdown';}initializeFacultyDashboard();setTimeout(()=>{positionTooltips();renderTrendCharts();},100);}
+function sortFacultyCards(order){currentSortOrder=order;document.getElementById('sortHighLow').classList.toggle('active',order==='highLow');document.getElementById('sortLowHigh').classList.toggle('active',order==='lowHigh');initializeFacultyDashboard();setTimeout(()=>{positionTooltips();renderTrendCharts();renderSchoolTrendCharts();},100);}
+function toggleViewMode(mode){currentViewMode=mode;document.getElementById('detailedView').classList.toggle('active',mode==='detailed');document.getElementById('compressedView').classList.toggle('active',mode==='compressed');const container=document.querySelector('.faculty-overview');const instructions=document.getElementById('instructions');if(mode==='compressed'){container.classList.add('compressed-view');instructions.textContent='Compact view showing faculty and university averages for all KPIs';}else{container.classList.remove('compressed-view');instructions.textContent='Click any KPI card to view school performance breakdown';}initializeFacultyDashboard();setTimeout(()=>{positionTooltips();renderTrendCharts();renderSchoolTrendCharts();},100);}
 function initializeFacultyDashboard(){const facultyKpisContainer=document.getElementById('facultyKpis');facultyKpisContainer.innerHTML='';if(facultyData.kpis){let kpiEntries=Object.entries(facultyData.kpis);if(currentSortOrder==='highLow'){kpiEntries.sort((a,b)=>{const aPercentage=a[1].percentage!==null?a[1].percentage:-1;const bPercentage=b[1].percentage!==null?b[1].percentage:-1;return bPercentage-aPercentage;});}else{kpiEntries.sort((a,b)=>{const aPercentage=a[1].percentage!==null?a[1].percentage:999;const bPercentage=b[1].percentage!==null?b[1].percentage:999;return aPercentage-bPercentage;});}for(const[kpiName,kpiData]of kpiEntries){const card=document.createElement('div');card.className='kpi-card';card.id=`card-${kpiName.replace(/[^a-zA-Z0-9]/g,'-')}`;const performanceClass=getPerformanceClass(kpiData.percentage);let schoolBreakdownHtml='';const hasSchools=facultyData.schools&&Object.keys(facultyData.schools).length>0;if(hasSchools){let schoolEntries=Object.entries(facultyData.schools).filter(([schoolName,schoolData])=>schoolData.kpis&&schoolData.kpis[kpiName]);if(currentSortOrder==='highLow'){schoolEntries.sort((a,b)=>{const aPerc=a[1].kpis[kpiName].percentage!==null?a[1].kpis[kpiName].percentage:-1;const bPerc=b[1].kpis[kpiName].percentage!==null?b[1].kpis[kpiName].percentage:-1;return bPerc-aPerc;});}else{schoolEntries.sort((a,b)=>{const aPerc=a[1].kpis[kpiName].percentage!==null?a[1].kpis[kpiName].percentage:999;const bPerc=b[1].kpis[kpiName].percentage!==null?b[1].kpis[kpiName].percentage:999;return aPerc-bPerc;});}if(schoolEntries.length>0){schoolBreakdownHtml=`<div class="school-breakdown-content"><div class="school-breakdown-title">School Performance (${schoolEntries.length} schools):</div>`;for(const[schoolName,schoolData]of schoolEntries){
     const schoolKpi=schoolData.kpis[kpiName];
     const percentage=schoolKpi.percentage;
@@ -931,7 +1503,7 @@ function initializeFacultyDashboard(){const facultyKpisContainer=document.getEle
             const boundedPercentage=Math.max(0,Math.min(100,numericPercentage));
             if(hasZeroCount){
                 const schoolLabel = (kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label) ? kpiMeta[kpiName].denominator_label : 'records';
-                labelText=`0 ${schoolLabel} submitted`;
+                labelText=`0 ${schoolLabel} in scope`;
                 labelClasses.push('label-zero-count');
             }else{
                 barWidth=boundedPercentage;
@@ -975,14 +1547,15 @@ function initializeFacultyDashboard(){const facultyKpisContainer=document.getEle
     const labelClass=labelClasses.join(' ');
     const barClass=barClasses.join(' ');
     const schoolLabel = (kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label) ? kpiMeta[kpiName].denominator_label : 'records';
-    const countDisplay=countValue!==null?`<div class="school-count">Base: ${Math.round(countValue)} ${schoolLabel}</div>`:'';
+    const countDisplay=countValue!==null?`<div class="school-count">In scope: ${Math.round(countValue)} ${schoolLabel}</div>`:'';
+    const schoolTrendHtml=createSchoolTrendMarkup(schoolKpi.history, kpiName, schoolName);
     const fillMarkup=!hasZeroCount&&barWidth>0?`<div class="school-percentage-fill" style="width:${barWidth}%;background:${barColor};"></div>`:'';
-    schoolBreakdownHtml+=`<div class="school-bar-inline"><div class="school-bar-header"><div class="school-bar-name-inline">${schoolName}</div>${countDisplay}</div><div class="school-bar-container"><div class="${barClass}">${fillMarkup}<div class="${labelClass}">${labelText}</div></div></div></div>`;
+    schoolBreakdownHtml+=`<div class="school-bar-inline"><div class="school-bar-header"><div class="school-bar-name-inline">${schoolName}</div>${countDisplay}</div><div class="school-trend-row">${schoolTrendHtml}</div><div class="school-bar-container"><div class="${barClass}">${fillMarkup}<div class="${labelClass}">${labelText}</div></div></div></div>`;
 }
 schoolBreakdownHtml+='</div>';
 }
 }const trendHtml=createTrendMarkup(kpiData,kpiName);const hasExpandableContent=schoolBreakdownHtml!=='';const expandIcon=hasExpandableContent?'<div class="expand-icon">▼</div>':'';const tooltipHtml=createTooltip(kpiName,tooltipData[kpiName]);const warningBadgeHtml=createOutOfRangeBadge(kpiData.percentage);const universityComparisonHtml=createUniversityComparison(kpiData);const questionText=(kpiMeta[kpiName]&&kpiMeta[kpiName].question)?kpiMeta[kpiName].question:'';if(currentViewMode==='compressed'){card.innerHTML=`<div class="kpi-title">${kpiName} ${tooltipHtml} ${warningBadgeHtml}</div><div class="kpi-value ${performanceClass}">${formatDisplayTextWithCount(kpiName,kpiData.percentage,kpiData.number)}</div>${universityComparisonHtml}${trendHtml}${schoolBreakdownHtml}${expandIcon}`;if(hasExpandableContent){card.onclick=()=>toggleCard(card,kpiName);}else{card.style.cursor='default';card.onclick=null;}}else{card.onclick=()=>toggleCard(card,kpiName);card.innerHTML=`<div class="kpi-header"><div class="kpi-title">${kpiName} ${tooltipHtml} ${warningBadgeHtml}</div><div class="kpi-question">${questionText}</div><div class="kpi-value ${performanceClass}">${formatDisplayTextWithCount(kpiName,kpiData.percentage,kpiData.number)}</div></div>${universityComparisonHtml}${trendHtml}${schoolBreakdownHtml}${expandIcon}`;if(!hasExpandableContent){card.style.cursor='default';card.onclick=null;}}facultyKpisContainer.appendChild(card);}}}
-initializeFacultyDashboard();setTimeout(()=>{positionTooltips();renderTrendCharts();},100);window.addEventListener('resize',()=>{setTimeout(()=>{positionTooltips();renderTrendCharts();},100);});
+initializeFacultyDashboard();setTimeout(()=>{positionTooltips();renderTrendCharts();renderSchoolTrendCharts();},100);window.addEventListener('resize',()=>{setTimeout(()=>{positionTooltips();renderTrendCharts();renderSchoolTrendCharts();},100);});
 </script>
 </body>
 </html>

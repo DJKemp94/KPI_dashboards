@@ -176,8 +176,8 @@ class UniversityDashboardGenerator:
             return f"{percentage:.1f}%"
         denominator_label = self.kpi_metadata.get(kpi_name, {}).get("denominator_label")
         if denominator_label:
-            return f"{percentage:.1f}% (base: {int(number)} {denominator_label})"
-        return f"{percentage:.1f}% (base: {int(number)})"
+            return f"{percentage:.1f}% ({int(number)} {denominator_label} in scope)"
+        return f"{percentage:.1f}% ({int(number)} in scope)"
 
     def _extract_university_kpis(self):
         if self.university_data is None or self.university_data.empty:
@@ -249,8 +249,8 @@ body{{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;ba
 .kpi-label-wrap{{display:flex;flex-direction:column;gap:4px}}
 .kpi-question{{font-size:12px;color:#475569;line-height:1.35}}
 .kpi-value{{font-size:14px;font-weight:700;color:white;padding:7px 11px;border-radius:8px;text-align:center;box-shadow:none;margin:0;display:inline-flex;align-items:center;justify-self:end;min-height:30px}}
-.trend-wrap{{grid-column:1/-1;height:94px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px}}
-.trend-canvas{{width:100%!important;height:76px!important}}
+.trend-wrap{{grid-column:1/-1;height:148px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px}}
+.trend-canvas{{width:100%!important;height:126px!important}}
 .tooltip-trigger{{display:inline-flex;align-items:center;cursor:help;margin-left:6px;font-size:14px;color:#6b7280;transition:color 0.2s ease}}
 .tooltip-trigger:hover{{color:#3b82f6}}
 .data-warning{{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#dc2626;color:#fff;font-size:12px;font-weight:700;margin-left:6px;vertical-align:middle;cursor:default}}
@@ -275,7 +275,7 @@ body{{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;ba
     </div>
     <div class="guide-panel">
       <div class="guide-title">How to read this</div>
-      <div class="guide-line">Each score is a percentage for the KPI. Where shown, <strong>base</strong> is the denominator used for that percentage.</div>
+      <div class="guide-line">Each score is a percentage for the KPI. Where shown, the bracketed count is the number of items in scope for that percentage.</div>
       <div class="guide-line"><span class="data-warning">!</span> means a source percentage is outside 0-100 and should be reviewed with the submitting department.</div>
       <div class="guide-line">Trend charts show reporting periods in date order.</div>
     </div>
@@ -336,6 +336,32 @@ body{{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;ba
         data: cleaned.map(p => p.percentage)
       }};
     }}
+    function buildTrendBounds(seriesList){{
+      const values = [];
+      seriesList.forEach((series) => {{
+        if(Array.isArray(series)) {{
+          series.forEach((value) => {{
+            if(typeof value === 'number' && !Number.isNaN(value)) values.push(value);
+          }});
+        }}
+      }});
+      if(values.length === 0) return {{ min: 0, max: 100 }};
+      let min = Math.min(...values);
+      let max = Math.max(...values);
+      const span = max - min;
+      const padding = Math.max(4, span * 0.18);
+      if(span < 8) {{
+        min -= 4;
+        max += 4;
+      }} else {{
+        min -= padding;
+        max += padding;
+      }}
+      return {{
+        min: Math.floor(min),
+        max: Math.ceil(max)
+      }};
+    }}
     function renderTrendCharts(){{
       document.querySelectorAll('.trend-canvas').forEach(canvas => {{
         const historyRaw = canvas.getAttribute('data-history') || '[]';
@@ -348,6 +374,7 @@ body{{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;ba
           return;
         }}
         const ctx = canvas.getContext('2d');
+        const bounds = buildTrendBounds([series.data]);
         new Chart(ctx, {{
           type: 'line',
           data: {{
@@ -368,7 +395,7 @@ body{{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;ba
             plugins: {{ legend: {{ display: false }}, tooltip: {{ enabled: true }} }},
             scales: {{
               x: {{ ticks: {{ maxRotation: 0, autoSkip: true, maxTicksLimit: 4 }}, grid: {{ display: false }} }},
-              y: {{ min: 0, max: 100, ticks: {{ callback: v => `${{v}}%` }}, grid: {{ color: '#e5e7eb' }} }}
+              y: {{ min: bounds.min, max: bounds.max, ticks: {{ callback: v => `${{v}}%` }}, grid: {{ color: '#e5e7eb' }} }}
             }}
           }}
         }});
