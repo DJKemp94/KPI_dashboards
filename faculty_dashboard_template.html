@@ -57,22 +57,22 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
 .expand-icon{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:12px;color:#94a3b8;transition:all 0.2s ease;cursor:pointer}
 .kpi-card.expanded .expand-icon{transform:translateX(-50%) rotate(180deg);color:#3b82f6}
 .compressed-view .kpi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start}
-.compressed-view .kpi-card{display:grid;grid-template-columns:minmax(0,1fr) 260px 126px 14px;column-gap:8px;align-items:center;padding:10px 12px;margin-bottom:0;cursor:pointer;transform:none;border-radius:10px;min-height:0;position:relative;align-self:start;box-sizing:border-box}
+.compressed-view .kpi-card{display:grid;grid-template-columns:minmax(0,1fr) 260px 126px 14px;column-gap:8px;align-items:center;padding:10px 12px;margin-bottom:0;cursor:pointer;transform:none;border-radius:10px;min-height:60px;position:relative;align-self:start;box-sizing:border-box}
 .compressed-view .kpi-card .school-breakdown-content{grid-column:1/-1;width:100%}
 .compressed-view .kpi-card.expanded{margin-bottom:8px}
 .compressed-view .kpi-card:hover{transform:none;box-shadow:0 4px 12px rgba(15,23,42,0.08)}
 .compressed-view .kpi-card::before{display:none}
-.compressed-view .kpi-title-wrap{margin:0;align-items:center}
+.compressed-view .kpi-title-wrap{margin:0;align-items:flex-start}
 .compressed-view .kpi-title{font-size:14px;font-weight:700;line-height:1.3;align-self:center;display:block}
 .compressed-view .missing-return-slot{display:block;min-height:18px;margin-top:4px}
 .compressed-view .missing-return-slot:empty::before{content:' '}
 .compressed-view .missing-return-slot .missing-return-flag{margin-left:0}
 .compressed-view .kpi-question{display:none}
-.compressed-view .kpi-value{font-size:13px;padding:4px 8px;margin:0;border-radius:6px;justify-self:stretch;text-align:left;display:inline-flex;align-items:center;justify-content:flex-start;line-height:1.2;min-height:0;max-height:none;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;width:100%}
+.compressed-view .kpi-value{font-size:13px;padding:7px 10px;margin:0;border-radius:10px;justify-self:stretch;text-align:left;display:inline-flex;align-items:center;justify-content:flex-start;line-height:1.25;min-height:40px;max-height:none;overflow:visible;white-space:normal;overflow-wrap:anywhere;text-overflow:clip;width:100%}
 .compressed-view .university-comparison{background:transparent;border:none;padding:0;margin:0;flex:none;width:auto;justify-self:start;display:grid;grid-template-rows:auto auto;row-gap:2px;align-items:start;align-self:center}
 .compressed-view .comparison-top{gap:6px}
 .compressed-view .comparison-text{display:none}
-.compressed-view .change-badge{display:inline-flex;font-size:11px;font-weight:700;padding:2px 6px;line-height:1.15;border-radius:999px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.compressed-view .change-badge{display:inline-flex;font-size:11px;font-weight:700;padding:4px 8px;line-height:1.25;border-radius:999px;max-width:100%;min-height:28px;white-space:normal;overflow:visible;overflow-wrap:anywhere;text-overflow:clip}
 .compressed-view .comparison-values{margin:0;gap:4px;justify-content:flex-start;align-items:center}
 .compressed-view .university-value{font-size:11px;color:#64748b;font-weight:700;white-space:nowrap;line-height:1}
 .compressed-view .comparison-indicator{font-size:10px;font-weight:800;width:auto;height:auto;margin-left:0;line-height:1;border-radius:0;box-shadow:none;padding:0}
@@ -146,12 +146,18 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
 .trend-title{font-size:12px;color:#64748b;font-weight:600;margin-bottom:6px}
 .trend-canvas{width:100%!important;height:206px!important}
 .tooltip-content{visibility:hidden;opacity:0;position:fixed;z-index:9999;background-color:#1f2937;color:white;padding:16px;border-radius:8px;font-size:14px;line-height:1.5;max-width:320px;width:max-content;box-shadow:0 10px 25px rgba(0,0,0,0.3);transition:opacity 0.3s,visibility 0.3s;pointer-events:none}
-.guide-panel{background:#ffffff;border:1px solid #dbe2ea;border-radius:12px;padding:12px 14px;margin-bottom:14px;box-shadow:0 2px 8px rgba(15,23,42,0.04)}
-.guide-title{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:8px}
-.guide-line{font-size:13px;color:#334155;line-height:1.45}
-.guide-note{font-size:12px;color:#64748b;line-height:1.4;margin-top:6px}
+.guide-panel{background:#ffffff;border:1px solid #d6e3f3;border-radius:12px;padding:14px 16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(15,23,42,0.05)}
+.guide-title{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:10px}
+.guide-list{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+.guide-item{font-size:13px;color:#334155;line-height:1.42;display:flex;align-items:flex-start;gap:8px}
+.guide-dot{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#e2e8f0;color:#334155;font-size:11px;font-weight:700;flex:0 0 18px;margin-top:1px}
+.guide-text{display:block;flex:1;min-width:0}
+.guide-key{display:flex;flex-wrap:wrap;gap:8px 10px;padding-top:9px;border-top:1px dashed #dbe2ea}
+.guide-key-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#475569}
+.guide-key-label{font-weight:600}
+.guide-note{font-size:12px;color:#64748b;line-height:1.4;margin-top:8px}
 @media (max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:768px){.kpi-grid{grid-template-columns:1fr}.container{padding:12px}.header{padding:18px}.header h1{font-size:1.55rem}.kpi-card{padding:12px}.kpi-title{font-size:14px}.kpi-value{font-size:13px}.view-button,.sort-button{padding:7px 12px;font-size:13px;margin:0 2px}.compressed-view .kpi-grid{grid-template-columns:1fr}.compressed-view .kpi-card{grid-template-columns:minmax(0,1fr) 200px 110px 14px;padding:10px}.compressed-view .kpi-value{font-size:12px;padding:4px 6px}.compressed-view .university-comparison{grid-column:3;justify-self:start}.compressed-view .expand-icon{grid-column:4;grid-row:1}.compressed-school-row{grid-template-columns:minmax(130px,1.6fr) minmax(100px,1fr) minmax(82px,0.8fr) minmax(82px,0.8fr) minmax(100px,1fr);font-size:11px;padding:6px}}
+@media (max-width:768px){.kpi-grid{grid-template-columns:1fr}.container{padding:12px}.header{padding:18px}.header h1{font-size:1.55rem}.kpi-card{padding:12px}.kpi-title{font-size:14px}.kpi-value{font-size:13px}.view-button,.sort-button{padding:7px 12px;font-size:13px;margin:0 2px}.compressed-view .kpi-grid{grid-template-columns:1fr}.compressed-view .kpi-card{grid-template-columns:minmax(0,1fr) 200px 110px 14px;padding:10px;min-height:64px}.compressed-view .kpi-value{font-size:12px;padding:7px 8px;min-height:40px}.compressed-view .change-badge{padding:4px 8px;min-height:28px}.compressed-view .university-comparison{grid-column:3;justify-self:start}.compressed-view .expand-icon{grid-column:4;grid-row:1}.compressed-school-row{grid-template-columns:minmax(130px,1.6fr) minmax(100px,1fr) minmax(82px,0.8fr) minmax(82px,0.8fr) minmax(100px,1fr);font-size:11px;padding:6px}}
 </style>
 </head>
 <body>
@@ -163,12 +169,18 @@ body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;bac
 <div class="faculty-overview">
 <div class="guide-panel">
 <div class="guide-title">How to read this</div>
-<div class="guide-line">Percentages show current performance. Bracketed counts show how many items were in scope.</div>
-<div class="guide-line">Comparison text shows the gap to university, and the badge shows movement since the previous applicable return.</div>
-<div class="guide-line">Not applicable means 0 items were in scope for that period, so it is excluded from change calculations.</div>
-<div class="guide-line"><span class="no-return">No return</span> marks missing submissions for that KPI/department return.</div>
-<div class="guide-note"><span class="data-warning">!</span> marks a source percentage outside 0-100 and should be reviewed with the submitting department.</div>
-<div class="guide-note">Values above 100% can occur when more tasks were completed than originally planned, or where source data was entered incorrectly.</div>
+<div class="guide-list">
+<div class="guide-item"><span class="guide-dot">1</span><span class="guide-text">Percentages show current performance. Bracketed values show the number of items in scope.</span></div>
+<div class="guide-item"><span class="guide-dot">2</span><span class="guide-text">Click a KPI card to open department-level detail, trends, and return context.</span></div>
+<div class="guide-item"><span class="guide-dot">3</span><span class="guide-text">Click the <strong>?</strong> icon beside a KPI title to view the full KPI definition/question text.</span></div>
+<div class="guide-item"><span class="guide-dot">4</span><span class="guide-text">Comparison text shows the gap to Uni Avg. Change badges show movement since the last applicable return.</span></div>
+<div class="guide-item"><span class="guide-dot">5</span><span class="guide-text">Not applicable means 0 items were scheduled/in scope this period, so it is excluded from change calculations.</span></div>
+</div>
+<div class="guide-key">
+<div class="guide-key-item"><span class="no-return">No return</span><span class="guide-key-label">Missing KPI submission</span></div>
+<div class="guide-key-item"><span class="data-warning">!</span><span class="guide-key-label">Out-of-range source value</span></div>
+</div>
+<div class="guide-note">Values above 100% can occur when more tasks were completed than planned, or where source data was entered incorrectly.</div>
 </div>
 <div class="overview-title">Faculty KPI Overview</div>
 <p id="instructions" style="text-align:center;color:#64748b;margin-bottom:20px;font-size:15px">Click any KPI card to view school performance breakdown</p>
@@ -327,6 +339,26 @@ function getZeroScoreText(kpiName) {
   const meta = kpiMeta[kpiName] || {};
   return meta.zero_score_message || null;
 }
+function isEstimateKpi(kpiName){
+  return kpiName === 'Risk Assessment Coverage' || kpiName === 'Training Matrix Coverage';
+}
+function getInScopeTextCompressed(kpiName, countValue, schoolKpi){
+  if(isEstimateKpi(kpiName)){
+    return '<span class="cell-exceeded">Estimate (not count-based)</span>';
+  }
+  const schoolLabel = (kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label) ? kpiMeta[kpiName].denominator_label : 'records';
+  const hasNoScope = countValue === null;
+  const isExceeded = schoolKpi.exceeded === true;
+  if(isExceeded && countValue !== null && countValue === 0){
+    return schoolKpi.completed_count !== null
+      ? `<span class="cell-exceeded">0 scheduled, ${schoolKpi.completed_count} carried out</span>`
+      : `<span class="cell-exceeded">0 scheduled</span>`;
+  }
+  if(hasNoScope){
+    return '<span class="cell-no-return">No return</span>';
+  }
+  return `${Math.round(countValue)} ${schoolLabel}`;
+}
 function getLastApplicablePoint(cleaned){
   const points = cleaned.filter((point) => point.applicable && typeof point.percentage === 'number');
   if(points.length === 0) return null;
@@ -418,7 +450,7 @@ function createChangeBadge(history, kpiName, compact=false, includeLastPrefix=fa
 }
 function formatPercentCellCompressed(point, kpiName, fallbackText='No return'){
   if(!point) {
-    if(String(fallbackText).toLowerCase().includes('prior')) return '<span class="cell-no-prior">No prior return</span>';
+    if(String(fallbackText).toLowerCase().includes('prior')) return `<span class="cell-no-prior">No prior return ${createTooltip(kpiName, getNotApplicableText(kpiName))}</span>`;
     return `<span class="cell-no-return">${fallbackText}</span>`;
   }
   if(isImplicitNoReturnPoint(kpiName, point)) return '<span class="cell-no-return">No return</span>';
@@ -536,7 +568,8 @@ function renderTrendCharts(){
     const uniSeries = labels.map((l) => (uniMap[l] ?? null));
     const bounds = buildTrendBounds([facSeries, uniSeries]);
 
-    new Chart(canvas.getContext('2d'), {
+    try {
+      new Chart(canvas.getContext('2d'), {
       type: 'line',
       data: {
         labels: labels,
@@ -549,7 +582,39 @@ function renderTrendCharts(){
             backgroundColor: 'rgba(37,99,235,0.12)',
             fill: false,
             tension: 0.25,
-            pointRadius: 3
+            pointRadius: 3,
+            segment: {
+              borderColor: (ctx) => {
+                const i = ctx.p0DataIndex;
+                const f0 = facSeries[i];
+                const f1 = facSeries[i + 1];
+                const u0 = uniSeries[i];
+                const u1 = uniSeries[i + 1];
+                if([f0, f1, u0, u1].some((v) => v === null || v === undefined)) return '#2563eb';
+                const d0 = f0 - u0;
+                const d1 = f1 - u1;
+                if(d0 >= 0 && d1 >= 0) return '#16a34a';
+                if(d0 <= 0 && d1 <= 0) return '#dc2626';
+
+                // Segment crosses the university line: split color at intersection.
+                const p0 = ctx.p0;
+                const p1 = ctx.p1;
+                if(!p0 || !p1) return '#2563eb';
+                if(!Number.isFinite(p0.x) || !Number.isFinite(p0.y) || !Number.isFinite(p1.x) || !Number.isFinite(p1.y)) return '#2563eb';
+                const denom = d0 - d1;
+                if(Math.abs(denom) < 1e-9) return '#2563eb';
+                const t = Math.max(0, Math.min(1, d0 / denom));
+                if(!Number.isFinite(t) || t <= 0 || t >= 1) return d0 >= 0 ? '#16a34a' : '#dc2626';
+                const grad = ctx.chart.ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
+                const c0 = d0 > 0 ? '#16a34a' : '#dc2626';
+                const c1 = d1 > 0 ? '#16a34a' : '#dc2626';
+                grad.addColorStop(0, c0);
+                grad.addColorStop(t, c0);
+                grad.addColorStop(t, c1);
+                grad.addColorStop(1, c1);
+                return grad;
+              }
+            }
           },
           {
             label: 'University',
@@ -599,6 +664,11 @@ function renderTrendCharts(){
         }
       }
     });
+    } catch (err) {
+      console.error('Trend chart render failed', kpiName, err);
+      const wrap = canvas.closest('.trend-wrap');
+      if(wrap) wrap.style.display = 'none';
+    }
     canvas.dataset.rendered = 'true';
   });
 }
@@ -805,7 +875,6 @@ function initializeFacultyDashboard(){
           schoolBreakdownHtml += '<div class="compressed-school-table"><div class="compressed-school-row header"><div>Department</div><div>In Scope</div><div>Previous</div><div>Current</div><div>Change</div></div>';
           for(const [schoolName, schoolData] of schoolEntries){
             const schoolKpi = schoolData.kpis[kpiName];
-            const schoolLabel = (kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label) ? kpiMeta[kpiName].denominator_label : 'records';
             const number = schoolKpi.number;
             const countValue = (number !== null && number !== undefined && number !== '/' && !isNaN(parseFloat(number))) ? parseFloat(number) : null;
             const points = getPreviousAndCurrentPoints(schoolKpi.history);
@@ -817,16 +886,7 @@ function initializeFacultyDashboard(){
             if(hasNoScope && hasNoCurrent){
               schoolBreakdownHtml += `<div class="compressed-school-row no-return-row"><div class="school-name">${schoolName}${schoolWarning}</div><div class="row-no-return-msg">No return submitted for this period</div></div>`;
             } else {
-              let scopeText;
-              if(isExceeded && countValue !== null && countValue === 0){
-                scopeText = schoolKpi.completed_count !== null
-                  ? `<span class="cell-exceeded">0 scheduled, ${schoolKpi.completed_count} carried out</span>`
-                  : `<span class="cell-exceeded">0 scheduled</span>`;
-              } else if(hasNoScope){
-                scopeText = '<span class="cell-no-return">No return</span>';
-              } else {
-                scopeText = `${Math.round(countValue)} ${schoolLabel}`;
-              }
+              const scopeText = getInScopeTextCompressed(kpiName, countValue, schoolKpi);
               const previousText = formatPercentCellCompressed(points.previous, kpiName, 'No prior applicable return');
               const currentText = formatPercentCellCompressed(points.current, kpiName, 'No return');
               const changeText = getCompressedChangeCell(schoolKpi.history, kpiName);

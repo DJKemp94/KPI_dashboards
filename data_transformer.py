@@ -292,10 +292,10 @@ class KPIDataTransformer:
                 
                 # BU Owned Assets
                 row.get('BU Owned Assets1', ''),  # Number of BU Owned Assets
-                row.get('BU Owned Assets2', ''),  # Number of Assets Overdue (A&B defects)
-                self.safe_subtract_percentage(row.get('BU Owned Assets1'), row.get('BU Owned Assets2')),  # % without A&B defects
-                row.get('BU Owned Assets2', ''),  # No of A & B defects (duplicate for structure)
-                self.safe_subtract_percentage(row.get('BU Owned Assets1'), row.get('BU Owned Assets3')),  # % seen by Allianz
+                row.get('BU Owned Assets2', ''),  # Number of Assets Overdue / PNA
+                self.safe_subtract_percentage(row.get('BU Owned Assets1'), row.get('BU Owned Assets3')),  # % without unresolved A&B defects
+                row.get('BU Owned Assets3', ''),  # No of unresolved A & B defects
+                self.safe_subtract_percentage(row.get('BU Owned Assets1'), row.get('BU Owned Assets2')),  # % inspected by Allianz (not overdue/PNA)
                 
                 # Incidents and Investigations
                 row.get('Incidents and Investigations1', ''),  # Total Number of Incidents Still Open

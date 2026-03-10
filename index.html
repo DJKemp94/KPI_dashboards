@@ -3,145 +3,237 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>University - Health & Safety Dashboard</title>
+<title>University KPI Dashboard</title>
+<link rel="icon" href="data:,">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh;color:#333;font-size:15px}
-.container{max-width:1200px;margin:0 auto;padding:20px}
-.header{text-align:center;color:#1e293b;margin-bottom:30px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:40px;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.12);position:relative;overflow:hidden}
-.header::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(45deg,rgba(255,255,255,0.1) 0%,transparent 50%,rgba(255,255,255,0.05) 100%);pointer-events:none}
-.header h1{font-size:2.3rem;margin-bottom:10px;font-weight:800;color:white;text-shadow:0 2px 4px rgba(0,0,0,0.1);position:relative;z-index:1}
-.header p{color:rgba(255,255,255,0.9);font-size:1rem;font-weight:500;position:relative;z-index:1}
-.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:30px}
-.kpi-card{background:white;border-radius:8px;padding:8px 12px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #e2e8f0;position:relative;overflow:hidden;display:grid;grid-template-columns:7fr 3fr auto;column-gap:12px;align-items:center}
+body{font-family:'Source Sans 3','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f5f7fb;min-height:100vh;color:#1f2937;font-size:15px}
+.container{max-width:1360px;margin:0 auto;padding:24px}
+.header{text-align:left;color:#0f172a;margin-bottom:18px;background:linear-gradient(145deg,#1e3a5f 0%,#2c5a87 100%);padding:28px;border-radius:14px;box-shadow:0 10px 24px rgba(15,23,42,0.18)}
+.header h1{font-size:2rem;margin-bottom:6px;font-weight:700;color:#f8fafc}
+.header p{color:#dbeafe;font-size:1rem;font-weight:500}
+.kpi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.kpi-card{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 2px 10px rgba(15,23,42,0.06);border:1px solid #dbe2ea;position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;row-gap:8px;align-items:start}
 .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
-.kpi-title{font-size:14px;font-weight:600;color:#374151;line-height:1.3;display:flex;align-items:center;margin:0}
-.kpi-value{font-size:14px;font-weight:700;color:white;padding:6px 10px;border-radius:6px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.15);margin:0;display:inline-flex;align-items:center;justify-self:center;min-height:28px}
+.kpi-title{font-size:15px;font-weight:700;color:#0f172a;line-height:1.25;display:flex;align-items:center;gap:4px;margin:0}
+.kpi-label-wrap{display:flex;flex-direction:column;gap:4px}
+.kpi-question{font-size:12px;color:#475569;line-height:1.35}
+.kpi-value{font-size:14px;font-weight:700;color:white;padding:7px 11px;border-radius:8px;text-align:center;box-shadow:none;margin:0;display:inline-flex;align-items:center;justify-self:end;min-height:30px}
+.trend-wrap{grid-column:1/-1;height:186px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px}
+.trend-canvas{width:100%!important;height:164px!important}
 .tooltip-trigger{display:inline-flex;align-items:center;cursor:help;margin-left:6px;font-size:14px;color:#6b7280;transition:color 0.2s ease}
 .tooltip-trigger:hover{color:#3b82f6}
+.data-warning{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#dc2626;color:#fff;font-size:12px;font-weight:700;margin-left:6px;vertical-align:middle;cursor:default}
 .tooltip-content{visibility:hidden;opacity:0;position:fixed;z-index:9999;background-color:#1f2937;color:white;padding:12px 14px;border-radius:8px;font-size:14px;line-height:1.4;max-width:320px;width:max-content;box-shadow:0 10px 25px rgba(0,0,0,0.3);transition:opacity 0.2s,visibility 0.2s;pointer-events:none}
 .performance-excellent{background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 15px rgba(16,185,129,0.3)}
 .performance-good{background:linear-gradient(135deg,#3b82f6,#1d4ed8);box-shadow:0 4px 15px rgba(59,130,246,0.3)}
 .performance-warning{background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 4px 15px rgba(245,158,11,0.3)}
 .performance-poor{background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 15px rgba(239,68,68,0.3)}
+.performance-not-applicable{background:linear-gradient(135deg,#94a3b8,#64748b);box-shadow:0 4px 15px rgba(100,116,139,0.25)}
 .performance-no-data{background:linear-gradient(135deg,#6b7280,#4b5563);box-shadow:0 4px 15px rgba(107,114,128,0.2)}
-@media (max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:768px){.kpi-grid{grid-template-columns:1fr}}
+.guide-panel{background:#ffffff;border:1px solid #dbe2ea;border-radius:12px;padding:12px 14px;margin-bottom:16px;box-shadow:0 2px 8px rgba(15,23,42,0.04)}
+.guide-title{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:8px}
+.guide-line{font-size:13px;color:#334155;line-height:1.45}
+.guide-note{font-size:12px;color:#64748b;line-height:1.4;margin-top:6px}
+@media (max-width:1100px){.kpi-grid{grid-template-columns:1fr}}
+@media (max-width:768px){.container{padding:12px}.header{padding:18px}.header h1{font-size:1.55rem}.kpi-card{padding:12px}.trend-wrap{height:176px}.trend-canvas{height:154px!important}}
 </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>University - Health & Safety Dashboard</h1>
+      <h1>University KPI Dashboard</h1>
       <p>Overall KPI performance across the University</p>
+    </div>
+    <div class="guide-panel">
+      <div class="guide-title">How to read this</div>
+      <div class="guide-line">Percentages show current performance. Bracketed counts show how many items were in scope.</div>
+      <div class="guide-line">Not applicable means 0 items were in scope for that period, so it is excluded from trend interpretation.</div>
+      <div class="guide-line">Trend charts show reporting periods in date order and scale to the values shown.</div>
+      <div class="guide-note"><span class="data-warning">!</span> marks a current or historic source percentage outside 0-100 and should be reviewed with the submitting department.</div>
     </div>
 
     <div class="kpi-grid compressed-view">
-      <!-- KPI Cards inserted here -->
       <div class="kpi-card">
-                <div class="kpi-title">Assets without A&B Defects
-                    <span class="tooltip-trigger" data-kpi="Assets without A&B Defects" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                <div class="kpi-label-wrap">
+                    <div class="kpi-title">Assets without A&B Defects
+                        <span class="tooltip-trigger" data-kpi="Assets without A&B Defects" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                        
+                    </div>
+                    <div class="kpi-question">BU-owned assets without unresolved A/B defects.</div>
                 </div>
-                <span class="kpi-value performance-excellent">96.8% (3435)</span>
+                <span class="kpi-value performance-excellent">99.9% (3383 assets in scope)</span>
                 <span style="height:1px"></span>
+                <div class="trend-wrap"><canvas class="trend-canvas" data-kpi-name="Assets without A&B Defects" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 98.01, &quot;raw_percentage&quot;: 98.01, &quot;number&quot;: 3622.0, &quot;applicable&quot;: true}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 99.88, &quot;raw_percentage&quot;: 99.88, &quot;number&quot;: 3383.0, &quot;applicable&quot;: true}]"></canvas></div>
             </div>
 <div class="kpi-card">
-                <div class="kpi-title">Assets Inspected by Allianz
-                    <span class="tooltip-trigger" data-kpi="Assets Inspected by Allianz" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                <div class="kpi-label-wrap">
+                    <div class="kpi-title">Assets Inspected by Allianz
+                        <span class="tooltip-trigger" data-kpi="Assets Inspected by Allianz" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                        
+                    </div>
+                    <div class="kpi-question">BU-owned assets inspected by Allianz (not overdue / plant available).</div>
                 </div>
-                <span class="kpi-value performance-excellent">96.8% (3435)</span>
+                <span class="kpi-value performance-excellent">96.5% (3383 assets in scope)</span>
                 <span style="height:1px"></span>
+                <div class="trend-wrap"><canvas class="trend-canvas" data-kpi-name="Assets Inspected by Allianz" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 96.94, &quot;raw_percentage&quot;: 96.94, &quot;number&quot;: 3622.0, &quot;applicable&quot;: true}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 96.51, &quot;raw_percentage&quot;: 96.51, &quot;number&quot;: 3383.0, &quot;applicable&quot;: true}]"></canvas></div>
             </div>
 <div class="kpi-card">
-                <div class="kpi-title">Training Matrix Coverage
-                    <span class="tooltip-trigger" data-kpi="Training Matrix Coverage" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                <div class="kpi-label-wrap">
+                    <div class="kpi-title">Training Matrix Coverage
+                        <span class="tooltip-trigger" data-kpi="Training Matrix Coverage" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                        
+                    </div>
+                    <div class="kpi-question">Training in the matrix that is accessible to staff who need it.</div>
                 </div>
-                <span class="kpi-value performance-excellent">94.0%</span>
+                <span class="kpi-value performance-excellent">94.1%</span>
                 <span style="height:1px"></span>
+                <div class="trend-wrap"><canvas class="trend-canvas" data-kpi-name="Training Matrix Coverage" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 94.04, &quot;raw_percentage&quot;: 94.04, &quot;number&quot;: null, &quot;applicable&quot;: true}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 94.07, &quot;raw_percentage&quot;: 94.07, &quot;number&quot;: null, &quot;applicable&quot;: true}]"></canvas></div>
             </div>
 <div class="kpi-card">
-                <div class="kpi-title">Leadership Walkarounds
-                    <span class="tooltip-trigger" data-kpi="Leadership Walkarounds" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                <div class="kpi-label-wrap">
+                    <div class="kpi-title">Written Arrangements Complete
+                        <span class="tooltip-trigger" data-kpi="Written Arrangements Complete" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                        
+                    </div>
+                    <div class="kpi-question">Arrangements completed, reviewed, and approved out of arrangements relevant to the department.</div>
                 </div>
-                <span class="kpi-value performance-excellent">92.9% (56)</span>
+                <span class="kpi-value performance-excellent">94.1% (741 arrangements in scope)</span>
                 <span style="height:1px"></span>
+                <div class="trend-wrap"><canvas class="trend-canvas" data-kpi-name="Written Arrangements Complete" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 86.71, &quot;raw_percentage&quot;: 86.71, &quot;number&quot;: 715.0, &quot;applicable&quot;: true}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 94.06, &quot;raw_percentage&quot;: 94.06, &quot;number&quot;: 741.0, &quot;applicable&quot;: true}]"></canvas></div>
             </div>
 <div class="kpi-card">
-                <div class="kpi-title">Fire Training Completion
-                    <span class="tooltip-trigger" data-kpi="Fire Training Completion" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                <div class="kpi-label-wrap">
+                    <div class="kpi-title">Fire Drills Completed
+                        <span class="tooltip-trigger" data-kpi="Fire Drills Completed" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                        
+                    </div>
+                    <div class="kpi-question">Fire drills carried out in period out of buildings allocated to undertake a fire drill.</div>
                 </div>
-                <span class="kpi-value performance-good">89.7% (7095)</span>
+                <span class="kpi-value performance-excellent">90.3% (62 buildings in scope)</span>
                 <span style="height:1px"></span>
+                <div class="trend-wrap"><canvas class="trend-canvas" data-kpi-name="Fire Drills Completed" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 80.0, &quot;raw_percentage&quot;: 80.0, &quot;number&quot;: 100.0, &quot;applicable&quot;: true}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 90.32, &quot;raw_percentage&quot;: 90.32, &quot;number&quot;: 62.0, &quot;applicable&quot;: true}]"></canvas></div>
             </div>
 <div class="kpi-card">
-                <div class="kpi-title">PEEPS in Place
-                    <span class="tooltip-trigger" data-kpi="PEEPS in Place" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                <div class="kpi-label-wrap">
+                    <div class="kpi-title">Risk Assessment Coverage
+                        <span class="tooltip-trigger" data-kpi="Risk Assessment Coverage" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                        
+                    </div>
+                    <div class="kpi-question">Percentage coverage of risk assessment across department/PS.</div>
                 </div>
-                <span class="kpi-value performance-good">89.2% (37)</span>
+                <span class="kpi-value performance-good">87.1%</span>
                 <span style="height:1px"></span>
+                <div class="trend-wrap"><canvas class="trend-canvas" data-kpi-name="Risk Assessment Coverage" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 81.83, &quot;raw_percentage&quot;: 81.83, &quot;number&quot;: null, &quot;applicable&quot;: true}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 87.07, &quot;raw_percentage&quot;: 87.07, &quot;number&quot;: null, &quot;applicable&quot;: true}]"></canvas></div>
             </div>
 <div class="kpi-card">
-                <div class="kpi-title">Written Arrangements Complete
-                    <span class="tooltip-trigger" data-kpi="Written Arrangements Complete" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                <div class="kpi-label-wrap">
+                    <div class="kpi-title">PEEPS in Place
+                        <span class="tooltip-trigger" data-kpi="PEEPS in Place" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                        
+                    </div>
+                    <div class="kpi-question">PEEPs in place (reviewed, communicated, controls in place) out of PEEPs required.</div>
                 </div>
-                <span class="kpi-value performance-good">85.3% (645)</span>
+                <span class="kpi-value performance-good">83.7% (43 PEEPs in scope)</span>
                 <span style="height:1px"></span>
+                <div class="trend-wrap"><canvas class="trend-canvas" data-kpi-name="PEEPS in Place" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 89.74, &quot;raw_percentage&quot;: 89.74, &quot;number&quot;: 39.0, &quot;applicable&quot;: true}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 83.72, &quot;raw_percentage&quot;: 83.72, &quot;number&quot;: 43.0, &quot;applicable&quot;: true}]"></canvas></div>
             </div>
 <div class="kpi-card">
-                <div class="kpi-title">Risk Assessment Coverage
-                    <span class="tooltip-trigger" data-kpi="Risk Assessment Coverage" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                <div class="kpi-label-wrap">
+                    <div class="kpi-title">Accidents and Incidents Investigated
+                        <span class="tooltip-trigger" data-kpi="Accidents and Incidents Investigated" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                        
+                    </div>
+                    <div class="kpi-question">Investigations completed out of total incidents and near misses reported in the period.</div>
                 </div>
-                <span class="kpi-value performance-good">82.3%</span>
+                <span class="kpi-value performance-good">82.1% (448 incidents/near misses in scope)</span>
                 <span style="height:1px"></span>
+                <div class="trend-wrap"><canvas class="trend-canvas" data-kpi-name="Accidents and Incidents Investigated" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 80.0, &quot;raw_percentage&quot;: 80.0, &quot;number&quot;: null, &quot;applicable&quot;: true}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 82.14, &quot;raw_percentage&quot;: 82.14, &quot;number&quot;: null, &quot;applicable&quot;: true}]"></canvas></div>
             </div>
 <div class="kpi-card">
-                <div class="kpi-title">Accidents and Incidents Investigated
-                    <span class="tooltip-trigger" data-kpi="Accidents and Incidents Investigated" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                <div class="kpi-label-wrap">
+                    <div class="kpi-title">H&S Induction Completion
+                        <span class="tooltip-trigger" data-kpi="H&S Induction Completion" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                        
+                    </div>
+                    <div class="kpi-question">Staff in-date for UoN H&S induction training (last 3 years).</div>
                 </div>
-                <span class="kpi-value performance-good">80.5% (401)</span>
+                <span class="kpi-value performance-good">81.9% (6437 staff in scope)</span>
                 <span style="height:1px"></span>
+                <div class="trend-wrap"><canvas class="trend-canvas" data-kpi-name="H&S Induction Completion" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 80.09, &quot;raw_percentage&quot;: 80.09, &quot;number&quot;: 7472.0, &quot;applicable&quot;: true}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 81.9, &quot;raw_percentage&quot;: 81.9, &quot;number&quot;: 6437.0, &quot;applicable&quot;: true}]"></canvas></div>
             </div>
 <div class="kpi-card">
-                <div class="kpi-title">H&S Induction Completion
-                    <span class="tooltip-trigger" data-kpi="H&S Induction Completion" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                <div class="kpi-label-wrap">
+                    <div class="kpi-title">Leadership Walkarounds
+                        <span class="tooltip-trigger" data-kpi="Leadership Walkarounds" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                        
+                    </div>
+                    <div class="kpi-question">Leadership walkarounds completed out of walkarounds on the monitoring schedule.</div>
                 </div>
-                <span class="kpi-value performance-good">80.5% (7095)</span>
+                <span class="kpi-value performance-good">78.8% (52 walkarounds in scope)</span>
                 <span style="height:1px"></span>
+                <div class="trend-wrap"><canvas class="trend-canvas" data-kpi-name="Leadership Walkarounds" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 93.75, &quot;raw_percentage&quot;: 93.75, &quot;number&quot;: 64.0, &quot;applicable&quot;: true}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 78.85, &quot;raw_percentage&quot;: 78.85, &quot;number&quot;: 52.0, &quot;applicable&quot;: true}]"></canvas></div>
             </div>
 <div class="kpi-card">
-                <div class="kpi-title">Fire Drills Completed
-                    <span class="tooltip-trigger" data-kpi="Fire Drills Completed" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                <div class="kpi-label-wrap">
+                    <div class="kpi-title">Fire Training Completion
+                        <span class="tooltip-trigger" data-kpi="Fire Training Completion" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                        
+                    </div>
+                    <div class="kpi-question">Staff in-date for UoN fire training (last 3 years).</div>
                 </div>
-                <span class="kpi-value performance-good">80.0% (95)</span>
+                <span class="kpi-value performance-good">77.8% (6437 staff in scope)</span>
                 <span style="height:1px"></span>
+                <div class="trend-wrap"><canvas class="trend-canvas" data-kpi-name="Fire Training Completion" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 89.0, &quot;raw_percentage&quot;: 89.0, &quot;number&quot;: 7472.0, &quot;applicable&quot;: true}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 77.84, &quot;raw_percentage&quot;: 77.84, &quot;number&quot;: 6437.0, &quot;applicable&quot;: true}]"></canvas></div>
             </div>
 <div class="kpi-card">
-                <div class="kpi-title">Risk Assessments in Register up to date
-                    <span class="tooltip-trigger" data-kpi="Risk Assessments in Register up to date" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                <div class="kpi-label-wrap">
+                    <div class="kpi-title">Staff Training Requirements
+                        <span class="tooltip-trigger" data-kpi="Staff Training Requirements" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                        
+                    </div>
+                    <div class="kpi-question">Staff in-date with all required training.</div>
                 </div>
-                <span class="kpi-value performance-warning">71.5% (3701)</span>
+                <span class="kpi-value performance-warning">67.2% (6437 staff in scope)</span>
                 <span style="height:1px"></span>
+                <div class="trend-wrap"><canvas class="trend-canvas" data-kpi-name="Staff Training Requirements" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 66.48, &quot;raw_percentage&quot;: 66.48, &quot;number&quot;: 7472.0, &quot;applicable&quot;: true}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 67.23, &quot;raw_percentage&quot;: 67.23, &quot;number&quot;: 6437.0, &quot;applicable&quot;: true}]"></canvas></div>
             </div>
 <div class="kpi-card">
-                <div class="kpi-title">Staff Training Requirements
-                    <span class="tooltip-trigger" data-kpi="Staff Training Requirements" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                <div class="kpi-label-wrap">
+                    <div class="kpi-title">Risk Assessments in Register up to date
+                        <span class="tooltip-trigger" data-kpi="Risk Assessments in Register up to date" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                        
+                    </div>
+                    <div class="kpi-question">Risk assessments updated in the last 2 years out of all risk assessments listed on the register.</div>
                 </div>
-                <span class="kpi-value performance-warning">66.5% (7095)</span>
+                <span class="kpi-value performance-warning">66.5% (3993 risk assessments in scope)</span>
                 <span style="height:1px"></span>
+                <div class="trend-wrap"><canvas class="trend-canvas" data-kpi-name="Risk Assessments in Register up to date" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 71.49, &quot;raw_percentage&quot;: 71.49, &quot;number&quot;: 3701.0, &quot;applicable&quot;: true}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 66.47, &quot;raw_percentage&quot;: 66.47, &quot;number&quot;: 3993.0, &quot;applicable&quot;: true}]"></canvas></div>
             </div>
 <div class="kpi-card">
-                <div class="kpi-title">Inspections Carried Out
-                    <span class="tooltip-trigger" data-kpi="Inspections Carried Out" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                <div class="kpi-label-wrap">
+                    <div class="kpi-title">Inspections Carried Out
+                        <span class="tooltip-trigger" data-kpi="Inspections Carried Out" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                        
+                    </div>
+                    <div class="kpi-question">Inspections carried out out of inspections on the monitoring schedule.</div>
                 </div>
-                <span class="kpi-value performance-warning">51.6% (19076)</span>
+                <span class="kpi-value performance-warning">53.1% (54924 inspections in scope)</span>
                 <span style="height:1px"></span>
+                <div class="trend-wrap"><canvas class="trend-canvas" data-kpi-name="Inspections Carried Out" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 51.68, &quot;raw_percentage&quot;: 51.68, &quot;number&quot;: 19092.0, &quot;applicable&quot;: true}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 53.07, &quot;raw_percentage&quot;: 53.07, &quot;number&quot;: 54924.0, &quot;applicable&quot;: true}]"></canvas></div>
             </div>
 <div class="kpi-card">
-                <div class="kpi-title">PEEPS Drilled
-                    <span class="tooltip-trigger" data-kpi="PEEPS Drilled" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                <div class="kpi-label-wrap">
+                    <div class="kpi-title">PEEPS Drilled
+                        <span class="tooltip-trigger" data-kpi="PEEPS Drilled" title="Info" onmouseenter="handleTooltipShow(event)" onmouseleave="handleTooltipHide()">&#9432;</span>
+                        
+                    </div>
+                    <div class="kpi-question">PEEPs tested/drilled in the period out of PEEPs required.</div>
                 </div>
-                <span class="kpi-value performance-poor">40.5% (37)</span>
+                <span class="kpi-value performance-poor">23.3% (43 PEEPs in scope)</span>
                 <span style="height:1px"></span>
+                <div class="trend-wrap"><canvas class="trend-canvas" data-kpi-name="PEEPS Drilled" data-history="[{&quot;date&quot;: &quot;01/08/2025&quot;, &quot;percentage&quot;: 41.03, &quot;raw_percentage&quot;: 41.03, &quot;number&quot;: 39.0, &quot;applicable&quot;: true}, {&quot;date&quot;: &quot;01/02/2026&quot;, &quot;percentage&quot;: 23.26, &quot;raw_percentage&quot;: 23.26, &quot;number&quot;: 43.0, &quot;applicable&quot;: true}]"></canvas></div>
             </div>
     </div>
   </div>
@@ -165,22 +257,27 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh;co
   "Training Matrix Coverage": "This return provides an indication of how much of the training identified in the Department's Training Matrix \u2014 which should capture all training requirements based on the activities carried out by each staff member or student \u2014 is currently accessible to those who need it.\n\nTraining accessibility should reflect whether the courses identified in the Matrix are:\n\nAvailable in the required format (e-learning, in-person, or blended),\n\nKept up to date and relevant, and\n\nRealistically accessible to the groups who need them (considering scheduling, prerequisites, and availability of spaces).",
   "Staff Training Requirements": "This return is an indication by the H&S Coordinator of what percentage of Staff they believe have received all training they need in order to be competent to carry out their work. This includes all compulsory training via UniCore, all training via Atlus, as well as any other training highlighted on the training matrix."
 };
+    const kpiMeta = {"Written Arrangements Complete": {"question": "Arrangements completed, reviewed, and approved out of arrangements relevant to the department.", "denominator_label": "arrangements", "na_message": "No written arrangements available/generated for this period"}, "Risk Assessments in Register up to date": {"question": "Risk assessments updated in the last 2 years out of all risk assessments listed on the register.", "denominator_label": "risk assessments", "na_message": "No risk assessments in register this period or no risk assessment register in place"}, "H&S Induction Completion": {"question": "Staff in-date for UoN H&S induction training (last 3 years).", "denominator_label": "staff"}, "Fire Training Completion": {"question": "Staff in-date for UoN fire training (last 3 years).", "denominator_label": "staff"}, "Fire Drills Completed": {"question": "Fire drills carried out in period out of buildings allocated to undertake a fire drill.", "denominator_label": "buildings", "na_message": "No scheduled drills this period"}, "PEEPS in Place": {"question": "PEEPs in place (reviewed, communicated, controls in place) out of PEEPs required.", "denominator_label": "PEEPs", "na_message": "No PEEPs identified as required"}, "PEEPS Drilled": {"question": "PEEPs tested/drilled in the period out of PEEPs required.", "denominator_label": "PEEPs", "na_message": "No PEEPs identified as required"}, "Assets without A&B Defects": {"question": "BU-owned assets without unresolved A/B defects.", "denominator_label": "assets", "na_message": "No department-owned assets that require inspection"}, "Assets Inspected by Allianz": {"question": "BU-owned assets inspected by Allianz (not overdue / plant available).", "denominator_label": "assets", "na_message": "No department-owned assets that require inspection"}, "Accidents and Incidents Investigated": {"question": "Investigations completed out of total incidents and near misses reported in the period.", "denominator_label": "incidents/near misses", "na_message": "No incidents reported in period"}, "Inspections Carried Out": {"question": "Inspections carried out out of inspections on the monitoring schedule.", "denominator_label": "inspections", "na_message": "No inspections scheduled in this period"}, "Leadership Walkarounds": {"question": "Leadership walkarounds completed out of walkarounds on the monitoring schedule.", "denominator_label": "walkarounds", "na_message": "No walkarounds scheduled in period"}, "Risk Assessment Coverage": {"question": "Percentage coverage of risk assessment across department/PS.", "denominator_label": null}, "Training Matrix Coverage": {"question": "Training in the matrix that is accessible to staff who need it.", "denominator_label": null, "na_message": "No training matrix available/generated for this period", "zero_score_message": "No training matrix available/generated for this period"}, "Staff Training Requirements": {"question": "Staff in-date with all required training.", "denominator_label": "staff"}};
     let globalTooltip = null;
+
     function createGlobalTooltip(){
       if(globalTooltip) return;
       globalTooltip = document.getElementById('tooltip');
     }
+
     function handleTooltipShow(e){
       const trigger = e.currentTarget;
       const key = trigger.getAttribute('data-kpi');
       const text = tooltipData[key] || '';
       showTooltip(trigger, text);
     }
+
     function handleTooltipHide(){
       if(!globalTooltip) return;
       globalTooltip.style.visibility='hidden';
       globalTooltip.style.opacity='0';
     }
+
     function showTooltip(trigger, text){
       createGlobalTooltip();
       if(!globalTooltip) return;
@@ -192,7 +289,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh;co
       globalTooltip.style.left='0px';
       globalTooltip.style.top='0px';
       const tipRect = globalTooltip.getBoundingClientRect();
-      let left = rect.left + (rect.width/2) - (tipRect.width/2);
+      let left = rect.left + (rect.width / 2) - (tipRect.width / 2);
       let top = rect.top - tipRect.height - 12;
       if(left < 10) left = 10;
       if(left + tipRect.width > vw - 10) left = vw - tipRect.width - 10;
@@ -202,6 +299,129 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh;co
       globalTooltip.style.visibility='visible';
       globalTooltip.style.opacity='1';
     }
+
+    function normalizeTrendHistory(history){
+      if(!Array.isArray(history)) return [];
+      return history
+        .filter((point) => point && point.date)
+        .map((point) => ({
+          date: point.date,
+          percentage: typeof point.percentage === 'number' ? point.percentage : null,
+          rawPercentage: typeof point.raw_percentage === 'number' ? point.raw_percentage : (typeof point.percentage === 'number' ? point.percentage : null),
+          number: typeof point.number === 'number' ? point.number : null,
+          applicable: point.applicable !== false
+        }));
+    }
+
+    function getNotApplicableText(kpiName) {
+      const meta = kpiMeta[kpiName] || {};
+      const custom = meta.na_message;
+      if(custom) return custom;
+      const label = meta.denominator_label || 'items';
+      return `Not applicable (0 ${label} in scope)`;
+    }
+
+    function buildTrendBounds(seriesList){
+      const values = [];
+      seriesList.forEach((series) => {
+        if(Array.isArray(series)) {
+          series.forEach((value) => {
+            if(typeof value === 'number' && !Number.isNaN(value)) values.push(value);
+          });
+        }
+      });
+      if(values.length === 0) return { min: 0, max: 100 };
+      let min = Math.min(...values);
+      let max = Math.max(...values);
+      const span = max - min;
+      const padding = Math.max(4, span * 0.18);
+      if(span < 8) {
+        min -= 4;
+        max += 4;
+      } else {
+        min -= padding;
+        max += padding;
+      }
+      return { min: Math.floor(min), max: Math.ceil(max) };
+    }
+
+    function renderTrendCharts(){
+      document.querySelectorAll('.trend-canvas').forEach((canvas) => {
+        if(canvas.dataset.rendered === 'true') return;
+        const historyRaw = canvas.getAttribute('data-history') || '[]';
+        let history = [];
+        try {
+          history = JSON.parse(historyRaw);
+        } catch (e) {
+          history = [];
+        }
+        const cleaned = normalizeTrendHistory(history);
+        if(cleaned.length < 2) {
+          const wrap = canvas.closest('.trend-wrap');
+          if(wrap) wrap.style.display='none';
+          canvas.dataset.rendered = 'true';
+          return;
+        }
+        const kpiName = canvas.getAttribute('data-kpi-name') || '';
+        const labels = cleaned.map((point) => point.date);
+        const series = cleaned.map((point) => point.applicable ? point.percentage : null);
+        const bounds = buildTrendBounds([series]);
+        const ctx = canvas.getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{
+              label: 'University',
+              data: series,
+              pointMeta: cleaned,
+              borderColor: '#2563eb',
+              backgroundColor: 'rgba(37,99,235,0.12)',
+              fill: true,
+              tension: 0.25,
+              pointRadius: 3,
+              spanGaps: false
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const point = context.dataset.pointMeta?.[context.dataIndex];
+                    if(point && point.applicable === false) {
+                      return getNotApplicableText(kpiName);
+                    }
+                    const countText = point && point.number !== null ? ` | In scope: ${Math.round(point.number)}` : '';
+                    return `${context.parsed.y.toFixed(1)}%${countText}`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 4 },
+                grid: { display: false }
+              },
+              y: {
+                min: bounds.min,
+                max: bounds.max,
+                ticks: {
+                  callback: (v) => (v < 0 || v > 100 ? '' : `${v}%`)
+                },
+                grid: { color: '#e5e7eb' }
+              }
+            }
+          }
+        });
+        canvas.dataset.rendered = 'true';
+      });
+    }
+
+    renderTrendCharts();
   </script>
 </body>
 </html>
