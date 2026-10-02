@@ -1,0 +1,22 @@
+# Local operating-system and editor files
+.DS_Store
+.idea/
+.claude/
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Preview builds, screenshots, and authoring diagnostics
+build/
+output/
+outputs/
+*.inspect.ndjson
+
+# Local secrets
+.env
+.env.*
+!.env.example

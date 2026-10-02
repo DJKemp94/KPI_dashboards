@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>University – Health &amp; Safety KPI Dashboard</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<style>
+__DASHBOARD_STYLES__
+</style>
+</head>
+<body>
+<header class="page-header">
+<div class="page-header-inner">
+<div>
+<div class="eyebrow">Health &amp; Safety KPI dashboard</div>
+<h1>University overview</h1>
+<div class="header-meta" id="headerMeta"></div>
+</div>
+<div class="header-actions">
+<button type="button" class="btn-ghost" onclick="openGuide()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg>How to read this dashboard</button>
+</div>
+</div>
+</header>
+<main class="container">
+<section class="glance" id="glance" aria-label="Summary"></section>
+<section class="faculty-overview is-university" aria-labelledby="kpiSectionTitle">
+<div class="section-head">
+<div>
+<h2 class="section-title" id="kpiSectionTitle">KPI results</h2>
+<p class="section-sub" id="instructions">Select a KPI to see each faculty, or select About for its full definition.</p>
+</div>
+<div class="toolbar">
+<span class="toolbar-label">View</span>
+<div class="segmented" role="group" aria-label="View">
+<button type="button" class="active" id="detailedView" aria-pressed="true" onclick="toggleViewMode('detailed')">Cards</button>
+<button type="button" id="compressedView" aria-pressed="false" onclick="toggleViewMode('compressed')">Compact list</button>
+</div>
+<span class="toolbar-label">Sort</span>
+<div class="segmented" role="group" aria-label="Sort order">
+<button type="button" class="active" id="sortHighLow" aria-pressed="true" onclick="sortFacultyCards('highLow')">Highest first</button>
+<button type="button" id="sortLowHigh" aria-pressed="false" onclick="sortFacultyCards('lowHigh')">Lowest first</button>
+</div>
+</div>
+</div>
+<div class="compact-head" aria-hidden="true"><span>KPI</span><span>Current</span><span>Since last return</span><span></span></div>
+<div class="kpi-grid" id="facultyKpis"></div>
+</section>
+</main>
+<dialog class="info-dialog" id="infoDialog" aria-labelledby="infoDialogTitle">
+<div class="info-dialog-head">
+<div><div class="info-dialog-eyebrow" id="infoDialogEyebrow"></div><h2 class="info-dialog-title" id="infoDialogTitle"></h2></div>
+<button type="button" class="info-close" onclick="closeInfoDialog()" aria-label="Close">×</button>
+</div>
+<div class="info-dialog-body" id="infoDialogBody"></div>
+</dialog>
+<template id="guideTemplate">
+<div class="info-section">
+<ol class="guide-steps">
+<li>The large figure on each card is the university's result this period. The line beneath it shows how many items were in scope.</li>
+<li>The coloured bar and band label show the performance band.</li>
+<li>“Since last return” shows movement in percentage points (pp) since the last applicable return.</li>
+<li>Select <strong>Show … faculties</strong> on a card to see each faculty or service with its own trend.</li>
+<li>Select <strong>About</strong> beside a KPI title to read its full definition and guidance.</li>
+<li><em>Not applicable</em> means 0 items were scheduled or in scope this period, so the KPI is excluded from change calculations.</li>
+</ol>
+</div>
+<div class="info-section">
+<h3>Performance bands</h3>
+<div class="guide-key">
+<span class="band-chip band-excellent">Excellent</span><span>95% or more</span>
+<span class="band-chip band-good">Good</span><span>80% to 94.9%</span>
+<span class="band-chip band-warning">Needs attention</span><span>60% to 79.9%</span>
+<span class="band-chip band-poor">Concern</span><span>Below 60%</span>
+</div>
+</div>
+<div class="info-section">
+<h3>Markers</h3>
+<div class="guide-key">
+<span class="missing-return-flag">Missing return</span><span>A faculty did not submit this KPI</span>
+<span class="data-warning">!</span><span>Source value is outside 0–100%</span>
+</div>
+</div>
+<div class="info-section">
+<p>Values above 100% can occur when more tasks were completed than planned, or where source data was entered incorrectly.</p>
+</div>
+</template>
+<script>
+const facultyData=__FACULTY_JSON__;const facultyName="__FACULTY_NAME__";const tooltipData=__TOOLTIP_JSON__;const kpiMeta=__KPI_META_JSON__;
+const DASHBOARD_CONFIG={
+  isUniversity:true,
+  entityLabel:'University',
+  unitSingular:'faculty',
+  unitPlural:'faculties',
+  unitTitle:'Faculties',
+  unitColumn:'Faculty',
+  detailedHint:'Select a KPI to see each faculty, or select About for its full definition.',
+  compactHint:'All KPIs in one list. Select a row to see each faculty.'
+};
+__DASHBOARD_SCRIPT__
+</script>
+</body>
+</html>

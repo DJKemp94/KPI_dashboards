@@ -1,0 +1,22 @@
+{
+  "archived_on": "2026-10-02",
+  "dashboard_sha256": {
+    "index.html": "572fe414ab782484f7ecdc897db43184bfc35ed0c84ecb90c80bf88fcf393ab2",
+    "Arts_Faculty_Report.html": "e2b43d89deaddeac6ed6c2c54dbf8b5deebabec2205327d4b9f11cd373517a83",
+    "Engineering_Faculty_Report.html": "5808833dde612ba9006a2f95293a3719779d690aa090b4d48830132b9ffc3286",
+    "Estates_Faculty_Report.html": "5c8d729ab893a55bba2bca34990bfd8b6422ca3e58a2b2efbd23bf2c50b73d50",
+    "Finance_and_Infrastructure_Faculty_Report.html": "a18b70b2810fb85e69e3ad6b075e651f02c377080c4485dd26b164cf7cae601f",
+    "HR_Faculty_Report.html": "06cf64e4963f50fe7d1d664418a31050992863f18f2f4a6d0fde1fb527858265",
+    "Medicine__Health_Sciences_Faculty_Report.html": "4957506f4cb99277e84faea7de9069dccf0cc945fcb6f9861dc960486e99e9b7",
+    "Registrars_Faculty_Report.html": "83b67b8ae29e2d254dc9e8321314b8e17ce7152f8d4f8be980eb1ff7fe94745b",
+    "Science_Faculty_Report.html": "989b1fa610d414bdf796407d09c6ae98c2873efc7425eb2ee0e9a74fbc540c45",
+    "Social_Sciences_Faculty_Report.html": "2e4c47397fe55b1317028b8003f671538acf60c710d5a483fb954073f899c991"
+  },
+  "original_data_backups": [
+    "Return_Structure_KPI-2 copy.csv",
+    "Raw Data.csv",
+    "Tidyed Data.xlsx",
+    "split data.xlsx"
+  ],
+  "source_correction": "Libraries, 01/08/2026: Return_completed? false -> true. No other source values changed."
+}

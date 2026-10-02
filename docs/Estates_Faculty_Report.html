@@ -1,0 +1,3109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Estates – Health &amp; Safety KPI Dashboard</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<style>
+/* Shared appearance for the university and faculty/service KPI dashboards.
+   Inlined into each generated page by scripts/faculty_dashboard.py. */
+:root{
+  --ink:#0f172a;
+  --ink-2:#334155;
+  --ink-3:#64748b;
+  --ink-4:#94a3b8;
+  --line:#e2e8f0;
+  --line-2:#cbd5e1;
+  --page:#f4f6f9;
+  --surface:#ffffff;
+  --surface-2:#f8fafc;
+  --brand:#10294a;
+  --brand-2:#1b3d6b;
+  --accent:#2563eb;
+  --accent-soft:#eff4ff;
+  /* Performance bands (thresholds unchanged: 95 / 80 / 60). */
+  --band-excellent:#2563eb;--band-excellent-bg:#eaf1fe;--band-excellent-ink:#1e40af;
+  --band-good:#059669;--band-good-bg:#e6f6f0;--band-good-ink:#065f46;
+  --band-warning:#e08a00;--band-warning-bg:#fdf3e1;--band-warning-ink:#8a4b00;
+  --band-poor:#dc2626;--band-poor-bg:#fdecec;--band-poor-ink:#991b1b;
+  --band-na:#94a3b8;--band-na-bg:#f1f5f9;--band-na-ink:#475569;
+  --missing:#be123c;--missing-bg:#fff1f3;--missing-line:#fecdd3;
+  --up:#047857;--up-bg:#e7f6ef;
+  --down:#b91c1c;--down-bg:#fdecec;
+  --radius:12px;
+  --shadow:0 1px 2px rgba(15,23,42,.04),0 1px 3px rgba(15,23,42,.06);
+  --shadow-hover:0 4px 14px rgba(15,23,42,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;background:var(--page);color:var(--ink);font-size:15px;line-height:1.45;min-height:100vh;font-feature-settings:'tnum' 1,'cv11' 1}
+button{font:inherit;color:inherit}
+a{color:inherit}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- Header ---------- */
+.page-header{background:linear-gradient(120deg,var(--brand) 0%,var(--brand-2) 100%);color:#fff}
+.page-header-inner{max-width:1440px;margin:0 auto;padding:28px 32px 26px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.breadcrumb{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#bcd0ea;text-decoration:none;margin-bottom:10px;font-weight:500}
+.breadcrumb:hover{color:#fff;text-decoration:underline}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#9fb8d9;font-weight:600;margin-bottom:6px}
+.page-header h1{font-size:30px;line-height:1.15;font-weight:700;letter-spacing:-.01em}
+.header-meta{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:10px;font-size:14px;color:#d5e2f3}
+.header-meta strong{color:#fff;font-weight:600}
+.header-actions{display:flex;gap:8px}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.28);color:#fff;padding:9px 14px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
+.btn-ghost:hover{background:rgba(255,255,255,.18)}
+.btn-ghost:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.btn-ghost svg{width:16px;height:16px}
+
+.container{max-width:1440px;margin:0 auto;padding:24px 32px 48px}
+
+/* ---------- At a glance ---------- */
+.glance{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;margin-bottom:24px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.glance-bands{padding:18px 20px}
+.panel-title{font-size:13px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;display:flex;justify-content:space-between;gap:12px}
+.panel-title .panel-title-note{text-transform:none;letter-spacing:0;font-weight:500;color:var(--ink-4)}
+.band-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.band-tile{border-radius:10px;padding:12px 14px;background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden;font:inherit;color:inherit;text-align:left;cursor:pointer;transition:border-color .15s,box-shadow .15s,opacity .15s,background .15s;width:100%}
+.band-tile:hover:not(:disabled){border-color:var(--band-color);box-shadow:var(--shadow-hover)}
+.band-tile:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.band-tile:disabled{cursor:default;opacity:.6}
+.band-tile.selected{border-color:var(--band-color);box-shadow:0 0 0 1px var(--band-color) inset,var(--shadow-hover);background:var(--surface)}
+.band-tile.selected::after{content:'✓';position:absolute;top:8px;right:10px;width:20px;height:20px;border-radius:50%;background:var(--band-color);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.band-tiles.filtering .band-tile:not(.selected){opacity:.55}
+.band-tiles.filtering .band-tile:not(.selected):hover:not(:disabled){opacity:1}
+.filter-bar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 14px;margin-bottom:14px;background:var(--accent-soft);border:1px solid #cddbfb;border-radius:10px;font-size:14px;color:var(--ink-2)}
+.filter-bar[hidden]{display:none}
+.filter-label{margin-right:4px}
+.filter-chip{border:none;cursor:pointer;font-size:13px;padding:4px 10px}
+.filter-chip span{margin-left:2px;font-size:15px;line-height:1;opacity:.7}
+.filter-chip:hover span{opacity:1}
+.filter-clear{margin-left:auto;border:1px solid var(--line-2);background:var(--surface);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--accent);cursor:pointer}
+.filter-clear:hover{background:#fff;border-color:var(--accent)}
+.band-tile::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--band-color)}
+.band-tile-count{font-size:28px;font-weight:700;line-height:1.1;color:var(--ink)}
+.band-tile-count small{font-size:14px;font-weight:500;color:var(--ink-3);margin-left:2px}
+.band-tile-label{font-size:13px;color:var(--ink-2);font-weight:600;margin-top:2px}
+.band-tile-range{font-size:12px;color:var(--ink-3)}
+.band-excellent{--band-color:var(--band-excellent)}
+.band-good{--band-color:var(--band-good)}
+.band-warning{--band-color:var(--band-warning)}
+.band-poor{--band-color:var(--band-poor)}
+.band-na{--band-color:var(--band-na)}
+.band-distribution{display:flex;height:8px;border-radius:999px;overflow:hidden;gap:2px;margin-top:14px;background:var(--line)}
+.band-distribution span{display:block;height:100%;background:var(--band-color)}
+.glance-note{font-size:12px;color:var(--ink-3);margin-top:10px}
+.glance-stats{padding:18px 20px;display:flex;flex-direction:column}
+.stat-list{display:flex;flex-direction:column;gap:2px;flex:1}
+.stat-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.stat-row:last-child{border-bottom:none}
+.stat-label{font-size:14px;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+.stat-label .stat-icon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;font-size:12px;font-weight:700}
+.stat-icon.up{background:var(--up-bg);color:var(--up)}
+.stat-icon.down{background:var(--down-bg);color:var(--down)}
+.stat-icon.above{background:var(--band-excellent-bg);color:var(--band-excellent-ink)}
+.stat-icon.missing{background:var(--missing-bg);color:var(--missing)}
+.stat-value{font-size:18px;font-weight:700;color:var(--ink);white-space:nowrap}
+.stat-value small{font-size:13px;color:var(--ink-3);font-weight:500}
+.stat-row.has-sub{border-bottom:none}
+.stat-sub{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0 12px 30px}
+.unit-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--missing-bg);border:1px solid var(--missing-line);color:var(--missing);font-size:13px;font-weight:600;line-height:1.3}
+.unit-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--missing)}
+
+/* ---------- Toolbar ---------- */
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.section-title{font-size:20px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.section-sub{font-size:14px;color:var(--ink-3);margin-top:2px}
+.toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.toolbar-label{font-size:12px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-right:2px}
+.segmented{display:inline-flex;background:#e9edf3;border-radius:9px;padding:3px;gap:2px}
+.segmented button{border:none;background:transparent;padding:7px 14px;border-radius:7px;font-size:14px;font-weight:600;color:var(--ink-3);cursor:pointer;transition:background .15s,color .15s}
+.segmented button:hover{color:var(--ink)}
+.segmented button.active{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(15,23,42,.12)}
+.segmented button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+/* ---------- KPI cards (detailed view) ---------- */
+.kpi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+.kpi-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px 0;position:relative;transition:box-shadow .15s,border-color .15s;cursor:pointer;border-top:3px solid var(--band-color,var(--line))}
+.kpi-card:hover{box-shadow:var(--shadow-hover);border-color:var(--line-2);border-top-color:var(--band-color,var(--line-2))}
+.kpi-card.no-return-current{--band-color:var(--missing)}
+.kpi-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.kpi-title-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.kpi-title{font-size:16px;font-weight:700;color:var(--ink);line-height:1.3}
+.kpi-flags{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
+.kpi-question{font-size:13px;color:var(--ink-3);line-height:1.4;margin-top:4px;min-height:36px}
+.kpi-body{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:end;margin-top:14px}
+.kpi-hero{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.kpi-hero-value{font-size:36px;line-height:1;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+.kpi-hero-sub{font-size:13px;color:var(--ink-3);margin-top:6px}
+.kpi-state{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:600;color:var(--ink-2);padding:10px 12px;border-radius:8px;background:var(--surface-2);border:1px dashed var(--line-2);line-height:1.35}
+.kpi-state.state-missing{background:var(--missing-bg);border:1px solid var(--missing-line);color:var(--missing)}
+.kpi-state.state-exceeded{background:var(--band-good-bg);border:1px solid #b7e4d3;color:var(--band-good-ink)}
+.band-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;background:var(--chip-bg);color:var(--chip-ink)}
+.band-chip::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--band-color)}
+.band-chip.band-excellent{--chip-bg:var(--band-excellent-bg);--chip-ink:var(--band-excellent-ink)}
+.band-chip.band-good{--chip-bg:var(--band-good-bg);--chip-ink:var(--band-good-ink)}
+.band-chip.band-warning{--chip-bg:var(--band-warning-bg);--chip-ink:var(--band-warning-ink)}
+.band-chip.band-poor{--chip-bg:var(--band-poor-bg);--chip-ink:var(--band-poor-ink)}
+.kpi-meter{position:relative;height:8px;border-radius:999px;background:#eef1f5;margin:16px 0 6px}
+.kpi-meter-fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--band-color)}
+.kpi-meter-marker{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink);border-radius:1px;transform:translateX(-1px)}
+.kpi-meter-marker::after{content:attr(data-label);position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:600;color:var(--ink-3);white-space:nowrap}
+.kpi-deltas{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.delta{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:4px 10px;border-radius:999px;white-space:nowrap;background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
+.delta .delta-label{font-weight:500;color:var(--ink-3)}
+.delta.above{background:var(--band-excellent-bg);color:var(--band-excellent-ink);border-color:transparent}
+.delta.below{background:var(--band-poor-bg);color:var(--band-poor-ink);border-color:transparent}
+.delta.equal,.delta.unavailable{background:var(--surface-2);color:var(--ink-3)}
+.delta.above .delta-label,.delta.below .delta-label{color:inherit;opacity:.8}
+
+/* Change badges (movement since the last applicable return). */
+.change-badge{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;border-radius:999px;padding:4px 10px;width:fit-content;white-space:nowrap;border:1px solid transparent;line-height:1.3}
+.change-up{background:var(--up-bg);color:var(--up)}
+.change-down{background:var(--down-bg);color:var(--down)}
+.change-flat{background:var(--surface-2);color:var(--ink-3);border-color:var(--line)}
+.change-na{background:var(--band-na-bg);color:var(--band-na-ink)}
+.change-missing{background:var(--missing-bg);color:var(--missing)}
+.change-prev-submitted{background:#ecfeff;color:#155e75}
+.change-prev-missing{background:var(--missing-bg);color:var(--missing)}
+
+/* Status markers */
+.missing-return-flag{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;background:var(--missing-bg);border:1px solid var(--missing-line);color:var(--missing);font-size:12px;font-weight:600;line-height:1.3;white-space:nowrap}
+.missing-return-flag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--missing)}
+.no-return{display:inline-flex;align-items:center;gap:6px;color:var(--missing);font-weight:600;white-space:nowrap}
+.no-return::before{content:'!';display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--missing);color:#fff;font-size:11px;font-weight:800;flex:0 0 16px}
+.no-prior{display:inline-flex;align-items:center;gap:4px;color:#1e40af;font-weight:600}
+.exceeded-badge{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--band-good-ink)}
+.data-warning{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#b45309;color:#fff;font-size:11px;font-weight:800;cursor:help;flex:0 0 18px}
+.school-warning{margin-left:6px;vertical-align:middle}
+
+/* Info buttons */
+.info-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-3);border-radius:999px;height:26px;padding:0 10px 0 7px;font-size:12px;font-weight:600;cursor:pointer;flex:0 0 auto;transition:background .15s,color .15s,border-color .15s;white-space:nowrap}
+.info-btn svg{width:15px;height:15px}
+.info-btn:hover{background:var(--accent-soft);color:var(--accent);border-color:#bfd2fb}
+.info-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.info-btn.icon-only{width:22px;height:22px;padding:0;border-color:transparent;background:transparent;vertical-align:middle}
+.info-btn.icon-only:hover{background:var(--accent-soft)}
+
+/* Trend chart */
+.trend-wrap{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.trend-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.trend-title{font-size:13px;color:var(--ink-2);font-weight:600}
+.trend-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-3)}
+.trend-legend span{display:inline-flex;align-items:center;gap:6px}
+.legend-line{display:inline-block;width:18px;height:0;border-top:2px solid var(--ink-4)}
+.legend-line.dashed{border-top-style:dashed}
+.legend-line.split{border-top:none;height:2px;background:linear-gradient(90deg,#059669 0 50%,#dc2626 50% 100%)}
+.legend-line.solid-blue{border-top-color:var(--accent)}
+.trend-canvas-box{position:relative;height:170px;width:100%}
+
+/* Card footer / expand control */
+.card-footer{display:flex;justify-content:center;border-top:1px solid var(--line);margin:16px -20px 0;padding:0}
+.expand-btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:transparent;border:none;padding:10px;font-size:13px;font-weight:600;color:var(--accent);cursor:pointer;border-radius:0 0 var(--radius) var(--radius)}
+.expand-btn:hover{background:var(--accent-soft)}
+.expand-btn:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.expand-btn .chev{transition:transform .2s;display:inline-block}
+.kpi-card.expanded .expand-btn .chev{transform:rotate(180deg)}
+.expand-btn .when-open{display:none}
+.kpi-card.expanded .expand-btn .when-open{display:inline}
+.kpi-card.expanded .expand-btn .when-closed{display:none}
+.card-footer-spacer{height:18px}
+
+/* ---------- Breakdown (detailed view) ---------- */
+.school-breakdown-content{display:none}
+.kpi-card.expanded .school-breakdown-content{display:block;margin:0 -20px;padding:14px 20px 4px;background:var(--surface-2);border-top:1px solid var(--line)}
+.school-breakdown-title{font-size:12px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.school-list{display:flex;flex-direction:column}
+.school-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr) 250px;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.school-row:last-child{border-bottom:none}
+.school-name{font-size:14px;font-weight:600;color:var(--ink);display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px}
+.school-count{font-size:12px;color:var(--ink-3);font-weight:400;margin-top:1px}
+.school-measure{display:flex;align-items:center;gap:10px;min-width:0}
+.bar-track{flex:1;height:10px;border-radius:999px;background:#e6eaf0;position:relative;overflow:hidden;min-width:60px}
+.bar-fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px}
+.bar-value{font-size:14px;font-weight:700;color:var(--ink);min-width:58px;text-align:right}
+.school-state{font-size:13px;color:var(--ink-3);font-style:italic;line-height:1.4}
+.school-state .no-return{font-style:normal}
+.school-state.state-exceeded{color:var(--band-good-ink);font-style:normal;font-weight:600}
+.school-trend{display:flex;align-items:center;justify-content:flex-start;gap:8px;min-width:0}
+.school-trend-inline{display:flex;align-items:center;gap:10px;justify-content:flex-start;width:100%}
+.spark-box{position:relative;width:84px;height:28px;flex:0 0 84px}
+.school-trend-empty{font-size:12px;color:var(--ink-4)}
+.school-trend .change-badge{font-size:12px;padding:3px 9px;white-space:nowrap}
+
+/* ---------- Compact view ---------- */
+.compact-head{display:none}
+.compressed-view .compact-head{display:grid;grid-template-columns:var(--compact-cols);gap:16px;padding:0 20px 8px;font-size:12px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+.compressed-view .kpi-grid{grid-template-columns:1fr;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.faculty-overview{--compact-cols:minmax(0,1.4fr) minmax(0,1.2fr) 200px 170px 28px}
+.faculty-overview.is-university{--compact-cols:minmax(0,1.6fr) minmax(0,1.4fr) 200px 28px}
+.compressed-view .kpi-card{display:grid;grid-template-columns:var(--compact-cols);gap:16px;align-items:center;border:none;border-radius:0;box-shadow:none;border-bottom:1px solid var(--line);padding:12px 20px;border-left:4px solid var(--band-color,var(--line-2));border-top:none}
+.compressed-view .kpi-card:last-child{border-bottom:none}
+.compressed-view .kpi-card:hover{background:#fbfcfe;box-shadow:none}
+.compressed-view .kpi-head{display:contents}
+.compressed-view .kpi-title{font-size:14px}
+.compressed-view .kpi-question,.compressed-view .trend-wrap,.compressed-view .kpi-meter,.compressed-view .card-footer-spacer{display:none}
+.compressed-view .kpi-body{display:contents}
+.compressed-view .kpi-hero-value{font-size:20px}
+.compressed-view .kpi-hero{gap:8px}
+.compressed-view .kpi-hero-sub{margin-top:2px;font-size:12px}
+.compressed-view .kpi-state{font-size:13px;padding:6px 10px}
+.compressed-view .kpi-deltas{display:contents}
+.compressed-view .delta,.compressed-view .change-badge{font-size:12px;justify-self:start}
+.compressed-view .col-uni{justify-self:start}
+.compressed-view .col-change{justify-self:start}
+.compressed-view .card-footer{border:none;margin:0;justify-content:flex-end}
+.compressed-view .expand-btn{width:28px;height:28px;padding:0;border-radius:6px;color:var(--ink-3);font-size:18px}
+.compressed-view .expand-btn:hover{background:var(--accent-soft);color:var(--accent)}
+.compressed-view .expand-btn .expand-text{display:none}
+.compressed-view .school-breakdown-content{grid-column:1/-1}
+.compressed-view .kpi-card.expanded .school-breakdown-content{margin:6px -20px -12px -24px;padding:14px 20px 14px 24px;overflow-x:auto}
+.compressed-school-table{display:flex;flex-direction:column;min-width:640px}
+.compressed-school-row{display:grid;grid-template-columns:minmax(170px,2fr) minmax(130px,1.2fr) minmax(100px,.9fr) minmax(100px,.9fr) minmax(120px,1fr);gap:12px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink-2)}
+.compressed-school-row:last-child{border-bottom:none}
+.compressed-school-row.header{font-size:11px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;padding-top:0}
+.compressed-school-row .school-name{font-size:13px}
+.compressed-school-row{padding-left:12px!important}
+.compressed-school-row:not(.header):not(.no-return-row){box-shadow:inset 3px 0 0 var(--band-color)}
+.compressed-school-row .school-prev{color:var(--ink-3)}
+.compressed-school-row .school-current{font-weight:700;color:var(--ink)}
+.pct-chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pct-chip::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--band-color);flex:0 0 8px}
+.pct-prev{color:var(--ink-3);font-weight:500}
+.pct-prev::before{opacity:.55}
+.pct-current{padding:3px 10px 3px 8px;font-weight:700;font-size:13px}
+.pct-current.band-excellent{background:var(--band-excellent-bg);color:var(--band-excellent-ink)}
+.pct-current.band-good{background:var(--band-good-bg);color:var(--band-good-ink)}
+.pct-current.band-warning{background:var(--band-warning-bg);color:var(--band-warning-ink)}
+.pct-current.band-poor{background:var(--band-poor-bg);color:var(--band-poor-ink)}
+.compressed-school-row .school-change{font-weight:600;font-size:12px;padding:3px 9px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
+.compressed-school-row .up{color:#fff;background:#059669}
+.compressed-school-row .down{color:#fff;background:#dc2626}
+.compressed-school-row .flat{color:var(--ink-3);background:#eef1f5}
+.compressed-school-row .na{color:var(--band-na-ink);background:var(--band-na-bg)}
+.compressed-school-row .cell-no-return{color:var(--missing);font-weight:600;font-style:italic}
+.compressed-school-row .cell-no-prior{color:#1e40af;font-style:italic;display:inline-flex;align-items:center}
+.compressed-school-row .cell-exceeded{color:var(--ink-3);font-style:italic}
+.compressed-school-row.no-return-row{grid-template-columns:minmax(170px,2fr) minmax(0,4fr);background:var(--missing-bg);border-radius:6px;border-bottom-color:transparent;margin:2px 0}
+.compressed-school-row .row-no-return-msg{color:var(--missing);font-weight:600;font-style:italic}
+
+/* ---------- Info dialog ---------- */
+.info-dialog{border:none;border-radius:14px;padding:0;width:min(620px,calc(100vw - 32px));max-height:calc(100vh - 48px);box-shadow:0 24px 60px rgba(15,23,42,.3);color:var(--ink);margin:auto}
+.info-dialog::backdrop{background:rgba(15,23,42,.45)}
+.info-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:20px 24px 14px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface)}
+.info-dialog-eyebrow{font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.info-dialog-title{font-size:20px;font-weight:700;line-height:1.25}
+.info-close{border:none;background:var(--surface-2);width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:20px;line-height:1;color:var(--ink-3);flex:0 0 34px}
+.info-close:hover{background:var(--line);color:var(--ink)}
+.info-close:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.info-dialog-body{padding:18px 24px 24px;overflow:auto}
+.info-section+.info-section{margin-top:18px}
+.info-section h3{font-size:12px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.info-section p{font-size:15px;line-height:1.6;color:var(--ink-2)}
+.info-section p+p{margin-top:10px}
+.info-lead{font-size:16px!important;color:var(--ink)!important;font-weight:500}
+.info-facts{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.info-facts dt{color:var(--ink-3)}
+.info-facts dd{color:var(--ink);font-weight:500}
+.guide-steps{display:flex;flex-direction:column;gap:10px;list-style:none;counter-reset:step}
+.guide-steps li{position:relative;display:block;padding-left:36px;min-height:24px;font-size:15px;line-height:1.55;color:var(--ink-2)}
+.guide-steps li strong{color:var(--ink);font-weight:600}
+.guide-steps li::before{counter-increment:step;content:counter(step);position:absolute;left:0;top:1px;width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.guide-key{display:grid;grid-template-columns:150px 1fr;gap:10px 14px;align-items:center;font-size:14px;line-height:1.4;color:var(--ink-2)}
+.guide-key>*:nth-child(odd){justify-self:start}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1180px){
+  .glance{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:1fr}
+}
+@media (max-width:860px){
+  .compressed-view .compact-head{display:none}
+  .compressed-view .kpi-card{grid-template-columns:minmax(0,1fr) auto;row-gap:8px}
+  .compressed-view .kpi-title-wrap{grid-column:1/2}
+  .compressed-view .card-footer{grid-column:2/3;grid-row:1}
+  .compressed-view .kpi-hero-wrap{grid-column:1/-1}
+  .compressed-view .col-uni,.compressed-view .col-change{grid-column:1/-1}
+}
+@media (max-width:720px){
+  .page-header-inner{padding:20px 16px}
+  .page-header h1{font-size:24px}
+  .container{padding:16px 16px 40px}
+  .band-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpi-card{padding:16px 16px 0}
+  .card-footer,.kpi-card.expanded .school-breakdown-content{margin-left:-16px;margin-right:-16px}
+  .kpi-card.expanded .school-breakdown-content{padding-left:16px;padding-right:16px}
+  .kpi-body{grid-template-columns:1fr}
+  .kpi-deltas{align-items:flex-start}
+  .kpi-hero-value{font-size:30px}
+  .school-row{grid-template-columns:1fr;gap:6px}
+  .school-trend,.school-trend-inline{justify-content:flex-start}
+  .section-head{align-items:flex-start}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  body{background:#fff;font-size:12px}
+  .page-header{background:none;color:var(--ink);border-bottom:2px solid var(--ink)}
+  .page-header .eyebrow,.page-header .header-meta{color:var(--ink-3)}
+  .page-header .header-meta strong{color:var(--ink)}
+  .header-actions,.toolbar,.breadcrumb,.card-footer,.info-btn{display:none!important}
+  .panel,.kpi-card{box-shadow:none;break-inside:avoid}
+  .container{padding:12px 0}
+}
+
+</style>
+</head>
+<body>
+<header class="page-header">
+<div class="page-header-inner">
+<div>
+<a class="breadcrumb" href="index.html">← University overview</a>
+<div class="eyebrow">Health &amp; Safety KPI dashboard</div>
+<h1>Estates</h1>
+<div class="header-meta" id="headerMeta"></div>
+</div>
+<div class="header-actions">
+<button type="button" class="btn-ghost" onclick="openGuide()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg>How to read this dashboard</button>
+</div>
+</div>
+</header>
+<main class="container">
+<section class="glance" id="glance" aria-label="Summary"></section>
+<section class="faculty-overview" aria-labelledby="kpiSectionTitle">
+<div class="section-head">
+<div>
+<h2 class="section-title" id="kpiSectionTitle">KPI results</h2>
+<p class="section-sub" id="instructions">Select a KPI to see each school or department, or select About for its full definition.</p>
+</div>
+<div class="toolbar">
+<span class="toolbar-label">View</span>
+<div class="segmented" role="group" aria-label="View">
+<button type="button" class="active" id="detailedView" aria-pressed="true" onclick="toggleViewMode('detailed')">Cards</button>
+<button type="button" id="compressedView" aria-pressed="false" onclick="toggleViewMode('compressed')">Compact list</button>
+</div>
+<span class="toolbar-label">Sort</span>
+<div class="segmented" role="group" aria-label="Sort order">
+<button type="button" class="active" id="sortHighLow" aria-pressed="true" onclick="sortFacultyCards('highLow')">Highest first</button>
+<button type="button" id="sortLowHigh" aria-pressed="false" onclick="sortFacultyCards('lowHigh')">Lowest first</button>
+</div>
+</div>
+</div>
+<div class="compact-head" aria-hidden="true"><span>KPI</span><span>Current</span><span>vs university</span><span>Since last return</span><span></span></div>
+<div class="kpi-grid" id="facultyKpis"></div>
+</section>
+</main>
+<dialog class="info-dialog" id="infoDialog" aria-labelledby="infoDialogTitle">
+<div class="info-dialog-head">
+<div><div class="info-dialog-eyebrow" id="infoDialogEyebrow"></div><h2 class="info-dialog-title" id="infoDialogTitle"></h2></div>
+<button type="button" class="info-close" onclick="closeInfoDialog()" aria-label="Close">×</button>
+</div>
+<div class="info-dialog-body" id="infoDialogBody"></div>
+</dialog>
+<template id="guideTemplate">
+<div class="info-section">
+<ol class="guide-steps">
+<li>The large figure on each card is this period's result. The line beneath it shows how many items were in scope.</li>
+<li>The coloured bar and band label show the performance band. The black “Uni” marker shows the university average.</li>
+<li>“vs university” shows the gap to the university average in percentage points (pp). “Since last return” shows movement since the last applicable return.</li>
+<li>Select <strong>Show … schools / departments</strong> on a card to see each school or department with its own trend.</li>
+<li>Select <strong>About</strong> beside a KPI title to read its full definition and guidance.</li>
+<li><em>Not applicable</em> means 0 items were scheduled or in scope this period, so the KPI is excluded from change calculations.</li>
+</ol>
+</div>
+<div class="info-section">
+<h3>Performance bands</h3>
+<div class="guide-key">
+<span class="band-chip band-excellent">Excellent</span><span>95% or more</span>
+<span class="band-chip band-good">Good</span><span>80% to 94.9%</span>
+<span class="band-chip band-warning">Needs attention</span><span>60% to 79.9%</span>
+<span class="band-chip band-poor">Concern</span><span>Below 60%</span>
+</div>
+</div>
+<div class="info-section">
+<h3>Markers</h3>
+<div class="guide-key">
+<span class="missing-return-flag">Missing return</span><span>A school or department did not submit this KPI</span>
+<span class="data-warning">!</span><span>Source value is outside 0–100%</span>
+</div>
+</div>
+<div class="info-section">
+<p>Values above 100% can occur when more tasks were completed than planned, or where source data was entered incorrectly.</p>
+</div>
+</template>
+<script>
+const facultyData={
+  "name": "Estates",
+  "kpis": {
+    "Written Arrangements Complete": {
+      "percentage": 97.3,
+      "number": 37.0,
+      "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
+      "display_text": "97.3% (37 arrangements in scope)",
+      "university_percentage": 96.26,
+      "university_applicable": true,
+      "history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 97.3,
+          "raw_percentage": 97.3,
+          "number": 37.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 97.3,
+          "raw_percentage": 97.3,
+          "number": 37.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 97.3,
+          "raw_percentage": 97.3,
+          "number": 37.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "university_history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 86.71,
+          "raw_percentage": 86.71,
+          "number": 715.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 94.06,
+          "raw_percentage": 94.06,
+          "number": 741.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 96.26,
+          "raw_percentage": 96.26,
+          "number": 775.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "comparison": "above"
+    },
+    "Risk Assessments in Register up to date": {
+      "percentage": 86.83,
+      "number": 357.0,
+      "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
+      "display_text": "86.8% (357 risk assessments in scope)",
+      "university_percentage": 65.25,
+      "university_applicable": true,
+      "history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 78.15,
+          "raw_percentage": 78.15,
+          "number": 357.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 86.83,
+          "raw_percentage": 86.83,
+          "number": 357.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 86.83,
+          "raw_percentage": 86.83,
+          "number": 357.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "university_history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 71.49,
+          "raw_percentage": 71.49,
+          "number": 3701.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 66.47,
+          "raw_percentage": 66.47,
+          "number": 3993.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 65.25,
+          "raw_percentage": 65.25,
+          "number": 4354.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "comparison": "above"
+    },
+    "H&S Induction Completion": {
+      "percentage": 91.0,
+      "number": 1068.0,
+      "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
+      "display_text": "91.0% (1068 staff in scope)",
+      "university_percentage": 86.94,
+      "university_applicable": true,
+      "history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 71.04,
+          "raw_percentage": 71.04,
+          "number": 1150.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 90.0,
+          "raw_percentage": 90.0,
+          "number": 1068.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 91.0,
+          "raw_percentage": 91.0,
+          "number": 1068.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "university_history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 80.09,
+          "raw_percentage": 80.09,
+          "number": 7472.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 81.9,
+          "raw_percentage": 81.9,
+          "number": 6437.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 86.94,
+          "raw_percentage": 86.94,
+          "number": 6414.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "comparison": "above"
+    },
+    "Fire Training Completion": {
+      "percentage": 91.0,
+      "number": 1068.0,
+      "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
+      "display_text": "91.0% (1068 staff in scope)",
+      "university_percentage": 81.78,
+      "university_applicable": true,
+      "history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 71.04,
+          "raw_percentage": 71.04,
+          "number": 1150.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 90.0,
+          "raw_percentage": 90.0,
+          "number": 1068.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 91.0,
+          "raw_percentage": 91.0,
+          "number": 1068.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "university_history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 89.0,
+          "raw_percentage": 89.0,
+          "number": 7472.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 77.84,
+          "raw_percentage": 77.84,
+          "number": 6437.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 81.78,
+          "raw_percentage": 81.78,
+          "number": 6414.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "comparison": "above"
+    },
+    "Fire Drills Completed": {
+      "percentage": 100.0,
+      "number": 15.0,
+      "applicable": true,
+      "exceeded": false,
+      "completed_count": 15,
+      "display_text": "100.0% (15 buildings in scope)",
+      "university_percentage": 90.36,
+      "university_applicable": true,
+      "history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 100.0,
+          "raw_percentage": 100.0,
+          "number": 15.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 100.0,
+          "raw_percentage": 100.0,
+          "number": 15.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 100.0,
+          "raw_percentage": 100.0,
+          "number": 15.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "university_history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 80.0,
+          "raw_percentage": 80.0,
+          "number": 100.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 90.32,
+          "raw_percentage": 90.32,
+          "number": 62.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 90.36,
+          "raw_percentage": 90.36,
+          "number": 83.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "comparison": "above"
+    },
+    "PEEPS in Place": {
+      "percentage": 66.67,
+      "number": 9.0,
+      "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
+      "display_text": "66.7% (9 PEEPs in scope)",
+      "university_percentage": 94.59,
+      "university_applicable": true,
+      "history": [
+        {
+          "date": "01/08/2025",
+          "percentage": null,
+          "raw_percentage": 0.0,
+          "number": 0.0,
+          "applicable": false,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": null,
+          "raw_percentage": 0.0,
+          "number": 0.0,
+          "applicable": false,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 66.67,
+          "raw_percentage": 66.67,
+          "number": 9.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "university_history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 89.74,
+          "raw_percentage": 89.74,
+          "number": 39.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 83.72,
+          "raw_percentage": 83.72,
+          "number": 43.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 94.59,
+          "raw_percentage": 94.59,
+          "number": 37.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "comparison": "below"
+    },
+    "PEEPS Drilled": {
+      "percentage": 0.0,
+      "number": 9.0,
+      "applicable": true,
+      "exceeded": false,
+      "completed_count": 0,
+      "display_text": "0.0% (9 PEEPs in scope)",
+      "university_percentage": 32.43,
+      "university_applicable": true,
+      "history": [
+        {
+          "date": "01/08/2025",
+          "percentage": null,
+          "raw_percentage": 0.0,
+          "number": 0.0,
+          "applicable": false,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": null,
+          "raw_percentage": 0.0,
+          "number": 0.0,
+          "applicable": false,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 0.0,
+          "raw_percentage": 0.0,
+          "number": 9.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "university_history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 41.03,
+          "raw_percentage": 41.03,
+          "number": 39.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 23.26,
+          "raw_percentage": 23.26,
+          "number": 43.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 32.43,
+          "raw_percentage": 32.43,
+          "number": 37.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "comparison": "below"
+    },
+    "Assets without A&B Defects": {
+      "percentage": 100.0,
+      "number": 829.0,
+      "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
+      "display_text": "100.0% (829 assets in scope)",
+      "university_percentage": 99.79,
+      "university_applicable": true,
+      "history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 94.39,
+          "raw_percentage": 94.39,
+          "number": 944.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 100.0,
+          "raw_percentage": 100.0,
+          "number": 943.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 100.0,
+          "raw_percentage": 100.0,
+          "number": 829.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "university_history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 98.01,
+          "raw_percentage": 98.01,
+          "number": 3622.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 99.88,
+          "raw_percentage": 99.88,
+          "number": 3383.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 99.79,
+          "raw_percentage": 99.79,
+          "number": 2826.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "comparison": "above"
+    },
+    "Assets Inspected by Allianz": {
+      "percentage": 79.01,
+      "number": 829.0,
+      "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
+      "display_text": "79.0% (829 assets in scope)",
+      "university_percentage": 86.41,
+      "university_applicable": true,
+      "history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 95.66,
+          "raw_percentage": 95.66,
+          "number": 944.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 95.23,
+          "raw_percentage": 95.23,
+          "number": 943.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 79.01,
+          "raw_percentage": 79.01,
+          "number": 829.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "university_history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 96.94,
+          "raw_percentage": 96.94,
+          "number": 3622.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 96.51,
+          "raw_percentage": 96.51,
+          "number": 3383.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 86.41,
+          "raw_percentage": 86.41,
+          "number": 2826.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "comparison": "below"
+    },
+    "Accidents and Incidents Investigated": {
+      "percentage": 97.44,
+      "number": 78.0,
+      "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
+      "display_text": "97.4% (78 incidents/near misses in scope)",
+      "university_percentage": 92.22,
+      "university_applicable": true,
+      "history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 59.24,
+          "raw_percentage": 59.24,
+          "number": 157.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 61.95,
+          "raw_percentage": 61.95,
+          "number": 113.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 97.44,
+          "raw_percentage": 97.44,
+          "number": 78.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "university_history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 80.0,
+          "raw_percentage": 80.0,
+          "number": 450.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 82.14,
+          "raw_percentage": 82.14,
+          "number": 448.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 92.22,
+          "raw_percentage": 92.22,
+          "number": 437.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "comparison": "above"
+    },
+    "Inspections Carried Out": {
+      "percentage": 100.0,
+      "number": 450.0,
+      "applicable": true,
+      "exceeded": false,
+      "completed_count": 450,
+      "display_text": "100.0% (450 inspections in scope)",
+      "university_percentage": 58.52,
+      "university_applicable": true,
+      "history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 111.84,
+          "raw_percentage": 111.84,
+          "number": 456.0,
+          "applicable": true,
+          "exceeded": true
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 111.84,
+          "raw_percentage": 111.84,
+          "number": 456.0,
+          "applicable": true,
+          "exceeded": true
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 100.0,
+          "raw_percentage": 100.0,
+          "number": 450.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "university_history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 51.68,
+          "raw_percentage": 51.68,
+          "number": 19092.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 53.07,
+          "raw_percentage": 53.07,
+          "number": 54924.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 58.52,
+          "raw_percentage": 58.52,
+          "number": 57449.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "comparison": "above"
+    },
+    "Leadership Walkarounds": {
+      "percentage": 100.0,
+      "number": 1.0,
+      "applicable": true,
+      "exceeded": false,
+      "completed_count": 1,
+      "display_text": "100.0% (1 walkarounds in scope)",
+      "university_percentage": 98.57,
+      "university_applicable": true,
+      "history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 100.0,
+          "raw_percentage": 100.0,
+          "number": 2.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 100.0,
+          "raw_percentage": 100.0,
+          "number": 2.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 100.0,
+          "raw_percentage": 100.0,
+          "number": 1.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "university_history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 93.75,
+          "raw_percentage": 93.75,
+          "number": 64.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 78.85,
+          "raw_percentage": 78.85,
+          "number": 52.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 98.57,
+          "raw_percentage": 98.57,
+          "number": 70.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "comparison": "above"
+    },
+    "Risk Assessment Coverage": {
+      "percentage": 90.0,
+      "number": null,
+      "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
+      "display_text": "90.0%",
+      "university_percentage": 83.9,
+      "university_applicable": true,
+      "history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 75.0,
+          "raw_percentage": 75.0,
+          "number": null,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 85.0,
+          "raw_percentage": 85.0,
+          "number": null,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 90.0,
+          "raw_percentage": 90.0,
+          "number": null,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "university_history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 81.83,
+          "raw_percentage": 81.83,
+          "number": null,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 87.07,
+          "raw_percentage": 87.07,
+          "number": null,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 83.9,
+          "raw_percentage": 83.9,
+          "number": null,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "comparison": "above"
+    },
+    "Training Matrix Coverage": {
+      "percentage": 80.0,
+      "number": null,
+      "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
+      "display_text": "80.0%",
+      "university_percentage": 90.03,
+      "university_applicable": true,
+      "history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 80.0,
+          "raw_percentage": 80.0,
+          "number": null,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 80.0,
+          "raw_percentage": 80.0,
+          "number": null,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 80.0,
+          "raw_percentage": 80.0,
+          "number": null,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "university_history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 84.63,
+          "raw_percentage": 84.63,
+          "number": null,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 87.8,
+          "raw_percentage": 87.8,
+          "number": null,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 90.03,
+          "raw_percentage": 90.03,
+          "number": null,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "comparison": "below"
+    },
+    "Staff Training Requirements": {
+      "percentage": 75.0,
+      "number": 1068.0,
+      "applicable": true,
+      "exceeded": false,
+      "completed_count": null,
+      "display_text": "75.0% (1068 staff in scope)",
+      "university_percentage": 70.73,
+      "university_applicable": true,
+      "history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 70.0,
+          "raw_percentage": 70.0,
+          "number": 1150.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 70.0,
+          "raw_percentage": 70.0,
+          "number": 1068.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 75.0,
+          "raw_percentage": 75.0,
+          "number": 1068.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "university_history": [
+        {
+          "date": "01/08/2025",
+          "percentage": 59.83,
+          "raw_percentage": 59.83,
+          "number": 7472.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/02/2026",
+          "percentage": 67.23,
+          "raw_percentage": 67.23,
+          "number": 6437.0,
+          "applicable": true,
+          "exceeded": false
+        },
+        {
+          "date": "01/08/2026",
+          "percentage": 70.73,
+          "raw_percentage": 70.73,
+          "number": 6414.0,
+          "applicable": true,
+          "exceeded": false
+        }
+      ],
+      "comparison": "above"
+    }
+  },
+  "schools": {
+    "Estates": {
+      "name": "Estates",
+      "kpis": {
+        "Written Arrangements Complete": {
+          "percentage": 97.297297,
+          "number": 37.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
+          "display_text": "97.3% (37 arrangements in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 97.297297,
+              "raw_percentage": 97.297297,
+              "number": 37.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 97.297297,
+              "raw_percentage": 97.297297,
+              "number": 37.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 97.297297,
+              "raw_percentage": 97.297297,
+              "number": 37.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "Risk Assessments in Register up to date": {
+          "percentage": 86.834734,
+          "number": 357.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
+          "display_text": "86.8% (357 risk assessments in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 78.151261,
+              "raw_percentage": 78.151261,
+              "number": 357.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 86.834734,
+              "raw_percentage": 86.834734,
+              "number": 357.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 86.834734,
+              "raw_percentage": 86.834734,
+              "number": 357.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "H&S Induction Completion": {
+          "percentage": 91.0,
+          "number": 1068.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
+          "display_text": "91.0% (1068 staff in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 71.043478,
+              "raw_percentage": 71.043478,
+              "number": 1150.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 90.0,
+              "raw_percentage": 90.0,
+              "number": 1068.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 91.0,
+              "raw_percentage": 91.0,
+              "number": 1068.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "Fire Training Completion": {
+          "percentage": 91.0,
+          "number": 1068.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
+          "display_text": "91.0% (1068 staff in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 71.043478,
+              "raw_percentage": 71.043478,
+              "number": 1150.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 90.0,
+              "raw_percentage": 90.0,
+              "number": 1068.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 91.0,
+              "raw_percentage": 91.0,
+              "number": 1068.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "Fire Drills Completed": {
+          "percentage": 100.0,
+          "number": 15.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": 15,
+          "display_text": "100.0% (15 buildings in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0,
+              "raw_percentage": 100.0,
+              "number": 15.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0,
+              "raw_percentage": 100.0,
+              "number": 15.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 100.0,
+              "raw_percentage": 100.0,
+              "number": 15.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "PEEPS in Place": {
+          "percentage": 66.666667,
+          "number": 9.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
+          "display_text": "66.7% (9 PEEPs in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": null,
+              "raw_percentage": null,
+              "number": 0.0,
+              "applicable": false,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": null,
+              "raw_percentage": null,
+              "number": 0.0,
+              "applicable": false,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 66.666667,
+              "raw_percentage": 66.666667,
+              "number": 9.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "PEEPS Drilled": {
+          "percentage": 0.0,
+          "number": 9.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": 0,
+          "display_text": "0.0% (9 PEEPs in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": null,
+              "raw_percentage": null,
+              "number": 0.0,
+              "applicable": false,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": null,
+              "raw_percentage": null,
+              "number": 0.0,
+              "applicable": false,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 0.0,
+              "raw_percentage": 0.0,
+              "number": 9.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "Assets without A&B Defects": {
+          "percentage": 100.0,
+          "number": 829.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
+          "display_text": "100.0% (829 assets in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 94.385593,
+              "raw_percentage": 94.385593,
+              "number": 944.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0,
+              "raw_percentage": 100.0,
+              "number": 943.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 100.0,
+              "raw_percentage": 100.0,
+              "number": 829.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 79.010856,
+          "number": 829.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
+          "display_text": "79.0% (829 assets in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 95.65678,
+              "raw_percentage": 95.65678,
+              "number": 944.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 95.227996,
+              "raw_percentage": 95.227996,
+              "number": 943.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 79.010856,
+              "raw_percentage": 79.010856,
+              "number": 829.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 97.435897,
+          "number": 78.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
+          "display_text": "97.4% (78 incidents/near misses in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 59.235669,
+              "raw_percentage": 59.235669,
+              "number": 157.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 61.946903,
+              "raw_percentage": 61.946903,
+              "number": 113.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 97.435897,
+              "raw_percentage": 97.435897,
+              "number": 78.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "Inspections Carried Out": {
+          "percentage": 100.0,
+          "number": 450.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": 450,
+          "display_text": "100.0% (450 inspections in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 111.842105,
+              "raw_percentage": 111.842105,
+              "number": 456.0,
+              "applicable": true,
+              "exceeded": true
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 111.842105,
+              "raw_percentage": 111.842105,
+              "number": 456.0,
+              "applicable": true,
+              "exceeded": true
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 100.0,
+              "raw_percentage": 100.0,
+              "number": 450.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "Leadership Walkarounds": {
+          "percentage": 100.0,
+          "number": 1.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": 1,
+          "display_text": "100.0% (1 walkarounds in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 100.0,
+              "raw_percentage": 100.0,
+              "number": 2.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0,
+              "raw_percentage": 100.0,
+              "number": 2.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 100.0,
+              "raw_percentage": 100.0,
+              "number": 1.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "Risk Assessment Coverage": {
+          "percentage": 90.0,
+          "number": null,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
+          "display_text": "90.0%",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 75.0,
+              "raw_percentage": 75.0,
+              "number": null,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 85.0,
+              "raw_percentage": 85.0,
+              "number": null,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 90.0,
+              "raw_percentage": 90.0,
+              "number": null,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "Training Matrix Coverage": {
+          "percentage": 80.0,
+          "number": null,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
+          "display_text": "80.0%",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 80.0,
+              "raw_percentage": 80.0,
+              "number": null,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 80.0,
+              "raw_percentage": 80.0,
+              "number": null,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 80.0,
+              "raw_percentage": 80.0,
+              "number": null,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "Staff Training Requirements": {
+          "percentage": 75.0,
+          "number": 1068.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
+          "display_text": "75.0% (1068 staff in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 70.0,
+              "raw_percentage": 70.0,
+              "number": 1150.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 70.0,
+              "raw_percentage": 70.0,
+              "number": 1068.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 75.0,
+              "raw_percentage": 75.0,
+              "number": 1068.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        }
+      }
+    }
+  }
+};const facultyName="Estates";const tooltipData={
+  "Written Arrangements Complete": "Written Arrangements determine how a department is enacting a specific University Policy. Where a policy determines what a department must do, the arrangements indicate how a department achieves this. This value indicates how many arrangements a department has, alongside the percentage of these which are approved by the local H&S Committee and are in-date/reviewed.",
+  "Risk Assessments in Register up to date": "This number provides an indication of the percentage of risk assessments that are both on the departmental risk assessment register, AND are reviewed/up-to-date.\n\nPlease review the number of assessments provided alongside the % reviewed, as the number will provide an indication on whether the coverage across the department is high enough.",
+  "H&S Induction Completion": "This number is calculated by comparing the  number of staff (from the UniCore records) who have completed the mandatory Health and Safety Induction course against the number of staff within the Department.\nNote that training data percentages are provided by the H&S Dept, but Departments were asked to provide their staff numbers directly.",
+  "Fire Training Completion": "This number is calculated by comparing the number of staff (from the UniCore records) who have completed the mandatory Fire Training course against the number of staff within the Department.\nNote that training data percentages are provided by the H&S Dept, but Departments were asked to provide their staff numbers directly.",
+  "Fire Drills Completed": "This is calculated by comparing the number of buildings that were due to have a Fire Drill within the reporting period against the number of drills carried out.\n\nThe number provided alongside the percentage should be roughly half the number of buildings each department is responsible for.",
+  "PEEPS in Place": "This value provides an indication of how many PEEPS have both been identified as required and are implemented. These should have been reviewed in good time and have appropriate controls in place to mitigate the risks related to the evacuation of the PEEPs holders.",
+  "PEEPS Drilled": "This value provides an indication of how many of the identified PEEPS have been tested to ensure that, upon execution, the affected person can be successfully evacuated,",
+  "Assets without A&B Defects": "This return provides an indication of the % of Assets that have been assessed by Allianz as not having a defect that requires action to remediate, where an \"A\" defect corresponds to one that poses a serious hazard, and a \"B\" defect requires action, but not immediately.",
+  "Assets Inspected by Allianz": "This return provides an indication of how many assets the department has on the Allianz database compared to how many have been inspected within the time frame in which they were due an inspection.\n\nNote that this return does not include assets outside of the Allianz database, including items such as gas regulators, autoclaves, etc. A system is not currently available at the University to maintain these records.",
+  "Accidents and Incidents Investigated": "This return compares the number of Incidents and Near Misses reported in the period alongside the % that have been investigated by the relevant person in the Dept, whether this be the supervisor of the reporting party, or the Health and Safety Assistants/Coordinators.",
+  "Inspections Carried Out": "This return provides an overview of how many Health and Safety Inspections were due to be carried out within the Dept compared to the number actually carried out.\n\nThe return indicates both the number of inspections planned, as well as the number of areas highlighted in the department as requiring inspection. The provided percentage is an indication of how many were successfully carried out against the schedule, but the number schedules should be compared against the number of areas requiring inspection as this will determine whether the number of inspections planned is proportionate against the size of the department",
+  "Leadership Walkarounds": "This return provides an overview of the percentage of leadership walkarounds scheduled, vs the number completed.\n\nEach department may expect the number of walkarounds to be roughly 1 per quarter, but this will vary depending on the risk profile of the department.",
+  "Risk Assessment Coverage": "This return provides an indication of what the H&S Coordinator believes the coverage of Risk Assessments is across each department.\n\nCurrently, there is no University-wide Risk Assessment Register, so in most cases this figure will be an estimate.\n\nRisk Assessment coverage should reflect the range of hazards within a department (with the RMS module list as a useful starting point), and whether the department believes it has an appropriate number of Risk Assessments in place for each hazard type, taking into account the number of research groups and activities in their buildings.",
+  "Training Matrix Coverage": "This return provides an indication of how much of the training identified in the Department's Training Matrix -which should capture all training requirements based on the activities carried out by each staff member or student - is currently accessible to those who need it.\n\nTraining accessibility should reflect whether the courses identified in the Matrix are:\n\nAvailable in the required format (e-learning, in-person, or blended),\n\nKept up to date and relevant, and\n\nrealistically accessible to the groups who need them (considering scheduling, prerequisites, and availability of spaces).",
+  "Staff Training Requirements": "This return is an indication by the H&S Coordinator of what percentage of Staff they believe have received all training they need in order to be competent to carry out their work. This includes all compulsory training via UniCore, all training via Atlas, as well as any other training highlighted on the training matrix."
+};const kpiMeta={"Written Arrangements Complete": {"question": "Arrangements completed, reviewed, and approved out of arrangements relevant to the department.", "denominator_label": "arrangements", "na_message": "No written arrangements available/generated for this period"}, "Risk Assessments in Register up to date": {"question": "Risk assessments updated in the last 2 years out of all risk assessments listed on the register.", "denominator_label": "risk assessments", "na_message": "No risk assessments in register this period or no risk assessment register in place"}, "H&S Induction Completion": {"question": "Staff in-date for UoN H&S induction training (last 3 years).", "denominator_label": "staff"}, "Fire Training Completion": {"question": "Staff in-date for UoN fire training (last 3 years).", "denominator_label": "staff"}, "Fire Drills Completed": {"question": "Fire drills carried out in period out of buildings allocated to undertake a fire drill.", "denominator_label": "buildings", "na_message": "No scheduled drills this period"}, "PEEPS in Place": {"question": "PEEPs in place (reviewed, communicated, controls in place) out of PEEPs required.", "denominator_label": "PEEPs", "na_message": "No PEEPs identified as required"}, "PEEPS Drilled": {"question": "PEEPs tested/drilled in the period out of PEEPs required.", "denominator_label": "PEEPs", "na_message": "No PEEPs identified as required"}, "Assets without A&B Defects": {"question": "BU-owned assets without unresolved A/B defects.", "denominator_label": "assets", "na_message": "No department-owned assets that require inspection"}, "Assets Inspected by Allianz": {"question": "BU-owned assets inspected by Allianz (not overdue / plant available).", "denominator_label": "assets", "na_message": "No department-owned assets that require inspection"}, "Accidents and Incidents Investigated": {"question": "Investigations completed out of total incidents and near misses reported in the period.", "denominator_label": "incidents/near misses", "na_message": "No incidents reported in period"}, "Inspections Carried Out": {"question": "Inspections carried out out of inspections on the monitoring schedule.", "denominator_label": "inspections", "na_message": "No inspections scheduled in this period"}, "Leadership Walkarounds": {"question": "Leadership walkarounds completed out of walkarounds on the monitoring schedule.", "denominator_label": "walkarounds", "na_message": "No walkarounds scheduled in period"}, "Risk Assessment Coverage": {"question": "Percentage coverage of risk assessment across department/PS.", "denominator_label": null}, "Training Matrix Coverage": {"question": "Training in the matrix that is accessible to staff who need it.", "denominator_label": null, "na_message": "No training matrix available/generated for this period", "zero_score_message": "No training matrix available/generated for this period"}, "Staff Training Requirements": {"question": "Staff in-date with all required training.", "denominator_label": "staff"}};
+const DASHBOARD_CONFIG={
+  isUniversity:false,
+  entityLabel:'Faculty',
+  unitSingular:'school / department',
+  unitPlural:'schools / departments',
+  unitTitle:'Schools / departments',
+  unitColumn:'School / department',
+  detailedHint:'Select a KPI to see each school or department, or select About for its full definition.',
+  compactHint:'All KPIs in one list. Select a row to see each school or department.'
+};
+// Shared behaviour for the university and faculty/service KPI dashboards.
+// Inlined into each generated page by scripts/faculty_dashboard.py; each page
+// defines facultyData, tooltipData, kpiMeta and DASHBOARD_CONFIG beforehand.
+let currentSortOrder='highLow';let currentViewMode='detailed';
+const activeBandFilters=new Set();
+const isUniversityDashboard=DASHBOARD_CONFIG.isUniversity===true;
+const INFO_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>';
+const BAND_INFO={
+  'performance-excellent':{cls:'band-excellent',name:'Excellent',label:'95% or more'},
+  'performance-good':{cls:'band-good',name:'Good',label:'80% to 94.9%'},
+  'performance-warning':{cls:'band-warning',name:'Needs attention',label:'60% to 79.9%'},
+  'performance-poor':{cls:'band-poor',name:'Concern',label:'Below 60%'},
+  'performance-not-applicable':{cls:'band-na',name:'Not applicable',label:'Not applicable'},
+  'performance-no-data':{cls:'band-na',name:'No data',label:'No data'}
+};
+const BAND_COLORS={excellent:'#2563eb',good:'#059669',warning:'#e08a00',poor:'#dc2626',neutral:'#94a3b8'};
+function escapeHtml(value){
+  return String(value===null||value===undefined?'':value)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function textToParagraphs(text){
+  return String(text||'').trim().split(/\n\s*\n/).map((para)=>`<p>${escapeHtml(para.trim()).replace(/\n/g,'<br>')}</p>`).join('');
+}
+function formatReportDate(label){
+  const match=/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(label||'').trim());
+  if(!match) return String(label||'');
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const month=months[Number(match[2])-1];
+  return month?`${Number(match[1])} ${month} ${match[3]}`:String(label);
+}
+// Small inline info button (e.g. beside "N/A"); opens the shared info dialog.
+function createTooltip(kpiName,tooltipText){
+  if(!tooltipText) return '';
+  return `<button type="button" class="info-btn icon-only" data-info-kpi="${encodeURIComponent(kpiName)}" data-info-text="${encodeURIComponent(tooltipText)}" aria-label="More information: ${escapeHtml(kpiName)}" title="More information">${INFO_ICON}</button>`;
+}
+// Labelled "About" button beside each KPI title; opens the full KPI definition.
+function createKpiInfoButton(kpiName,iconOnly=false){
+  const label = iconOnly ? '' : '<span>About</span>';
+  return `<button type="button" class="info-btn${iconOnly ? ' icon-only' : ''}" data-info-kpi="${encodeURIComponent(kpiName)}" data-info-full="1" aria-label="About this KPI: ${escapeHtml(kpiName)}" title="About this KPI">${INFO_ICON}${label}</button>`;
+}
+function buildKpiInfoHtml(kpiName){
+  const meta=kpiMeta[kpiName]||{};
+  const guidance=tooltipData[kpiName];
+  let html='';
+  if(meta.question) html+=`<div class="info-section"><h3>What it measures</h3><p class="info-lead">${escapeHtml(meta.question)}</p></div>`;
+  if(guidance) html+=`<div class="info-section"><h3>Guidance</h3>${textToParagraphs(guidance)}</div>`;
+  const facts=[];
+  if(meta.denominator_label) facts.push(['Counted in',escapeHtml(meta.denominator_label.charAt(0).toUpperCase()+meta.denominator_label.slice(1))]);
+  if(isEstimateKpi(kpiName)) facts.push(['Basis','Estimate reported by the H&amp;S Coordinator (not count-based)']);
+  facts.push(['Not applicable when',escapeHtml(getNotApplicableText(kpiName))]);
+  if(meta.zero_score_message) facts.push(['A score of 0% shows as',escapeHtml(meta.zero_score_message)]);
+  html+=`<div class="info-section"><h3>Key facts</h3><dl class="info-facts">${facts.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl></div>`;
+  return html;
+}
+function openInfoDialog(eyebrow,title,bodyHtml){
+  const dialog=document.getElementById('infoDialog');
+  document.getElementById('infoDialogEyebrow').textContent=eyebrow;
+  document.getElementById('infoDialogTitle').textContent=title;
+  document.getElementById('infoDialogBody').innerHTML=bodyHtml;
+  if(typeof dialog.showModal==='function'){ if(!dialog.open) dialog.showModal(); }
+  else dialog.setAttribute('open','');
+  document.getElementById('infoDialogBody').scrollTop=0;
+}
+function closeInfoDialog(){
+  const dialog=document.getElementById('infoDialog');
+  if(typeof dialog.close==='function') dialog.close(); else dialog.removeAttribute('open');
+}
+function openGuide(){
+  openInfoDialog('Help','How to read this dashboard',document.getElementById('guideTemplate').innerHTML);
+}
+let infoHandlersBound=false;
+function positionTooltips(){
+  if(infoHandlersBound) return;
+  infoHandlersBound=true;
+  document.addEventListener('click',(event)=>{
+    const trigger=event.target.closest('.info-btn');
+    if(!trigger) return;
+    event.preventDefault();
+    const kpiName=decodeURIComponent(trigger.getAttribute('data-info-kpi')||'');
+    if(trigger.getAttribute('data-info-full')==='1'){
+      openInfoDialog('KPI definition',kpiName,buildKpiInfoHtml(kpiName));
+    } else {
+      const text=decodeURIComponent(trigger.getAttribute('data-info-text')||'');
+      openInfoDialog('Note',kpiName,textToParagraphs(text));
+    }
+  },true);
+  const dialog=document.getElementById('infoDialog');
+  dialog.addEventListener('click',(event)=>{ if(event.target===dialog) closeInfoDialog(); });
+}
+function applyCompressedValueTitles(){
+  if(currentViewMode!=='compressed') return;
+  document.querySelectorAll('.compressed-view .kpi-hero-wrap').forEach((valueEl)=>{
+    const fullText=valueEl.textContent.replace(/\s+/g,' ').trim();
+    if(fullText) valueEl.setAttribute('title',fullText);
+  });
+}
+function isOutOfRangePercentage(percentage){if(percentage===null||percentage===undefined)return false;const numericPercentage=parseFloat(percentage);if(Number.isNaN(numericPercentage))return false;return numericPercentage<0||numericPercentage>100;}
+function createOutOfRangeBadge(percentage,extraClass=''){if(!isOutOfRangePercentage(percentage))return '';const cls=extraClass?`data-warning ${extraClass}`:'data-warning';return `<span class="${cls}" title="Source percentage is outside 0-100. This can happen when plans changed or where source data may have been entered incorrectly.">!</span>`;}
+function normalizeTrendHistory(history){
+  if(!Array.isArray(history)) return [];
+  return history
+    .filter((point) => point && point.date)
+    .map((point) => ({
+      date: point.date,
+      percentage: typeof point.percentage === 'number' ? point.percentage : null,
+      rawPercentage: typeof point.raw_percentage === 'number'
+        ? point.raw_percentage
+        : (typeof point.rawPercentage === 'number' ? point.rawPercentage : (typeof point.percentage === 'number' ? point.percentage : null)),
+      number: typeof point.number === 'number' ? point.number : null,
+      applicable: point.applicable !== false,
+      exceeded: point.exceeded === true,
+      completed_count: typeof point.completed_count === 'number' ? point.completed_count : null
+    }));
+}
+const exceededInferenceKpis = new Set([
+  'Inspections Carried Out',
+  'Leadership Walkarounds',
+  'PEEPS Drilled',
+  'Fire Drills Completed'
+]);
+function isFiniteNumber(value){
+  return typeof value === 'number' && Number.isFinite(value);
+}
+function applyExceededInference(){
+  if(!facultyData || !facultyData.kpis || !facultyData.schools) return;
+  const schoolEntries = Object.entries(facultyData.schools);
+  if(schoolEntries.length === 0) return;
+
+  for(const kpiName of exceededInferenceKpis){
+    const facultyKpi = facultyData.kpis[kpiName];
+    if(!facultyKpi || !isFiniteNumber(facultyKpi.number) || !isFiniteNumber(facultyKpi.percentage) || facultyKpi.number <= 0) continue;
+    const facultyCompleted = Math.round((facultyKpi.percentage * facultyKpi.number) / 100);
+
+    let knownCompleted = 0;
+    const zeroScopeCandidates = [];
+
+    schoolEntries.forEach(([schoolName, schoolData]) => {
+      const schoolKpi = schoolData.kpis && schoolData.kpis[kpiName];
+      if(!schoolKpi) return;
+      if(isMissingCurrentForKpi(kpiName, schoolKpi.percentage, schoolKpi.number, schoolKpi.applicable)) return;
+      const num = Number(schoolKpi.number);
+      const perc = Number(schoolKpi.percentage);
+      if(!Number.isFinite(num) || !Number.isFinite(perc)) return;
+
+      if(num > 0){
+        knownCompleted += Math.round((perc * num) / 100);
+        return;
+      }
+      if(Math.abs(num) < 1e-9 && Math.abs(perc) < 1e-9 && schoolKpi.applicable === false){
+        zeroScopeCandidates.push([schoolName, schoolKpi]);
+      }
+    });
+
+    const extraCompleted = facultyCompleted - knownCompleted;
+    if(extraCompleted > 0 && zeroScopeCandidates.length === 1){
+      const [, inferredSchoolKpi] = zeroScopeCandidates[0];
+      inferredSchoolKpi.exceeded = true;
+      inferredSchoolKpi.applicable = true;
+      inferredSchoolKpi.completed_count = extraCompleted;
+      if(!isFiniteNumber(inferredSchoolKpi.percentage)) inferredSchoolKpi.percentage = 0;
+
+      const history = normalizeTrendHistory(inferredSchoolKpi.history);
+      if(history.length > 0){
+        const current = history[history.length - 1];
+        current.exceeded = true;
+        current.applicable = true;
+        current.completed_count = extraCompleted;
+        if(!isFiniteNumber(current.percentage)){
+          current.percentage = isFiniteNumber(current.rawPercentage) ? current.rawPercentage : 0;
+        }
+        inferredSchoolKpi.history = history;
+      }
+    }
+  }
+}
+function kpiUsesDenominator(kpiName){
+  return !!(kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label);
+}
+function isImplicitNoReturnPoint(kpiName, point){
+  if(!point || point.applicable === false) return false;
+  if(!kpiUsesDenominator(kpiName)) return false;
+  const missingCount = point.number === null || point.number === undefined || Number.isNaN(point.number);
+  const raw = typeof point.rawPercentage === 'number' ? point.rawPercentage : point.percentage;
+  return missingCount && typeof raw === 'number' && Math.abs(raw) < 1e-9;
+}
+function buildTrendBounds(seriesList){
+  const values = [];
+  seriesList.forEach((series) => {
+    if(Array.isArray(series)) {
+      series.forEach((value) => {
+        if(typeof value === 'number' && !Number.isNaN(value)) values.push(value);
+      });
+    }
+  });
+  if(values.length === 0) return { min: 0, max: 100 };
+  let min = Math.min(...values);
+  let max = Math.max(...values);
+  const span = max - min;
+  const padding = Math.max(4, span * 0.18);
+  if(span < 8) {
+    min -= 4;
+    max += 4;
+  } else {
+    min -= padding;
+    max += padding;
+  }
+  return {
+    min: Math.floor(min),
+    max: Math.ceil(max)
+  };
+}
+function getNotApplicableText(kpiName) {
+  const meta = kpiMeta[kpiName] || {};
+  const custom = meta.na_message;
+  if(custom) return custom;
+  const label = meta.denominator_label || 'items';
+  return `Not applicable (0 ${label} in scope)`;
+}
+function getZeroScoreText(kpiName) {
+  const meta = kpiMeta[kpiName] || {};
+  return meta.zero_score_message || null;
+}
+function isEstimateKpi(kpiName){
+  return kpiName === 'Risk Assessment Coverage' || kpiName === 'Training Matrix Coverage';
+}
+function getInScopeTextCompressed(kpiName, countValue, schoolKpi){
+  if(isEstimateKpi(kpiName)){
+    return '<span class="cell-exceeded">Estimate (not count-based)</span>';
+  }
+  const schoolLabel = (kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label) ? kpiMeta[kpiName].denominator_label : 'records';
+  const hasNoScope = countValue === null;
+  const isExceeded = schoolKpi.exceeded === true;
+  if(isExceeded && countValue !== null && countValue === 0){
+    return schoolKpi.completed_count !== null
+      ? `<span class="cell-exceeded">0 scheduled, ${schoolKpi.completed_count} carried out</span>`
+      : `<span class="cell-exceeded">0 scheduled</span>`;
+  }
+  if(hasNoScope){
+    return '<span class="cell-no-return">No return</span>';
+  }
+  return `${Math.round(countValue)} ${schoolLabel}`;
+}
+function getLastApplicablePoint(cleaned){
+  const points = cleaned.filter((point) => point.applicable && typeof point.percentage === 'number');
+  if(points.length === 0) return null;
+  return points[points.length - 1];
+}
+function getChangeSummary(history, kpiName){
+  const cleaned = normalizeTrendHistory(history);
+  if(cleaned.length === 0) return null;
+  const currentPoint = cleaned[cleaned.length - 1];
+  const explicitMissing = currentPoint.applicable !== false
+    && (currentPoint.percentage === null || currentPoint.percentage === undefined)
+    && (currentPoint.rawPercentage === null || currentPoint.rawPercentage === undefined);
+  if(explicitMissing) {
+    return {
+      label: 'No return submitted this period',
+      shortLabel: 'No return',
+      className: 'change-missing',
+      symbol: '!',
+      delta: null
+    };
+  }
+  if(isImplicitNoReturnPoint(kpiName, currentPoint)) {
+    return {
+      label: 'No return submitted this period',
+      shortLabel: 'No return',
+      className: 'change-missing',
+      symbol: '!',
+      delta: null
+    };
+  }
+  if(currentPoint.applicable === false) {
+    const priorPoint = getLastApplicablePoint(cleaned.slice(0, -1));
+    const naText = getNotApplicableText(kpiName);
+    if(priorPoint) {
+      return {
+        label: `${naText}. Last applicable return: ${priorPoint.percentage.toFixed(1)}% (${priorPoint.date}).`,
+        shortLabel: `N/A | Last applicable ${priorPoint.percentage.toFixed(1)}%`,
+        className: 'change-na',
+        symbol: '○',
+        delta: null
+      };
+    }
+    return {
+      label: `${naText}. No previous applicable return to compare.`,
+      shortLabel: 'N/A | No previous applicable return',
+      className: 'change-na',
+      symbol: '○',
+      delta: null
+    };
+  }
+  const applicable = cleaned.filter((point) => point.applicable && typeof point.percentage === 'number' && !isImplicitNoReturnPoint(kpiName, point));
+  if(applicable.length < 2) return { label: 'No previous applicable return', shortLabel: 'No previous applicable', className: 'change-flat', symbol: '→', delta: null };
+  const previous = applicable[applicable.length - 2].percentage;
+  const current = applicable[applicable.length - 1].percentage;
+  if(typeof previous !== 'number' || typeof current !== 'number') return null;
+  const delta = current - previous;
+  if(Math.abs(delta) < 0.05) {
+    return { label: 'No change since last return', shortLabel: 'No change', className: 'change-flat', symbol: '→', delta: 0 };
+  }
+  if(delta > 0) {
+    return { label: `Up +${delta.toFixed(1)}pp since last return`, shortLabel: `+${delta.toFixed(1)}pp`, className: 'change-up', symbol: '↑', delta: delta };
+  }
+  return { label: `Down ${delta.toFixed(1)}pp since last return`, shortLabel: `${delta.toFixed(1)}pp`, className: 'change-down', symbol: '↓', delta: delta };
+}
+function hasHistoryAnomaly(history){
+  const cleaned = normalizeTrendHistory(history);
+  return cleaned.slice(-2).some((point) => typeof point.rawPercentage === 'number' && (point.rawPercentage < 0 || point.rawPercentage > 100));
+}
+function createChangeBadge(history, kpiName, compact=false, includeLastPrefix=false){
+  const summary = getChangeSummary(history, kpiName);
+  if(!summary) return '';
+  let text = summary.label;
+  if(compact){
+    if(includeLastPrefix){
+      if(summary.className === 'change-up' || summary.className === 'change-down'){
+        text = `Last: ${summary.shortLabel}`;
+      } else if(summary.className === 'change-missing'){
+        text = 'Last: No return';
+      } else if(summary.className === 'change-flat'){
+        text = summary.delta === null ? 'Last: No prior' : 'Last: No change';
+      } else {
+        text = 'Last: N/A';
+      }
+    } else {
+      text = summary.shortLabel;
+    }
+  }
+  return `<span class="change-badge ${summary.className}" title="${summary.label}">${summary.symbol} ${text}</span>`;
+}
+function formatPercentCellCompressed(point, kpiName, fallbackText='No return'){
+  if(!point) {
+    if(String(fallbackText).toLowerCase().includes('prior')) return `<span class="cell-no-prior">No prior return ${createTooltip(kpiName, getNotApplicableText(kpiName))}</span>`;
+    return `<span class="cell-no-return">${fallbackText}</span>`;
+  }
+  if(isImplicitNoReturnPoint(kpiName, point)) return '<span class="cell-no-return">No return</span>';
+  if(point.applicable === false) return `N/A ${createTooltip(kpiName, getNotApplicableText(kpiName))}`;
+  if(typeof point.percentage === 'number') return `${point.percentage.toFixed(1)}%`;
+  return '<span class="cell-no-return">No return</span>';
+}
+function formatPercentCell(point, kpiName, fallbackText='No return'){
+  if(!point) {
+    if(String(fallbackText).toLowerCase().includes('prior')) return '<span class="no-prior">No previous applicable return</span>';
+    return `<span class="no-return">${fallbackText}</span>`;
+  }
+  if(isImplicitNoReturnPoint(kpiName, point)) return '<span class="no-return">No return submitted</span>';
+  if(point.applicable === false) return `N/A ${createTooltip(kpiName, getNotApplicableText(kpiName))}`;
+  if(typeof point.percentage === 'number') return `${point.percentage.toFixed(1)}%`;
+  return '<span class="no-return">No return submitted</span>';
+}
+function createCurrentPointFromKpi(kpi){
+  if(!kpi) return null;
+  return {
+    date: 'Current',
+    percentage: typeof kpi.percentage === 'number' ? kpi.percentage : null,
+    rawPercentage: typeof kpi.percentage === 'number' ? kpi.percentage : null,
+    number: typeof kpi.number === 'number' ? kpi.number : null,
+    applicable: kpi.applicable !== false,
+    exceeded: kpi.exceeded === true,
+    completed_count: typeof kpi.completed_count === 'number' ? kpi.completed_count : null
+  };
+}
+function getPreviousAndCurrentPoints(history,currentKpi=null){
+  const cleaned = normalizeTrendHistory(history);
+  if(cleaned.length === 0) return { previous: null, current: createCurrentPointFromKpi(currentKpi) };
+  let current = cleaned[cleaned.length - 1];
+  if(currentKpi && (!current || isImplicitNoReturnPoint('', current) || (current.applicable !== false && typeof current.percentage !== 'number'))){
+    current = createCurrentPointFromKpi(currentKpi);
+  }
+  let previous = null;
+  for(let i = cleaned.length - 2; i >= 0; i--){
+    const candidate = cleaned[i];
+    if(candidate && candidate.applicable && typeof candidate.percentage === 'number'){
+      previous = candidate;
+      break;
+    }
+  }
+  return { previous, current };
+}
+function didSubmitReturnForPoint(kpiName, point){
+  if(!point) return false;
+  if(isImplicitNoReturnPoint(kpiName, point)) return false;
+  if(point.applicable === false) return true;
+  if(typeof point.percentage === 'number') return true;
+  if(typeof point.rawPercentage === 'number') return true;
+  if(point.number !== null && point.number !== undefined && !Number.isNaN(Number(point.number))) return true;
+  return false;
+}
+function createPreviousReturnStatusBadge(history, kpiName){
+  const cleaned = normalizeTrendHistory(history);
+  if(cleaned.length < 2) return '<span class="change-badge change-flat">→ Prev: No prior period</span>';
+  const previousPoint = cleaned[cleaned.length - 2];
+  if(didSubmitReturnForPoint(kpiName, previousPoint)){
+    return '<span class="change-badge change-prev-submitted" title="Previous reporting period had a submitted return">✓ Prev: Submitted</span>';
+  }
+  return '<span class="change-badge change-prev-missing" title="Previous reporting period did not have a submitted return">! Prev: No return</span>';
+}
+function getCompressedChangeCell(history, kpiName){
+  const summary = getChangeSummary(history, kpiName);
+  if(!summary) return '<span class="school-change na">N/A</span>';
+  if(summary.className === 'change-missing') return '<span class="school-change down">No return</span>';
+  if(summary.className === 'change-up') return `<span class="school-change up">↑ ${summary.delta.toFixed(1)}pp</span>`;
+  if(summary.className === 'change-down') return `<span class="school-change down">↓ ${summary.delta.toFixed(1)}pp</span>`;
+  if(summary.className === 'change-flat') {
+    if(summary.delta === null) return '<span class="school-change flat">No previous return</span>';
+    return '<span class="school-change flat">→ 0.0pp</span>';
+  }
+  return '<span class="school-change na">N/A</span>';
+}
+function createTrendMarkup(kpiData,kpiName){
+  const facultyHistory = normalizeTrendHistory(kpiData.history);
+  const universityHistory = normalizeTrendHistory(kpiData.university_history);
+  if(facultyHistory.length < 2 && universityHistory.length < 2) return '';
+  const safeId = `trend-${kpiName.replace(/[^a-zA-Z0-9]/g,'-')}`;
+  const safeKpi = encodeURIComponent(kpiName);
+  const facData = encodeURIComponent(JSON.stringify(facultyHistory));
+  const uniData = encodeURIComponent(JSON.stringify(universityHistory));
+  const primaryLabel = kpiData.is_university === true ? 'University' : DASHBOARD_CONFIG.entityLabel;
+  const legend = universityHistory.length >= 2 && kpiData.is_university !== true
+    ? `<div class="trend-legend"><span><i class="legend-line split"></i>${escapeHtml(primaryLabel)} (green above / red below university)</span><span><i class="legend-line dashed"></i>University</span></div>`
+    : '';
+  return `<div class="trend-wrap"><div class="trend-head"><div class="trend-title">Trend across reporting periods</div>${legend}</div><div class="trend-canvas-box"><canvas id="${safeId}" class="trend-canvas" data-kpi-name="${safeKpi}" data-primary-label="${escapeHtml(primaryLabel)}" data-faculty-history="${facData}" data-university-history="${uniData}"></canvas></div></div>`;
+}
+// Shorter badge wording for the narrow breakdown column; the full wording stays in the hover title.
+// Colour a numeric percentage cell by its performance band.
+function bandPercentCell(point, kpiName, cellHtml, variant){
+  if(!point || point.applicable === false || isImplicitNoReturnPoint(kpiName, point) || typeof point.percentage !== 'number') return cellHtml;
+  if(!/^-?\d+(\.\d+)?%$/.test(String(cellHtml).trim())) return cellHtml;
+  const band = BAND_INFO[getPerformanceClass(point.percentage, true)];
+  return `<span class="pct-chip pct-${variant} ${band.cls}" title="${band.name}: ${band.label}">${cellHtml}</span>`;
+}
+function shortenBreakdownBadge(badgeHtml){
+  return String(badgeHtml || '')
+    .replace('>○ N/A | No previous applicable return<', '>○ N/A<')
+    .replace(/>○ N\/A \| Last applicable (-?\d+(?:\.\d+)?%)</, '>○ N/A · last $1<')
+    .replace('>! Prev: No return<', '>! No return last period<')
+    .replace('>✓ Prev: Submitted<', '>✓ Submitted last period<')
+    .replace('>→ Prev: No prior period<', '>→ No prior period<');
+}
+function createSchoolTrendMarkup(history,kpiName,schoolName){
+  const cleaned = normalizeTrendHistory(history);
+  if(cleaned.length < 2) return `<div class="school-trend-inline"><div class="school-trend-empty">No prior period</div>${shortenBreakdownBadge(createPreviousReturnStatusBadge(cleaned,kpiName))}</div>`;
+  const safeId = `school-trend-${schoolName.replace(/[^a-zA-Z0-9]/g,'-')}-${kpiName.replace(/[^a-zA-Z0-9]/g,'-')}`;
+  const safeKpi = encodeURIComponent(kpiName);
+  const historyData = encodeURIComponent(JSON.stringify(cleaned));
+  const summary = getChangeSummary(cleaned, kpiName);
+  const trendBadge = summary && summary.className === 'change-missing'
+    ? createPreviousReturnStatusBadge(cleaned, kpiName)
+    : createChangeBadge(cleaned, kpiName, true);
+  return `<div class="school-trend-inline"><div class="spark-box"><canvas id="${safeId}" class="school-trend-canvas" data-kpi-name="${safeKpi}" data-school-history="${historyData}" aria-label="Trend for ${escapeHtml(schoolName)}"></canvas></div>${shortenBreakdownBadge(trendBadge)}</div>`;
+}
+const CHART_FONT = { family: "'Inter','Segoe UI',system-ui,-apple-system,sans-serif", size: 12 };
+const CHART_TOOLTIP = {
+  backgroundColor: '#0f172a',
+  titleColor: '#ffffff',
+  bodyColor: '#e2e8f0',
+  titleFont: { ...CHART_FONT, weight: '600' },
+  bodyFont: CHART_FONT,
+  padding: 10,
+  cornerRadius: 8,
+  displayColors: true,
+  boxWidth: 8,
+  boxHeight: 8,
+  usePointStyle: true
+};
+function renderTrendCharts(){
+  if(typeof Chart === 'undefined') return;
+  document.querySelectorAll('.trend-canvas').forEach((canvas) => {
+    if(canvas.dataset.rendered === 'true') return;
+
+    let facultyHistory = [];
+    let universityHistory = [];
+    try {
+      facultyHistory = JSON.parse(decodeURIComponent(canvas.getAttribute('data-faculty-history') || '[]'));
+    } catch (e) {
+      facultyHistory = [];
+    }
+    try {
+      universityHistory = JSON.parse(decodeURIComponent(canvas.getAttribute('data-university-history') || '[]'));
+    } catch (e) {
+      universityHistory = [];
+    }
+
+    const fac = normalizeTrendHistory(facultyHistory);
+    const uni = normalizeTrendHistory(universityHistory);
+    const kpiName = decodeURIComponent(canvas.getAttribute('data-kpi-name') || '');
+    const primaryLabel = canvas.getAttribute('data-primary-label') || 'Faculty';
+    const labels = (fac.length >= uni.length ? fac : uni).map((p) => p.date);
+    if(labels.length < 2) {
+      const wrap = canvas.closest('.trend-wrap');
+      if(wrap) wrap.style.display = 'none';
+      canvas.dataset.rendered = 'true';
+      return;
+    }
+
+    const facMap = Object.fromEntries(fac.map((p) => [p.date, p.applicable ? p.percentage : null]));
+    const uniMap = Object.fromEntries(uni.map((p) => [p.date, p.applicable ? p.percentage : null]));
+    const facSeries = labels.map((l) => (facMap[l] ?? null));
+    const uniSeries = labels.map((l) => (uniMap[l] ?? null));
+    const bounds = buildTrendBounds([facSeries, uniSeries]);
+    const showUniversity = uni.length >= 2 || !isUniversityDashboard;
+    const ABOVE = BAND_COLORS.good;
+    const BELOW = BAND_COLORS.poor;
+    const BASE = BAND_COLORS.excellent;
+
+    try {
+      new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: labels.map(formatReportDate),
+        datasets: [
+          {
+            label: primaryLabel,
+            data: facSeries,
+            pointMeta: labels.map((label) => fac.find((point) => point.date === label) || { date: label, applicable: false, number: null }),
+            borderColor: BASE,
+            backgroundColor: BASE,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: (ctx) => {
+              const i = ctx.dataIndex;
+              const f = facSeries[i];
+              const u = uniSeries[i];
+              if(!showUniversity || f === null || f === undefined || u === null || u === undefined) return BASE;
+              return f >= u ? ABOVE : BELOW;
+            },
+            pointBorderWidth: 2,
+            fill: false,
+            tension: 0.25,
+            borderWidth: 2.5,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            segment: {
+              borderColor: (ctx) => {
+                const i = ctx.p0DataIndex;
+                const f0 = facSeries[i];
+                const f1 = facSeries[i + 1];
+                const u0 = uniSeries[i];
+                const u1 = uniSeries[i + 1];
+                if(uni.length < 2 || [f0, f1, u0, u1].some((v) => v === null || v === undefined)) return BASE;
+                const d0 = f0 - u0;
+                const d1 = f1 - u1;
+                if(d0 >= 0 && d1 >= 0) return ABOVE;
+                if(d0 <= 0 && d1 <= 0) return BELOW;
+
+                // Segment crosses the university line: split color at intersection.
+                const p0 = ctx.p0;
+                const p1 = ctx.p1;
+                if(!p0 || !p1) return BASE;
+                if(!Number.isFinite(p0.x) || !Number.isFinite(p0.y) || !Number.isFinite(p1.x) || !Number.isFinite(p1.y)) return BASE;
+                const denom = d0 - d1;
+                if(Math.abs(denom) < 1e-9) return BASE;
+                const t = Math.max(0, Math.min(1, d0 / denom));
+                if(!Number.isFinite(t) || t <= 0 || t >= 1) return d0 >= 0 ? ABOVE : BELOW;
+                const grad = ctx.chart.ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
+                const c0 = d0 > 0 ? ABOVE : BELOW;
+                const c1 = d1 > 0 ? ABOVE : BELOW;
+                grad.addColorStop(0, c0);
+                grad.addColorStop(t, c0);
+                grad.addColorStop(t, c1);
+                grad.addColorStop(1, c1);
+                return grad;
+              }
+            }
+          },
+          ...(showUniversity ? [{
+            label: 'University',
+            data: uniSeries,
+            pointMeta: labels.map((label) => uni.find((point) => point.date === label) || { date: label, applicable: false, number: null }),
+            borderColor: '#94a3b8',
+            backgroundColor: '#94a3b8',
+            borderDash: [5, 4],
+            borderWidth: 2,
+            fill: false,
+            tension: 0.25,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            pointBackgroundColor: '#94a3b8'
+          }] : [])
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        devicePixelRatio: Math.max(2, window.devicePixelRatio || 1),
+        interaction: { mode: 'index', intersect: false },
+        layout: { padding: { top: 6, right: 8 } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            ...CHART_TOOLTIP,
+            callbacks: {
+              label: function(context) {
+                const point = context.dataset.pointMeta?.[context.dataIndex];
+                if(point && point.applicable === false) {
+                  return `${context.dataset.label}: ${getNotApplicableText(kpiName)}`;
+                }
+                if(context.parsed.y === null || context.parsed.y === undefined) return `${context.dataset.label}: no data`;
+                const countText = point && point.number !== null ? ` | In scope: ${Math.round(point.number)}` : '';
+                return `${context.dataset.label}: ${context.parsed.y.toFixed(1)}%${countText}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 6, color: '#64748b', font: CHART_FONT },
+            grid: { display: false },
+            border: { color: '#cbd5e1' }
+          },
+          y: {
+            // Round the axis to whole 5% steps so tick labels read cleanly.
+            min: Math.floor(bounds.min / 5) * 5,
+            max: Math.ceil(bounds.max / 5) * 5,
+            ticks: { maxTicksLimit: 6, color: '#64748b', font: CHART_FONT, callback: function(v) { return (v < 0 || v > 100) ? '' : `${v}%`; } },
+            grid: { color: '#eef1f5', drawBorder: false },
+            border: { display: false }
+          }
+        }
+      }
+    });
+    } catch (err) {
+      console.error('Trend chart render failed', kpiName, err);
+      const wrap = canvas.closest('.trend-wrap');
+      if(wrap) wrap.style.display = 'none';
+    }
+    canvas.dataset.rendered = 'true';
+  });
+}
+function renderSchoolTrendCharts(){
+  if(typeof Chart === 'undefined') return;
+  document.querySelectorAll('.school-trend-canvas').forEach((canvas) => {
+    if(canvas.dataset.rendered === 'true') return;
+    // Draw only once the breakdown is open; hidden canvases have no size.
+    if(canvas.offsetWidth === 0) return;
+    let history = [];
+    try {
+      history = JSON.parse(decodeURIComponent(canvas.getAttribute('data-school-history') || '[]'));
+    } catch (e) {
+      history = [];
+    }
+    const cleaned = normalizeTrendHistory(history);
+    const kpiName = decodeURIComponent(canvas.getAttribute('data-kpi-name') || '');
+    if(cleaned.length < 2) {
+      canvas.dataset.rendered = 'true';
+      return;
+    }
+    const series = cleaned.map((point) => (point.applicable ? point.percentage : null));
+    const bounds = buildTrendBounds([series]);
+    new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: cleaned.map((point) => formatReportDate(point.date)),
+        datasets: [{
+          data: series,
+          pointMeta: cleaned,
+          borderColor: '#475569',
+          backgroundColor: 'rgba(71,85,105,0.08)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: (ctx) => (ctx.dataIndex === series.length - 1 ? 2.5 : 0),
+          pointBackgroundColor: '#0f172a',
+          pointBorderWidth: 0,
+          pointHitRadius: 8,
+          borderWidth: 1.5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        devicePixelRatio: Math.max(2, window.devicePixelRatio || 1),
+        layout: { padding: 3 },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            ...CHART_TOOLTIP,
+            displayColors: false,
+            callbacks: {
+              label: function(context) {
+                const point = context.dataset.pointMeta?.[context.dataIndex];
+                if(point && point.applicable === false) {
+                  return getNotApplicableText(kpiName);
+                }
+                if(context.parsed.y === null || context.parsed.y === undefined) return 'No data';
+                const countText = point && point.number !== null ? ` | In scope: ${Math.round(point.number)}` : '';
+                return `${context.parsed.y.toFixed(1)}%${countText}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: { display: false },
+          y: { display: false, min: bounds.min, max: bounds.max }
+        },
+        elements: {
+          line: { capBezierPoints: true }
+        }
+      }
+    });
+    canvas.dataset.rendered = 'true';
+  });
+}
+function getPerformanceClass(percentage,applicable=true){if(applicable===false)return 'performance-not-applicable';if(percentage===null||percentage===undefined)return 'performance-no-data';if(percentage>=95)return 'performance-excellent';if(percentage>=80)return 'performance-good';if(percentage>=60)return 'performance-warning';return 'performance-poor';}
+function isMissingReturnValue(value){
+  return value===null||value===undefined||(typeof value==='string'&&['/','-','–','—',''].includes(value.trim()));
+}
+function isImplicitNoReturnRecord(kpiName, percentage, number, applicable=true){
+  if(applicable===false) return false;
+  if(!kpiUsesDenominator(kpiName)) return false;
+  const missingCount = number===null || number===undefined || Number.isNaN(Number(number));
+  return missingCount && typeof Number(percentage)==='number' && !Number.isNaN(Number(percentage)) && Math.abs(Number(percentage)) < 1e-9;
+}
+function isMissingCurrentForKpi(kpiName, percentage, number, applicable=true){
+  if(applicable===false) return false;
+  return isMissingReturnValue(percentage) || isImplicitNoReturnRecord(kpiName, percentage, number, applicable);
+}
+function formatValue(percentage,number,applicable=true,kpiName=''){
+  if(applicable===false) return getNotApplicableText(kpiName);
+  if(isImplicitNoReturnRecord(kpiName, percentage, number, applicable)) return '<span class="no-return">No return submitted</span>';
+  if(isMissingReturnValue(percentage)) return '<span class="no-return">No return submitted</span>';
+  const zeroScoreText = getZeroScoreText(kpiName);
+  if(zeroScoreText && Math.abs(Number(percentage)) < 1e-9) return zeroScoreText;
+  if(number===null||number===undefined) return `${percentage.toFixed(1)}%`;
+  return `${percentage.toFixed(1)}%`;
+}
+function formatDisplayTextWithCount(kpiName,percentage,number,applicable=true,exceeded=false,completedCount=null){
+  if(exceeded){
+    const label=kpiMeta[kpiName]&&kpiMeta[kpiName].denominator_label?kpiMeta[kpiName].denominator_label:'items';
+    if(number !== null && number !== undefined && Math.abs(Number(number)) < 1e-9){
+      if(completedCount !== null){
+        return `<span class="exceeded-badge">Activity reported (0 ${label} scheduled, ${completedCount} carried out)</span>`;
+      }
+      return `<span class="exceeded-badge">Activity reported (0 ${label} scheduled)</span>`;
+    }
+    if(completedCount !== null){
+      return `${percentage.toFixed(1)}% (${completedCount} carried out, ${Math.round(number)} ${label} scheduled)`;
+    }
+    return `${percentage.toFixed(1)}% (${Math.round(number)} ${label} in scope)`;
+  }
+  if(applicable===false) return getNotApplicableText(kpiName);
+  if(isImplicitNoReturnRecord(kpiName, percentage, number, applicable)) return '<span class="no-return">No return submitted</span>';
+  if(isMissingReturnValue(percentage)) return '<span class="no-return">No return submitted</span>';
+  const zeroScoreText = getZeroScoreText(kpiName);
+  if(zeroScoreText && Math.abs(Number(percentage)) < 1e-9) return zeroScoreText;
+  if(number===null||number===undefined) return `${percentage.toFixed(1)}%`;
+  const label=kpiMeta[kpiName]&&kpiMeta[kpiName].denominator_label?kpiMeta[kpiName].denominator_label:'records';
+  return `${percentage.toFixed(1)}% (${Math.round(number)} ${label} in scope)`;
+}
+function createUniversityComparison(kpiName,kpiData){
+  const compact = currentViewMode === 'compressed';
+  const changeBadge = createChangeBadge(kpiData.history, kpiName, compact, false);
+  const changeHtml = changeBadge ? `<span class="col-change">${changeBadge}</span>` : '<span class="col-change"></span>';
+  if(kpiData.is_university === true) return changeHtml;
+  const facultyPercentage = kpiData.percentage;
+  const universityPercentage = kpiData.university_percentage;
+  const unavailable = `<span class="col-uni"><span class="delta unavailable" title="University comparison unavailable this period">${compact ? 'Unavailable' : 'University comparison unavailable'}</span></span>`;
+  if(kpiData.applicable===false||kpiData.university_applicable===false||facultyPercentage===null||universityPercentage===null){
+    return changeBadge ? unavailable + changeHtml : '<span class="col-uni"></span>' + changeHtml;
+  }
+  const absDelta = Math.abs(facultyPercentage - universityPercentage).toFixed(1);
+  const uniText = compact ? `(uni ${universityPercentage.toFixed(1)}%)` : `vs university ${universityPercentage.toFixed(1)}%`;
+  let pill = '';
+  switch(kpiData.comparison){
+    case 'above':
+      pill = `<span class="delta above" title="Above university by +${absDelta}pp">▲ +${absDelta}pp <span class="delta-label">${uniText}</span></span>`;
+      break;
+    case 'below':
+      pill = `<span class="delta below" title="Below university by -${absDelta}pp">▼ −${absDelta}pp <span class="delta-label">${uniText}</span></span>`;
+      break;
+    case 'equal':
+      pill = `<span class="delta equal" title="Equal to university">= <span class="delta-label">Equal to university (${universityPercentage.toFixed(1)}%)</span></span>`;
+      break;
+    default:
+      return changeBadge ? unavailable + changeHtml : '<span class="col-uni"></span>' + changeHtml;
+  }
+  return `<span class="col-uni">${pill}</span>${changeHtml}`;
+}
+function getUniversityMarker(kpiData){
+  if(kpiData.is_university === true) return null;
+  if(kpiData.applicable===false||kpiData.university_applicable===false) return null;
+  if(typeof kpiData.percentage !== 'number' || typeof kpiData.university_percentage !== 'number') return null;
+  if(!['above','below','equal'].includes(kpiData.comparison)) return null;
+  return kpiData.university_percentage;
+}
+// Split the existing display text into a headline value and its supporting detail.
+function buildHeroMarkup(kpiName,kpiData,performanceClass){
+  const display = formatDisplayTextWithCount(kpiName, kpiData.percentage, kpiData.number, kpiData.applicable, kpiData.exceeded, kpiData.completed_count);
+  const match = /^(-?\d+(?:\.\d+)?%)(?: \((.*)\))?$/.exec(String(display).trim());
+  if(match){
+    const band = BAND_INFO[performanceClass] || BAND_INFO['performance-no-data'];
+    const chip = `<span class="band-chip ${band.cls}" title="${band.name}: ${band.label}">${band.name}</span>`;
+    const sub = match[2] ? `<div class="kpi-hero-sub">${match[2].charAt(0).toUpperCase() + match[2].slice(1)}</div>` : '';
+    return { numeric: true, html: `<div class="kpi-hero"><span class="kpi-hero-value num">${match[1]}</span>${chip}</div>${sub}` };
+  }
+  let stateClass = '';
+  if(display.includes('no-return')) stateClass = 'state-missing';
+  else if(display.includes('exceeded-badge')) stateClass = 'state-exceeded';
+  return { numeric: false, html: `<div class="kpi-state ${stateClass}">${display}</div>` };
+}
+function buildMeterMarkup(kpiData,performanceClass){
+  if(typeof kpiData.percentage !== 'number' || kpiData.applicable === false) return '';
+  const band = BAND_INFO[performanceClass];
+  if(!band || band.cls === 'band-na') return '';
+  const width = Math.max(0, Math.min(100, kpiData.percentage));
+  const uni = getUniversityMarker(kpiData);
+  const marker = uni === null ? '' : `<div class="kpi-meter-marker" style="left:${Math.max(0, Math.min(100, uni))}%" data-label="Uni" title="University: ${uni.toFixed(1)}%"></div>`;
+  return `<div class="kpi-meter ${band.cls}" role="img" aria-label="${kpiData.percentage.toFixed(1)} percent"><div class="kpi-meter-fill" style="width:${width}%"></div>${marker}</div>`;
+}
+function pluralise(count, singular, plural){
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+function toggleCard(cardElement,kpiName){
+  cardElement.classList.toggle('expanded');
+  const button = cardElement.querySelector('.expand-btn');
+  if(button) button.setAttribute('aria-expanded', cardElement.classList.contains('expanded') ? 'true' : 'false');
+  if(cardElement.classList.contains('expanded')) setTimeout(renderSchoolTrendCharts, 0);
+}
+function refreshDashboard(){
+  initializeFacultyDashboard();
+  setTimeout(()=>{positionTooltips();applyCompressedValueTitles();renderTrendCharts();renderSchoolTrendCharts();},50);
+}
+function sortFacultyCards(order){
+  currentSortOrder=order;
+  document.getElementById('sortHighLow').classList.toggle('active',order==='highLow');
+  document.getElementById('sortLowHigh').classList.toggle('active',order==='lowHigh');
+  document.getElementById('sortHighLow').setAttribute('aria-pressed',order==='highLow');
+  document.getElementById('sortLowHigh').setAttribute('aria-pressed',order==='lowHigh');
+  refreshDashboard();
+}
+function toggleViewMode(mode){
+  currentViewMode=mode;
+  document.getElementById('detailedView').classList.toggle('active',mode==='detailed');
+  document.getElementById('compressedView').classList.toggle('active',mode==='compressed');
+  document.getElementById('detailedView').setAttribute('aria-pressed',mode==='detailed');
+  document.getElementById('compressedView').setAttribute('aria-pressed',mode==='compressed');
+  const container=document.querySelector('.faculty-overview');
+  const instructions=document.getElementById('instructions');
+  if(mode==='compressed'){
+    container.classList.add('compressed-view');
+    instructions.textContent=DASHBOARD_CONFIG.compactHint;
+  } else {
+    container.classList.remove('compressed-view');
+    instructions.textContent=DASHBOARD_CONFIG.detailedHint;
+  }
+  refreshDashboard();
+}
+function renderHeaderMeta(){
+  const meta = document.getElementById('headerMeta');
+  if(!meta || !facultyData.kpis) return;
+  let dates = [];
+  Object.values(facultyData.kpis).forEach((kpi) => {
+    const history = normalizeTrendHistory(kpi.history);
+    if(history.length > dates.length) dates = history.map((point) => point.date);
+  });
+  const parts = [];
+  if(dates.length > 0) parts.push(`<span>Latest return: <strong>${escapeHtml(formatReportDate(dates[dates.length - 1]))}</strong></span>`);
+  if(dates.length > 1) parts.push(`<span>Trend covers <strong>${dates.length} reporting periods</strong> from ${escapeHtml(formatReportDate(dates[0]))}</span>`);
+  parts.push(`<span><strong>${Object.keys(facultyData.kpis).length}</strong> KPIs</span>`);
+  meta.innerHTML = parts.join('');
+}
+// The band a KPI is counted in on the summary tiles (missing returns are unrated).
+function getKpiSummaryBand(kpiName, kpiData){
+  const missing = isMissingCurrentForKpi(kpiName, kpiData.percentage, kpiData.number, kpiData.applicable);
+  return missing ? 'performance-no-data' : getPerformanceClass(kpiData.percentage, kpiData.applicable);
+}
+function toggleBandFilter(bandClass){
+  if(activeBandFilters.has(bandClass)) activeBandFilters.delete(bandClass); else activeBandFilters.add(bandClass);
+  syncBandFilterUi();
+  refreshDashboard();
+}
+function clearBandFilters(){
+  activeBandFilters.clear();
+  syncBandFilterUi();
+  refreshDashboard();
+}
+function syncBandFilterUi(){
+  const filtering = activeBandFilters.size > 0;
+  document.querySelectorAll('.band-tile[data-band]').forEach((tile) => {
+    const selected = activeBandFilters.has(tile.dataset.band);
+    tile.classList.toggle('selected', selected);
+    tile.setAttribute('aria-pressed', selected ? 'true' : 'false');
+  });
+  const tiles = document.querySelector('.band-tiles');
+  if(tiles) tiles.classList.toggle('filtering', filtering);
+  let bar = document.getElementById('filterBar');
+  if(!bar){
+    bar = document.createElement('div');
+    bar.id = 'filterBar';
+    bar.className = 'filter-bar';
+    bar.setAttribute('role', 'status');
+    const grid = document.getElementById('facultyKpis');
+    const head = document.querySelector('.compact-head');
+    grid.parentNode.insertBefore(bar, head || grid);
+  }
+  if(!filtering){ bar.hidden = true; bar.innerHTML = ''; return; }
+  const total = Object.keys(facultyData.kpis || {}).length;
+  const shown = Object.entries(facultyData.kpis || {}).filter(([n, k]) => activeBandFilters.has(getKpiSummaryBand(n, k))).length;
+  const chips = [...activeBandFilters].map((cls) => {
+    const band = BAND_INFO[cls];
+    return `<button type="button" class="band-chip ${band.cls} filter-chip" onclick="toggleBandFilter('${cls}')" aria-label="Remove filter: ${band.name}">${band.name}<span aria-hidden="true">×</span></button>`;
+  }).join('');
+  bar.hidden = false;
+  bar.innerHTML = `<span class="filter-label">Showing <strong>${shown}</strong> of ${total} KPIs</span>${chips}<button type="button" class="filter-clear" onclick="clearBandFilters()">Show all KPIs</button>`;
+}
+function renderSummary(){
+  const host = document.getElementById('glance');
+  if(!host || !facultyData.kpis) return;
+  const kpis = Object.entries(facultyData.kpis);
+  const counts = { 'performance-excellent':0, 'performance-good':0, 'performance-warning':0, 'performance-poor':0 };
+  let unrated = 0, improved = 0, declined = 0, above = 0, compared = 0;
+  kpis.forEach(([kpiName, kpiData]) => {
+    const cls = getKpiSummaryBand(kpiName, kpiData);
+    if(cls in counts) counts[cls] += 1; else unrated += 1;
+    const change = getChangeSummary(kpiData.history, kpiName);
+    if(change && change.className === 'change-up') improved += 1;
+    if(change && change.className === 'change-down') declined += 1;
+    if(!isUniversityDashboard && ['above','below','equal'].includes(kpiData.comparison)){
+      compared += 1;
+      if(kpiData.comparison === 'above') above += 1;
+    }
+  });
+  const rated = kpis.length - unrated;
+  const tiles = Object.entries(counts).map(([cls, count]) => {
+    const band = BAND_INFO[cls];
+    return `<button type="button" class="band-tile ${band.cls}" data-band="${cls}" aria-pressed="false" ${count === 0 ? 'disabled' : ''} onclick="toggleBandFilter('${cls}')" title="${count === 0 ? 'No KPIs in this band' : `Show only ${band.name} KPIs`}"><div class="band-tile-count num">${count}<small>KPI${count === 1 ? '' : 's'}</small></div><div class="band-tile-label">${band.name}</div><div class="band-tile-range">${band.label}</div></button>`;
+  }).join('');
+  const distribution = rated > 0
+    ? Object.entries(counts).filter(([, c]) => c > 0).map(([cls, c]) => `<span class="${BAND_INFO[cls].cls}" style="flex:${c}" title="${BAND_INFO[cls].label}: ${c}"></span>`).join('')
+    : '';
+  const unratedNote = unrated > 0 ? `${pluralise(unrated, 'KPI is', 'KPIs are')} not rated this period (not applicable or no return).` : 'All KPIs have a rated value this period.';
+
+  const units = facultyData.schools ? Object.entries(facultyData.schools) : [];
+  const noReturnUnits = units.filter(([, unit]) => {
+    const entries = Object.entries(unit.kpis || {});
+    return entries.length > 0 && entries.every(([kpiName, k]) => isMissingCurrentForKpi(kpiName, k.percentage, k.number, k.applicable));
+  }).map(([name]) => name);
+  const missingKpiReturns = units.reduce((total, [, unit]) => total + Object.entries(unit.kpis || {}).filter(([kpiName, k]) => isMissingCurrentForKpi(kpiName, k.percentage, k.number, k.applicable)).length, 0);
+
+  let rows = `<div class="stat-row"><span class="stat-label"><span class="stat-icon up">↑</span>Improved since last return</span><span class="stat-value num">${improved}</span></div>`;
+  rows += `<div class="stat-row"><span class="stat-label"><span class="stat-icon down">↓</span>Declined since last return</span><span class="stat-value num">${declined}</span></div>`;
+  if(!isUniversityDashboard){
+    rows += `<div class="stat-row"><span class="stat-label"><span class="stat-icon above">▲</span>Above university average</span><span class="stat-value num">${compared > 0 ? `${above}<small> of ${compared}</small>` : '<small>Not available</small>'}</span></div>`;
+  }
+  rows += `<div class="stat-row${noReturnUnits.length > 0 ? ' has-sub' : ''}"><span class="stat-label"><span class="stat-icon missing">!</span>${escapeHtml(DASHBOARD_CONFIG.unitTitle)} with no return</span><span class="stat-value num">${noReturnUnits.length}<small> of ${units.length}</small></span></div>`;
+  if(noReturnUnits.length > 0) rows += `<div class="stat-sub">${noReturnUnits.map((name) => `<span class="unit-chip">${escapeHtml(name)}</span>`).join('')}</div>`;
+
+  host.innerHTML = `
+    <div class="panel glance-bands">
+      <div class="panel-title"><span>Current performance</span><span class="panel-title-note">${rated} of ${kpis.length} KPIs rated · select a band to filter</span></div>
+      <div class="band-tiles">${tiles}</div>
+      <div class="band-distribution" aria-hidden="true">${distribution}</div>
+      <div class="glance-note">${unratedNote}${missingKpiReturns > 0 ? ` ${pluralise(missingKpiReturns, 'KPI return is', 'KPI returns are')} missing across ${escapeHtml(DASHBOARD_CONFIG.unitPlural)}.` : ''}</div>
+    </div>
+    <div class="panel glance-stats">
+      <div class="panel-title"><span>At a glance</span></div>
+      <div class="stat-list">${rows}</div>
+    </div>`;
+}
+function initializeFacultyDashboard(){
+  applyExceededInference();
+  const facultyKpisContainer = document.getElementById('facultyKpis');
+  facultyKpisContainer.innerHTML = '';
+  if(!facultyData.kpis) return;
+
+  let kpiEntries = Object.entries(facultyData.kpis);
+  if(currentSortOrder === 'highLow') {
+    kpiEntries.sort((a, b) => {
+      const aPercentage = a[1].applicable === false || a[1].percentage === null ? -1 : a[1].percentage;
+      const bPercentage = b[1].applicable === false || b[1].percentage === null ? -1 : b[1].percentage;
+      return bPercentage - aPercentage;
+    });
+  } else {
+    kpiEntries.sort((a, b) => {
+      const aPercentage = a[1].applicable === false || a[1].percentage === null ? 999 : a[1].percentage;
+      const bPercentage = b[1].applicable === false || b[1].percentage === null ? 999 : b[1].percentage;
+      return aPercentage - bPercentage;
+    });
+  }
+
+  if(activeBandFilters.size > 0){
+    kpiEntries = kpiEntries.filter(([kpiName, kpiData]) => activeBandFilters.has(getKpiSummaryBand(kpiName, kpiData)));
+  }
+
+  for(const [kpiName, kpiData] of kpiEntries){
+    const card = document.createElement('div');
+    card.className = 'kpi-card';
+    let cardHasMissingReturns = isMissingCurrentForKpi(kpiName, kpiData.percentage, kpiData.number, kpiData.applicable);
+    let missingReturnsCount = 0;
+    if(cardHasMissingReturns) card.classList.add('no-return-current');
+    card.id = `card-${kpiName.replace(/[^a-zA-Z0-9]/g, '-')}`;
+    const performanceClass = getPerformanceClass(kpiData.percentage, kpiData.applicable);
+    const cardBand = BAND_INFO[performanceClass] || BAND_INFO['performance-no-data'];
+    card.classList.add(cardBand.cls);
+    let schoolBreakdownHtml = '';
+    let schoolCount = 0;
+
+    const hasSchools = facultyData.schools && Object.keys(facultyData.schools).length > 0;
+    if(hasSchools){
+      let schoolEntries = Object.entries(facultyData.schools).filter(([schoolName, schoolData]) => schoolData.kpis && schoolData.kpis[kpiName]);
+      missingReturnsCount = schoolEntries.reduce((count, [, schoolData]) => {
+        const schoolKpi = schoolData.kpis[kpiName];
+        return count + (isMissingCurrentForKpi(kpiName, schoolKpi.percentage, schoolKpi.number, schoolKpi.applicable) ? 1 : 0);
+      }, 0);
+      if(missingReturnsCount > 0) cardHasMissingReturns = true;
+
+      if(currentSortOrder === 'highLow') {
+        schoolEntries.sort((a, b) => {
+          const aPoint = a[1].kpis[kpiName];
+          const bPoint = b[1].kpis[kpiName];
+          const aPerc = aPoint.applicable === false || aPoint.percentage === null ? -1 : aPoint.percentage;
+          const bPerc = bPoint.applicable === false || bPoint.percentage === null ? -1 : bPoint.percentage;
+          return bPerc - aPerc;
+        });
+      } else {
+        schoolEntries.sort((a, b) => {
+          const aPoint = a[1].kpis[kpiName];
+          const bPoint = b[1].kpis[kpiName];
+          const aPerc = aPoint.applicable === false || aPoint.percentage === null ? 999 : aPoint.percentage;
+          const bPerc = bPoint.applicable === false || bPoint.percentage === null ? 999 : bPoint.percentage;
+          return aPerc - bPerc;
+        });
+      }
+
+      schoolCount = schoolEntries.length;
+      if(schoolEntries.length > 0){
+        const breakdownTitle = `Breakdown by ${DASHBOARD_CONFIG.unitSingular} (${schoolEntries.length})`;
+        schoolBreakdownHtml = `<div class="school-breakdown-content"><div class="school-breakdown-title">${breakdownTitle}</div>`;
+
+        if(currentViewMode === 'compressed'){
+          schoolBreakdownHtml += `<div class="compressed-school-table"><div class="compressed-school-row header"><div>${escapeHtml(DASHBOARD_CONFIG.unitColumn)}</div><div>In scope</div><div>Previous</div><div>Current</div><div>Change</div></div>`;
+          for(const [schoolName, schoolData] of schoolEntries){
+            const schoolKpi = schoolData.kpis[kpiName];
+            const number = schoolKpi.number;
+            const countValue = (number !== null && number !== undefined && number !== '/' && !isNaN(parseFloat(number))) ? parseFloat(number) : null;
+            const points = getPreviousAndCurrentPoints(schoolKpi.history, isUniversityDashboard ? schoolKpi : null);
+            if(isMissingCurrentForKpi(kpiName, schoolKpi.percentage, schoolKpi.number, schoolKpi.applicable)) cardHasMissingReturns = true;
+            const schoolWarning = createOutOfRangeBadge(schoolKpi.percentage, 'school-warning');
+            const hasNoScope = countValue === null;
+            const isExceeded = schoolKpi.exceeded === true;
+            const hasNoCurrent = !isExceeded && (!points.current || isImplicitNoReturnPoint(kpiName, points.current) || (points.current.applicable !== false && typeof points.current.percentage !== 'number'));
+            if(hasNoScope && hasNoCurrent){
+              schoolBreakdownHtml += `<div class="compressed-school-row no-return-row"><div class="school-name">${schoolName}${schoolWarning}</div><div class="row-no-return-msg">No return submitted for this period</div></div>`;
+            } else {
+              const scopeText = getInScopeTextCompressed(kpiName, countValue, schoolKpi);
+              const previousText = bandPercentCell(points.previous, kpiName, formatPercentCellCompressed(points.previous, kpiName, 'No prior applicable return'), 'prev');
+              const currentText = bandPercentCell(points.current, kpiName, formatPercentCellCompressed(points.current, kpiName, 'No return'), 'current');
+              const changeText = getCompressedChangeCell(schoolKpi.history, kpiName);
+              const rowBand = (points.current && points.current.applicable !== false && typeof points.current.percentage === 'number' && !isImplicitNoReturnPoint(kpiName, points.current))
+                ? BAND_INFO[getPerformanceClass(points.current.percentage, true)].cls : 'band-na';
+              schoolBreakdownHtml += `<div class="compressed-school-row ${rowBand}"><div class="school-name">${schoolName}${schoolWarning}</div><div class="school-scope">${scopeText}</div><div class="school-prev num">${previousText}</div><div class="school-current num">${currentText}</div><div>${changeText}</div></div>`;
+            }
+          }
+          schoolBreakdownHtml += '</div>';
+        } else {
+          schoolBreakdownHtml += '<div class="school-list">';
+          for(const [schoolName, schoolData] of schoolEntries){
+            const schoolKpi = schoolData.kpis[kpiName];
+            const percentage = schoolKpi.percentage;
+            const number = schoolKpi.number;
+            const applicable = schoolKpi.applicable !== false;
+            let barWidth = 0;
+            let barColor = BAND_COLORS.neutral;
+            let labelText = '';
+            let isNumericLabel = false;
+            let stateClass = '';
+
+            const hasNumber = (number !== null && number !== undefined && number !== '/' && !isNaN(parseFloat(number)));
+            const countValue = hasNumber ? parseFloat(number) : null;
+            const hasZeroCount = countValue === 0;
+            const zeroScoreText = getZeroScoreText(kpiName);
+            const missingCurrent = isMissingCurrentForKpi(kpiName, percentage, number, applicable);
+
+            if(missingCurrent){
+              cardHasMissingReturns = true;
+              labelText = '<span class="no-return">No return submitted</span>';
+            } else if(!applicable){
+              labelText = getNotApplicableText(kpiName);
+            } else if(percentage === null || percentage === undefined || (typeof percentage === 'string' && percentage.trim() === '/')) {
+              labelText = '<span class="no-return">No return submitted</span>';
+            } else {
+              const numericPercentage = parseFloat(percentage);
+              if(!isNaN(numericPercentage)) {
+                if(zeroScoreText && Math.abs(numericPercentage) < 1e-9) {
+                  labelText = zeroScoreText;
+                } else {
+                  const boundedPercentage = Math.max(0, Math.min(100, numericPercentage));
+                  if(hasZeroCount && !schoolKpi.exceeded) {
+                    labelText = getNotApplicableText(kpiName);
+                  } else if(hasZeroCount && schoolKpi.exceeded) {
+                    const excLabel = kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label ? kpiMeta[kpiName].denominator_label : 'items';
+                    labelText = schoolKpi.completed_count !== null
+                      ? `Activity reported (0 ${excLabel} scheduled, ${schoolKpi.completed_count} carried out)`
+                      : `Activity reported (0 ${excLabel} scheduled)`;
+                    stateClass = 'state-exceeded';
+                  } else {
+                    barWidth = boundedPercentage;
+                    const schoolPerfClass = getPerformanceClass(numericPercentage, true);
+                    switch(schoolPerfClass){
+                      case 'performance-excellent': barColor = BAND_COLORS.excellent; break;
+                      case 'performance-good': barColor = BAND_COLORS.good; break;
+                      case 'performance-warning': barColor = BAND_COLORS.warning; break;
+                      case 'performance-poor': barColor = BAND_COLORS.poor; break;
+                      default: barColor = BAND_COLORS.neutral;
+                    }
+                    labelText = `${numericPercentage.toFixed(1)}%`;
+                    isNumericLabel = true;
+                  }
+                }
+              } else {
+                labelText = '<span class="no-return">No return submitted</span>';
+              }
+            }
+
+            if(labelText === '') labelText = '<span class="no-return">No return submitted</span>';
+
+            const schoolLabel = (kpiMeta[kpiName] && kpiMeta[kpiName].denominator_label) ? kpiMeta[kpiName].denominator_label : 'records';
+            const countDisplay = countValue !== null ? `<div class="school-count">${Math.round(countValue)} ${schoolLabel} in scope</div>` : '';
+            const schoolTrendHtml = createSchoolTrendMarkup(schoolKpi.history, kpiName, schoolName);
+            const measureHtml = isNumericLabel
+              ? `<div class="bar-track"><div class="bar-fill" style="width:${barWidth}%;background:${barColor};"></div></div><span class="bar-value num">${labelText}</span>`
+              : `<span class="school-state ${stateClass}">${labelText}</span>`;
+
+            const schoolWarning = createOutOfRangeBadge(schoolKpi.percentage, 'school-warning');
+            schoolBreakdownHtml += `<div class="school-row"><div><div class="school-name">${schoolName}${schoolWarning}</div>${countDisplay}</div><div class="school-measure">${measureHtml}</div><div class="school-trend">${schoolTrendHtml}</div></div>`;
+          }
+          schoolBreakdownHtml += '</div>';
+        }
+
+        schoolBreakdownHtml += '</div>';
+      }
+    }
+
+    if(missingReturnsCount === 0 && cardHasMissingReturns) missingReturnsCount = 1;
+
+    const trendHtml = currentViewMode === 'compressed' ? '' : createTrendMarkup(kpiData, kpiName);
+    const hasExpandableContent = schoolBreakdownHtml !== '';
+    const warningBadgeHtml = createOutOfRangeBadge(kpiData.percentage);
+    const missingCardBadge = cardHasMissingReturns ? `<span class="missing-return-flag" title="${escapeHtml(DASHBOARD_CONFIG.unitTitle)} with no return for this KPI this period">${pluralise(missingReturnsCount, 'missing return', 'missing returns')}</span>` : '';
+    const comparisonHtml = createUniversityComparison(kpiName, kpiData);
+    const questionText = (kpiMeta[kpiName] && kpiMeta[kpiName].question) ? kpiMeta[kpiName].question : '';
+    const hero = buildHeroMarkup(kpiName, kpiData, performanceClass);
+    const meterHtml = buildMeterMarkup(kpiData, performanceClass);
+    const unitWord = schoolCount === 1 ? DASHBOARD_CONFIG.unitSingular : DASHBOARD_CONFIG.unitPlural;
+    const footerHtml = hasExpandableContent
+      ? `<div class="card-footer"><button type="button" class="expand-btn" aria-expanded="false" aria-label="Show or hide ${escapeHtml(DASHBOARD_CONFIG.unitSingular)} breakdown for ${escapeHtml(kpiName)}"><span class="expand-text"><span class="when-closed">Show ${schoolCount} ${escapeHtml(unitWord)}</span><span class="when-open">Hide breakdown</span></span><span class="chev" aria-hidden="true">▾</span></button></div>`
+      : (currentViewMode === 'compressed' ? '<div class="card-footer"></div>' : '<div class="card-footer-spacer"></div>');
+    const flags = `<span class="kpi-flags">${warningBadgeHtml}${missingCardBadge}</span>`;
+
+    if(currentViewMode === 'compressed') {
+      card.innerHTML = `<div class="kpi-title-wrap"><span class="kpi-title">${kpiName}</span>${createKpiInfoButton(kpiName, true)}${flags}</div><div class="kpi-hero-wrap">${hero.html}</div>${comparisonHtml}${footerHtml}${schoolBreakdownHtml}`;
+    } else {
+      card.innerHTML = `<div class="kpi-head"><div class="kpi-title-wrap"><h3 class="kpi-title">${kpiName}</h3>${flags}</div>${createKpiInfoButton(kpiName)}</div><div class="kpi-question">${questionText}</div><div class="kpi-body"><div class="kpi-hero-wrap">${hero.html}</div><div class="kpi-deltas">${comparisonHtml}</div></div>${meterHtml}${trendHtml}${footerHtml}${schoolBreakdownHtml}`;
+    }
+    if(hasExpandableContent) {
+      card.onclick = (event) => {
+        if(event.target.closest('.info-btn')) return;
+        if(event.target.closest('.school-breakdown-content') && !event.target.closest('.expand-btn')) return;
+        toggleCard(card, kpiName);
+      };
+    } else {
+      card.style.cursor = 'default';
+      card.onclick = null;
+    }
+
+    facultyKpisContainer.appendChild(card);
+  }
+}
+document.addEventListener('keydown', (event) => { if(event.key === 'Escape') closeInfoDialog(); });
+renderHeaderMeta();
+renderSummary();
+refreshDashboard();
+window.addEventListener('resize', () => { setTimeout(() => { renderTrendCharts(); renderSchoolTrendCharts(); }, 100); });
+
+</script>
+</body>
+</html>
