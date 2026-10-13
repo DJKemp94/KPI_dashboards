@@ -2,6 +2,7 @@
 // Inlined into each generated page by scripts/faculty_dashboard.py; each page
 // defines facultyData, tooltipData, kpiMeta and DASHBOARD_CONFIG beforehand.
 let currentSortOrder='highLow';let currentViewMode='detailed';
+let selectedDepartment=null;
 const activeBandFilters=new Set();
 const isUniversityDashboard=DASHBOARD_CONFIG.isUniversity===true;
 const INFO_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>';
@@ -17,6 +18,67 @@ const BAND_COLORS={excellent:'#2563eb',good:'#059669',warning:'#e08a00',poor:'#d
 function escapeHtml(value){
   return String(value===null||value===undefined?'':value)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function getDisplayedKpis(){
+  if(selectedDepartment===null) return facultyData.kpis || {};
+  const department=facultyData.schools[selectedDepartment];
+  // Department values and history replace the faculty result; only the
+  // university benchmark is shared with the aggregate.
+  return Object.fromEntries(Object.entries(facultyData.kpis || {}).map(([name, facultyKpi])=>{
+    const kpi=department.kpis?.[name] || {percentage:null,number:null,applicable:true,history:[]};
+    const comparable=!isMissingCurrentForKpi(name,kpi.percentage,kpi.number,kpi.applicable)
+      && kpi.applicable!==false && facultyKpi.university_applicable!==false
+      && isFiniteNumber(kpi.percentage) && isFiniteNumber(facultyKpi.university_percentage);
+    const comparison=comparable
+      ? (kpi.percentage>facultyKpi.university_percentage?'above':kpi.percentage<facultyKpi.university_percentage?'below':'equal')
+      : 'unknown';
+    return [name,{...kpi,university_percentage:facultyKpi.university_percentage,
+      university_applicable:facultyKpi.university_applicable,university_history:facultyKpi.university_history,
+      comparison,primary_label:selectedDepartment}];
+  }));
+}
+function getDisplayedUnits(){
+  const units=Object.entries(facultyData.schools || {});
+  return selectedDepartment===null?units:units.filter(([name])=>name===selectedDepartment);
+}
+function renderDepartmentSelector(){
+  const host=document.getElementById('departmentButtons');
+  if(!host || isUniversityDashboard) return;
+  const choices=[null,...Object.keys(facultyData.schools || {}).sort((a,b)=>a.localeCompare(b))];
+  choices.forEach((name)=>{
+    const button=document.createElement('button');
+    button.type='button';
+    button.textContent=name===null?'Faculty total':name;
+    button.dataset.department=name===null?'':name;
+    button.addEventListener('click',()=>selectDepartment(name));
+    host.appendChild(button);
+  });
+  syncDepartmentUi();
+}
+function syncDepartmentUi(){
+  document.querySelectorAll('#departmentButtons button').forEach((button)=>{
+    const active=button.dataset.department===(selectedDepartment===null?'':selectedDepartment);
+    button.classList.toggle('active',active);
+    button.setAttribute('aria-pressed',String(active));
+  });
+  const scope=document.getElementById('departmentScope');
+  if(scope) scope.innerHTML=selectedDepartment===null
+    ? 'Showing combined results for <strong>the whole faculty</strong>.'
+    : `Showing results for <strong>${escapeHtml(selectedDepartment)}</strong>.`;
+  const title=document.getElementById('kpiSectionTitle');
+  if(title) title.textContent=selectedDepartment===null?'KPI results':`KPI results · ${selectedDepartment}`;
+  const instructions=document.getElementById('instructions');
+  if(instructions) instructions.textContent=selectedDepartment===null
+    ? (currentViewMode==='compressed'?DASHBOARD_CONFIG.compactHint:DASHBOARD_CONFIG.detailedHint)
+    : 'Scores and changes are for the selected school or department. Select About for a KPI’s full definition.';
+}
+function selectDepartment(name){
+  if(isUniversityDashboard || (name!==null && !Object.hasOwn(facultyData.schools || {},name))) return;
+  selectedDepartment=name;
+  syncDepartmentUi();
+  renderSummary();
+  syncBandFilterUi();
+  refreshDashboard();
 }
 function textToParagraphs(text){
   return String(text||'').trim().split(/\n\s*\n/).map((para)=>`<p>${escapeHtml(para.trim()).replace(/\n/g,'<br>')}</p>`).join('');
@@ -416,7 +478,7 @@ function createTrendMarkup(kpiData,kpiName){
   const safeKpi = encodeURIComponent(kpiName);
   const facData = encodeURIComponent(JSON.stringify(facultyHistory));
   const uniData = encodeURIComponent(JSON.stringify(universityHistory));
-  const primaryLabel = kpiData.is_university === true ? 'University' : DASHBOARD_CONFIG.entityLabel;
+  const primaryLabel = kpiData.is_university === true ? 'University' : (kpiData.primary_label || DASHBOARD_CONFIG.entityLabel);
   const legend = universityHistory.length >= 2 && kpiData.is_university !== true
     ? `<div class="trend-legend"><span><i class="legend-line split"></i>${escapeHtml(primaryLabel)} (green above / red below university)</span><span><i class="legend-line dashed"></i>University</span></div>`
     : '';
@@ -842,6 +904,7 @@ function toggleViewMode(mode){
     container.classList.remove('compressed-view');
     instructions.textContent=DASHBOARD_CONFIG.detailedHint;
   }
+  if(!isUniversityDashboard) syncDepartmentUi();
   refreshDashboard();
 }
 function renderHeaderMeta(){
@@ -893,8 +956,9 @@ function syncBandFilterUi(){
     grid.parentNode.insertBefore(bar, head || grid);
   }
   if(!filtering){ bar.hidden = true; bar.innerHTML = ''; return; }
-  const total = Object.keys(facultyData.kpis || {}).length;
-  const shown = Object.entries(facultyData.kpis || {}).filter(([n, k]) => activeBandFilters.has(getKpiSummaryBand(n, k))).length;
+  const displayedKpis=getDisplayedKpis();
+  const total = Object.keys(displayedKpis).length;
+  const shown = Object.entries(displayedKpis).filter(([n, k]) => activeBandFilters.has(getKpiSummaryBand(n, k))).length;
   const chips = [...activeBandFilters].map((cls) => {
     const band = BAND_INFO[cls];
     return `<button type="button" class="band-chip ${band.cls} filter-chip" onclick="toggleBandFilter('${cls}')" aria-label="Remove filter: ${band.name}">${band.name}<span aria-hidden="true">×</span></button>`;
@@ -905,7 +969,7 @@ function syncBandFilterUi(){
 function renderSummary(){
   const host = document.getElementById('glance');
   if(!host || !facultyData.kpis) return;
-  const kpis = Object.entries(facultyData.kpis);
+  const kpis = Object.entries(getDisplayedKpis());
   const counts = { 'performance-excellent':0, 'performance-good':0, 'performance-warning':0, 'performance-poor':0 };
   let unrated = 0, improved = 0, declined = 0, above = 0, compared = 0;
   kpis.forEach(([kpiName, kpiData]) => {
@@ -929,7 +993,7 @@ function renderSummary(){
     : '';
   const unratedNote = unrated > 0 ? `${pluralise(unrated, 'KPI is', 'KPIs are')} not rated this period (not applicable or no return).` : 'All KPIs have a rated value this period.';
 
-  const units = facultyData.schools ? Object.entries(facultyData.schools) : [];
+  const units = getDisplayedUnits();
   const noReturnUnits = units.filter(([, unit]) => {
     const entries = Object.entries(unit.kpis || {});
     return entries.length > 0 && entries.every(([kpiName, k]) => isMissingCurrentForKpi(kpiName, k.percentage, k.number, k.applicable));
@@ -959,10 +1023,14 @@ function renderSummary(){
 function initializeFacultyDashboard(){
   applyExceededInference();
   const facultyKpisContainer = document.getElementById('facultyKpis');
+  // Release charts before replacing their canvases on a view / scope change.
+  if(typeof Chart!=='undefined' && typeof Chart.getChart==='function'){
+    facultyKpisContainer.querySelectorAll('canvas').forEach((canvas)=>Chart.getChart(canvas)?.destroy());
+  }
   facultyKpisContainer.innerHTML = '';
   if(!facultyData.kpis) return;
 
-  let kpiEntries = Object.entries(facultyData.kpis);
+  let kpiEntries = Object.entries(getDisplayedKpis());
   if(currentSortOrder === 'highLow') {
     kpiEntries.sort((a, b) => {
       const aPercentage = a[1].applicable === false || a[1].percentage === null ? -1 : a[1].percentage;
@@ -980,6 +1048,9 @@ function initializeFacultyDashboard(){
   if(activeBandFilters.size > 0){
     kpiEntries = kpiEntries.filter(([kpiName, kpiData]) => activeBandFilters.has(getKpiSummaryBand(kpiName, kpiData)));
   }
+  if(kpiEntries.length===0){
+    facultyKpisContainer.innerHTML='<p class="kpi-empty" role="status">No KPIs match the selected performance bands. Select Show all KPIs to clear the band filters.</p>';
+  }
 
   for(const [kpiName, kpiData] of kpiEntries){
     const card = document.createElement('div');
@@ -994,7 +1065,7 @@ function initializeFacultyDashboard(){
     let schoolBreakdownHtml = '';
     let schoolCount = 0;
 
-    const hasSchools = facultyData.schools && Object.keys(facultyData.schools).length > 0;
+    const hasSchools = selectedDepartment===null && facultyData.schools && Object.keys(facultyData.schools).length > 0;
     if(hasSchools){
       let schoolEntries = Object.entries(facultyData.schools).filter(([schoolName, schoolData]) => schoolData.kpis && schoolData.kpis[kpiName]);
       missingReturnsCount = schoolEntries.reduce((count, [, schoolData]) => {
@@ -1166,7 +1237,9 @@ function initializeFacultyDashboard(){
   }
 }
 document.addEventListener('keydown', (event) => { if(event.key === 'Escape') closeInfoDialog(); });
+applyExceededInference();
 renderHeaderMeta();
+renderDepartmentSelector();
 renderSummary();
 refreshDashboard();
 window.addEventListener('resize', () => { setTimeout(() => { renderTrendCharts(); renderSchoolTrendCharts(); }, 100); });

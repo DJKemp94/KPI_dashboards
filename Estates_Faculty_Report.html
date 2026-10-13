@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Medicine & Health Sciences – Health &amp; Safety KPI Dashboard</title>
+<title>Estates – Health &amp; Safety KPI Dashboard</title>
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -62,6 +62,23 @@ a{color:inherit}
 .btn-ghost svg{width:16px;height:16px}
 
 .container{max-width:1440px;margin:0 auto;padding:24px 32px 48px}
+
+/* ---------- Faculty / department selection ---------- */
+.department-selector,.faculty-navigation{padding:16px 20px;margin-bottom:20px}
+.department-selector h2,.faculty-navigation h2{font-size:13px;font-weight:600;color:var(--ink-3);margin-bottom:10px}
+.faculty-dashboard-buttons{display:flex;flex-wrap:wrap;gap:8px}
+.faculty-dashboard-buttons a{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line-2);background:var(--surface);border-radius:8px;padding:8px 14px;font-size:14px;font-weight:600;color:var(--ink-2);text-decoration:none;transition:background .15s,border-color .15s}
+.faculty-dashboard-buttons a:hover{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.faculty-dashboard-buttons a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.faculty-dashboard-buttons a span{color:var(--accent)}
+.department-buttons{display:flex;flex-wrap:wrap;gap:8px}
+.department-buttons button{border:1px solid var(--line-2);background:var(--surface);border-radius:8px;padding:8px 14px;font-size:14px;font-weight:600;color:var(--ink-2);cursor:pointer;transition:background .15s,border-color .15s}
+.department-buttons button:hover{background:var(--accent-soft);border-color:var(--accent)}
+.department-buttons button.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.department-buttons button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.department-scope{font-size:13px;color:var(--ink-3);margin-top:10px}
+.department-scope strong{color:var(--ink);font-weight:600}
+.kpi-empty{grid-column:1/-1;padding:24px;color:var(--ink-3);text-align:center}
 
 /* ---------- At a glance ---------- */
 .glance{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;margin-bottom:24px}
@@ -130,7 +147,7 @@ a{color:inherit}
 
 /* ---------- KPI cards (detailed view) ---------- */
 .kpi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
-.kpi-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px 0;position:relative;transition:box-shadow .15s,border-color .15s;cursor:pointer;border-top:3px solid var(--band-color,var(--line))}
+.kpi-card{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px 0;position:relative;transition:box-shadow .15s,border-color .15s;cursor:pointer;border-top:3px solid var(--band-color,var(--line))}
 .kpi-card:hover{box-shadow:var(--shadow-hover);border-color:var(--line-2);border-top-color:var(--band-color,var(--line-2))}
 .kpi-card.no-return-current{--band-color:var(--missing)}
 .kpi-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
@@ -364,9 +381,8 @@ a{color:inherit}
 <header class="page-header">
 <div class="page-header-inner">
 <div>
-<a class="breadcrumb" href="index.html">← University overview</a>
 <div class="eyebrow">Health &amp; Safety KPI dashboard</div>
-<h1>Medicine & Health Sciences</h1>
+<h1>Estates</h1>
 <div class="header-meta" id="headerMeta"></div>
 </div>
 <div class="header-actions">
@@ -375,6 +391,11 @@ a{color:inherit}
 </div>
 </header>
 <main class="container">
+<section class="department-selector panel" aria-labelledby="departmentSelectorTitle">
+<h2 id="departmentSelectorTitle">Show results for</h2>
+<div class="department-buttons" id="departmentButtons" role="group" aria-label="Faculty or school / department"></div>
+<p class="department-scope" id="departmentScope" role="status"></p>
+</section>
 <section class="glance" id="glance" aria-label="Summary"></section>
 <section class="faculty-overview" aria-labelledby="kpiSectionTitle">
 <div class="section-head">
@@ -409,6 +430,7 @@ a{color:inherit}
 <template id="guideTemplate">
 <div class="info-section">
 <ol class="guide-steps">
+<li>Use <strong>Show results for</strong> to select a school or department. Both views, the summary and trends show its results. Select <strong>Faculty total</strong> to return to the combined faculty results.</li>
 <li>The large figure on each card is this period's result. The line beneath it shows how many items were in scope.</li>
 <li>The coloured bar and band label show the performance band. The black “Uni” marker shows the university average.</li>
 <li>“vs university” shows the gap to the university average in percentage points (pp). “Since last return” shows movement since the last applicable return.</li>
@@ -439,39 +461,39 @@ a{color:inherit}
 </template>
 <script>
 const facultyData={
-  "name": "Medicine & Health Sciences",
+  "name": "Estates",
   "kpis": {
     "Written Arrangements Complete": {
-      "percentage": 87.37,
-      "number": 190.0,
+      "percentage": 97.3,
+      "number": 37.0,
       "applicable": true,
       "exceeded": false,
       "completed_count": null,
-      "display_text": "87.4% (190 arrangements in scope)",
+      "display_text": "97.3% (37 arrangements in scope)",
       "university_percentage": 96.26,
       "university_applicable": true,
       "history": [
         {
           "date": "01/08/2025",
-          "percentage": 66.67,
-          "raw_percentage": 66.67,
-          "number": 174.0,
+          "percentage": 97.3,
+          "raw_percentage": 97.3,
+          "number": 37.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/02/2026",
-          "percentage": 81.32,
-          "raw_percentage": 81.32,
-          "number": 182.0,
+          "percentage": 97.3,
+          "raw_percentage": 97.3,
+          "number": 37.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/08/2026",
-          "percentage": 87.37,
-          "raw_percentage": 87.37,
-          "number": 190.0,
+          "percentage": 97.3,
+          "raw_percentage": 97.3,
+          "number": 37.0,
           "applicable": true,
           "exceeded": false
         }
@@ -502,39 +524,39 @@ const facultyData={
           "exceeded": false
         }
       ],
-      "comparison": "below"
+      "comparison": "above"
     },
     "Risk Assessments in Register up to date": {
-      "percentage": 67.07,
-      "number": 2074.0,
+      "percentage": 86.83,
+      "number": 357.0,
       "applicable": true,
       "exceeded": false,
       "completed_count": null,
-      "display_text": "67.1% (2074 risk assessments in scope)",
+      "display_text": "86.8% (357 risk assessments in scope)",
       "university_percentage": 65.25,
       "university_applicable": true,
       "history": [
         {
           "date": "01/08/2025",
-          "percentage": 79.29,
-          "raw_percentage": 79.29,
-          "number": 1743.0,
+          "percentage": 78.15,
+          "raw_percentage": 78.15,
+          "number": 357.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/02/2026",
-          "percentage": 69.12,
-          "raw_percentage": 69.12,
-          "number": 1972.0,
+          "percentage": 86.83,
+          "raw_percentage": 86.83,
+          "number": 357.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/08/2026",
-          "percentage": 67.07,
-          "raw_percentage": 67.07,
-          "number": 2074.0,
+          "percentage": 86.83,
+          "raw_percentage": 86.83,
+          "number": 357.0,
           "applicable": true,
           "exceeded": false
         }
@@ -568,36 +590,36 @@ const facultyData={
       "comparison": "above"
     },
     "H&S Induction Completion": {
-      "percentage": 91.4,
-      "number": 1738.0,
+      "percentage": 91.0,
+      "number": 1068.0,
       "applicable": true,
       "exceeded": false,
       "completed_count": null,
-      "display_text": "91.4% (1738 staff in scope)",
+      "display_text": "91.0% (1068 staff in scope)",
       "university_percentage": 86.94,
       "university_applicable": true,
       "history": [
         {
           "date": "01/08/2025",
-          "percentage": 87.82,
-          "raw_percentage": 87.82,
-          "number": 2537.0,
+          "percentage": 71.04,
+          "raw_percentage": 71.04,
+          "number": 1150.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/02/2026",
-          "percentage": 87.1,
-          "raw_percentage": 87.1,
-          "number": 1778.0,
+          "percentage": 90.0,
+          "raw_percentage": 90.0,
+          "number": 1068.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/08/2026",
-          "percentage": 91.4,
-          "raw_percentage": 91.4,
-          "number": 1738.0,
+          "percentage": 91.0,
+          "raw_percentage": 91.0,
+          "number": 1068.0,
           "applicable": true,
           "exceeded": false
         }
@@ -631,36 +653,36 @@ const facultyData={
       "comparison": "above"
     },
     "Fire Training Completion": {
-      "percentage": 82.86,
-      "number": 1738.0,
+      "percentage": 91.0,
+      "number": 1068.0,
       "applicable": true,
       "exceeded": false,
       "completed_count": null,
-      "display_text": "82.9% (1738 staff in scope)",
+      "display_text": "91.0% (1068 staff in scope)",
       "university_percentage": 81.78,
       "university_applicable": true,
       "history": [
         {
           "date": "01/08/2025",
-          "percentage": 98.34,
-          "raw_percentage": 98.34,
-          "number": 2537.0,
+          "percentage": 71.04,
+          "raw_percentage": 71.04,
+          "number": 1150.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/02/2026",
-          "percentage": 82.15,
-          "raw_percentage": 82.15,
-          "number": 1778.0,
+          "percentage": 90.0,
+          "raw_percentage": 90.0,
+          "number": 1068.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/08/2026",
-          "percentage": 82.86,
-          "raw_percentage": 82.86,
-          "number": 1738.0,
+          "percentage": 91.0,
+          "raw_percentage": 91.0,
+          "number": 1068.0,
           "applicable": true,
           "exceeded": false
         }
@@ -694,35 +716,35 @@ const facultyData={
       "comparison": "above"
     },
     "Fire Drills Completed": {
-      "percentage": 73.33,
+      "percentage": 100.0,
       "number": 15.0,
       "applicable": true,
       "exceeded": false,
-      "completed_count": 11,
-      "display_text": "73.3% (15 buildings in scope)",
+      "completed_count": 15,
+      "display_text": "100.0% (15 buildings in scope)",
       "university_percentage": 90.36,
       "university_applicable": true,
       "history": [
         {
           "date": "01/08/2025",
-          "percentage": 92.86,
-          "raw_percentage": 92.86,
-          "number": 14.0,
+          "percentage": 100.0,
+          "raw_percentage": 100.0,
+          "number": 15.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/02/2026",
-          "percentage": 110.0,
-          "raw_percentage": 110.0,
-          "number": 10.0,
+          "percentage": 100.0,
+          "raw_percentage": 100.0,
+          "number": 15.0,
           "applicable": true,
-          "exceeded": true
+          "exceeded": false
         },
         {
           "date": "01/08/2026",
-          "percentage": 73.33,
-          "raw_percentage": 73.33,
+          "percentage": 100.0,
+          "raw_percentage": 100.0,
           "number": 15.0,
           "applicable": true,
           "exceeded": false
@@ -754,39 +776,39 @@ const facultyData={
           "exceeded": false
         }
       ],
-      "comparison": "below"
+      "comparison": "above"
     },
     "PEEPS in Place": {
-      "percentage": 100.0,
-      "number": 7.0,
+      "percentage": 66.67,
+      "number": 9.0,
       "applicable": true,
       "exceeded": false,
       "completed_count": null,
-      "display_text": "100.0% (7 PEEPs in scope)",
+      "display_text": "66.7% (9 PEEPs in scope)",
       "university_percentage": 94.59,
       "university_applicable": true,
       "history": [
         {
           "date": "01/08/2025",
-          "percentage": 100.0,
-          "raw_percentage": 100.0,
-          "number": 6.0,
-          "applicable": true,
+          "percentage": null,
+          "raw_percentage": 0.0,
+          "number": 0.0,
+          "applicable": false,
           "exceeded": false
         },
         {
           "date": "01/02/2026",
-          "percentage": 100.0,
-          "raw_percentage": 100.0,
-          "number": 7.0,
-          "applicable": true,
+          "percentage": null,
+          "raw_percentage": 0.0,
+          "number": 0.0,
+          "applicable": false,
           "exceeded": false
         },
         {
           "date": "01/08/2026",
-          "percentage": 100.0,
-          "raw_percentage": 100.0,
-          "number": 7.0,
+          "percentage": 66.67,
+          "raw_percentage": 66.67,
+          "number": 9.0,
           "applicable": true,
           "exceeded": false
         }
@@ -817,39 +839,39 @@ const facultyData={
           "exceeded": false
         }
       ],
-      "comparison": "above"
+      "comparison": "below"
     },
     "PEEPS Drilled": {
       "percentage": 0.0,
-      "number": 7.0,
+      "number": 9.0,
       "applicable": true,
       "exceeded": false,
       "completed_count": 0,
-      "display_text": "0.0% (7 PEEPs in scope)",
+      "display_text": "0.0% (9 PEEPs in scope)",
       "university_percentage": 32.43,
       "university_applicable": true,
       "history": [
         {
           "date": "01/08/2025",
-          "percentage": 16.67,
-          "raw_percentage": 16.67,
-          "number": 6.0,
-          "applicable": true,
+          "percentage": null,
+          "raw_percentage": 0.0,
+          "number": 0.0,
+          "applicable": false,
           "exceeded": false
         },
         {
           "date": "01/02/2026",
-          "percentage": 0.0,
+          "percentage": null,
           "raw_percentage": 0.0,
-          "number": 7.0,
-          "applicable": true,
+          "number": 0.0,
+          "applicable": false,
           "exceeded": false
         },
         {
           "date": "01/08/2026",
           "percentage": 0.0,
           "raw_percentage": 0.0,
-          "number": 7.0,
+          "number": 9.0,
           "applicable": true,
           "exceeded": false
         }
@@ -883,36 +905,36 @@ const facultyData={
       "comparison": "below"
     },
     "Assets without A&B Defects": {
-      "percentage": 99.18,
-      "number": 488.0,
+      "percentage": 100.0,
+      "number": 829.0,
       "applicable": true,
       "exceeded": false,
       "completed_count": null,
-      "display_text": "99.2% (488 assets in scope)",
+      "display_text": "100.0% (829 assets in scope)",
       "university_percentage": 99.79,
       "university_applicable": true,
       "history": [
         {
           "date": "01/08/2025",
-          "percentage": 98.71,
-          "raw_percentage": 98.71,
-          "number": 465.0,
+          "percentage": 94.39,
+          "raw_percentage": 94.39,
+          "number": 944.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/02/2026",
-          "percentage": 99.39,
-          "raw_percentage": 99.39,
-          "number": 495.0,
+          "percentage": 100.0,
+          "raw_percentage": 100.0,
+          "number": 943.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/08/2026",
-          "percentage": 99.18,
-          "raw_percentage": 99.18,
-          "number": 488.0,
+          "percentage": 100.0,
+          "raw_percentage": 100.0,
+          "number": 829.0,
           "applicable": true,
           "exceeded": false
         }
@@ -943,39 +965,39 @@ const facultyData={
           "exceeded": false
         }
       ],
-      "comparison": "below"
+      "comparison": "above"
     },
     "Assets Inspected by Allianz": {
-      "percentage": 92.42,
-      "number": 488.0,
+      "percentage": 79.01,
+      "number": 829.0,
       "applicable": true,
       "exceeded": false,
       "completed_count": null,
-      "display_text": "92.4% (488 assets in scope)",
+      "display_text": "79.0% (829 assets in scope)",
       "university_percentage": 86.41,
       "university_applicable": true,
       "history": [
         {
           "date": "01/08/2025",
-          "percentage": 98.06,
-          "raw_percentage": 98.06,
-          "number": 465.0,
+          "percentage": 95.66,
+          "raw_percentage": 95.66,
+          "number": 944.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/02/2026",
-          "percentage": 97.78,
-          "raw_percentage": 97.78,
-          "number": 495.0,
+          "percentage": 95.23,
+          "raw_percentage": 95.23,
+          "number": 943.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/08/2026",
-          "percentage": 92.42,
-          "raw_percentage": 92.42,
-          "number": 488.0,
+          "percentage": 79.01,
+          "raw_percentage": 79.01,
+          "number": 829.0,
           "applicable": true,
           "exceeded": false
         }
@@ -1006,39 +1028,39 @@ const facultyData={
           "exceeded": false
         }
       ],
-      "comparison": "above"
+      "comparison": "below"
     },
     "Accidents and Incidents Investigated": {
-      "percentage": 94.29,
-      "number": 140.0,
+      "percentage": 97.44,
+      "number": 78.0,
       "applicable": true,
       "exceeded": false,
       "completed_count": null,
-      "display_text": "94.3% (140 incidents/near misses in scope)",
+      "display_text": "97.4% (78 incidents/near misses in scope)",
       "university_percentage": 92.22,
       "university_applicable": true,
       "history": [
         {
           "date": "01/08/2025",
-          "percentage": 98.25,
-          "raw_percentage": 98.25,
-          "number": 57.0,
+          "percentage": 59.24,
+          "raw_percentage": 59.24,
+          "number": 157.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/02/2026",
-          "percentage": 94.83,
-          "raw_percentage": 94.83,
-          "number": 116.0,
+          "percentage": 61.95,
+          "raw_percentage": 61.95,
+          "number": 113.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/08/2026",
-          "percentage": 94.29,
-          "raw_percentage": 94.29,
-          "number": 140.0,
+          "percentage": 97.44,
+          "raw_percentage": 97.44,
+          "number": 78.0,
           "applicable": true,
           "exceeded": false
         }
@@ -1072,38 +1094,38 @@ const facultyData={
       "comparison": "above"
     },
     "Inspections Carried Out": {
-      "percentage": 101.14,
-      "number": 88.0,
+      "percentage": 100.0,
+      "number": 450.0,
       "applicable": true,
-      "exceeded": true,
-      "completed_count": 89,
-      "display_text": "101.1% (89 carried out, 88 inspections scheduled)",
+      "exceeded": false,
+      "completed_count": 450,
+      "display_text": "100.0% (450 inspections in scope)",
       "university_percentage": 58.52,
       "university_applicable": true,
       "history": [
         {
           "date": "01/08/2025",
-          "percentage": 78.05,
-          "raw_percentage": 78.05,
-          "number": 164.0,
+          "percentage": 111.84,
+          "raw_percentage": 111.84,
+          "number": 456.0,
           "applicable": true,
-          "exceeded": false
+          "exceeded": true
         },
         {
           "date": "01/02/2026",
-          "percentage": 65.44,
-          "raw_percentage": 65.44,
-          "number": 217.0,
+          "percentage": 111.84,
+          "raw_percentage": 111.84,
+          "number": 456.0,
           "applicable": true,
-          "exceeded": false
+          "exceeded": true
         },
         {
           "date": "01/08/2026",
-          "percentage": 101.14,
-          "raw_percentage": 101.14,
-          "number": 88.0,
+          "percentage": 100.0,
+          "raw_percentage": 100.0,
+          "number": 450.0,
           "applicable": true,
-          "exceeded": true
+          "exceeded": false
         }
       ],
       "university_history": [
@@ -1136,19 +1158,19 @@ const facultyData={
     },
     "Leadership Walkarounds": {
       "percentage": 100.0,
-      "number": 6.0,
+      "number": 1.0,
       "applicable": true,
       "exceeded": false,
-      "completed_count": 6,
-      "display_text": "100.0% (6 walkarounds in scope)",
+      "completed_count": 1,
+      "display_text": "100.0% (1 walkarounds in scope)",
       "university_percentage": 98.57,
       "university_applicable": true,
       "history": [
         {
           "date": "01/08/2025",
-          "percentage": 92.31,
-          "raw_percentage": 92.31,
-          "number": 13.0,
+          "percentage": 100.0,
+          "raw_percentage": 100.0,
+          "number": 2.0,
           "applicable": true,
           "exceeded": false
         },
@@ -1156,7 +1178,7 @@ const facultyData={
           "date": "01/02/2026",
           "percentage": 100.0,
           "raw_percentage": 100.0,
-          "number": 5.0,
+          "number": 2.0,
           "applicable": true,
           "exceeded": false
         },
@@ -1164,7 +1186,7 @@ const facultyData={
           "date": "01/08/2026",
           "percentage": 100.0,
           "raw_percentage": 100.0,
-          "number": 6.0,
+          "number": 1.0,
           "applicable": true,
           "exceeded": false
         }
@@ -1198,35 +1220,35 @@ const facultyData={
       "comparison": "above"
     },
     "Risk Assessment Coverage": {
-      "percentage": 83.33,
+      "percentage": 90.0,
       "number": null,
       "applicable": true,
       "exceeded": false,
       "completed_count": null,
-      "display_text": "83.3%",
+      "display_text": "90.0%",
       "university_percentage": 83.9,
       "university_applicable": true,
       "history": [
         {
           "date": "01/08/2025",
-          "percentage": 74.83,
-          "raw_percentage": 74.83,
+          "percentage": 75.0,
+          "raw_percentage": 75.0,
           "number": null,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/02/2026",
-          "percentage": 81.67,
-          "raw_percentage": 81.67,
+          "percentage": 85.0,
+          "raw_percentage": 85.0,
           "number": null,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/08/2026",
-          "percentage": 83.33,
-          "raw_percentage": 83.33,
+          "percentage": 90.0,
+          "raw_percentage": 90.0,
           "number": null,
           "applicable": true,
           "exceeded": false
@@ -1258,38 +1280,38 @@ const facultyData={
           "exceeded": false
         }
       ],
-      "comparison": "below"
+      "comparison": "above"
     },
     "Training Matrix Coverage": {
-      "percentage": 95.17,
+      "percentage": 80.0,
       "number": null,
       "applicable": true,
       "exceeded": false,
       "completed_count": null,
-      "display_text": "95.2%",
+      "display_text": "80.0%",
       "university_percentage": 90.03,
       "university_applicable": true,
       "history": [
         {
           "date": "01/08/2025",
-          "percentage": 90.0,
-          "raw_percentage": 90.0,
+          "percentage": 80.0,
+          "raw_percentage": 80.0,
           "number": null,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/02/2026",
-          "percentage": 92.67,
-          "raw_percentage": 92.67,
+          "percentage": 80.0,
+          "raw_percentage": 80.0,
           "number": null,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/08/2026",
-          "percentage": 95.17,
-          "raw_percentage": 95.17,
+          "percentage": 80.0,
+          "raw_percentage": 80.0,
           "number": null,
           "applicable": true,
           "exceeded": false
@@ -1321,39 +1343,39 @@ const facultyData={
           "exceeded": false
         }
       ],
-      "comparison": "above"
+      "comparison": "below"
     },
     "Staff Training Requirements": {
-      "percentage": 66.83,
-      "number": 1738.0,
+      "percentage": 75.0,
+      "number": 1068.0,
       "applicable": true,
       "exceeded": false,
       "completed_count": null,
-      "display_text": "66.8% (1738 staff in scope)",
+      "display_text": "75.0% (1068 staff in scope)",
       "university_percentage": 70.73,
       "university_applicable": true,
       "history": [
         {
           "date": "01/08/2025",
-          "percentage": 43.33,
-          "raw_percentage": 43.33,
-          "number": 2537.0,
+          "percentage": 70.0,
+          "raw_percentage": 70.0,
+          "number": 1150.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/02/2026",
-          "percentage": 63.33,
-          "raw_percentage": 63.33,
-          "number": 1778.0,
+          "percentage": 70.0,
+          "raw_percentage": 70.0,
+          "number": 1068.0,
           "applicable": true,
           "exceeded": false
         },
         {
           "date": "01/08/2026",
-          "percentage": 66.83,
-          "raw_percentage": 66.83,
-          "number": 1738.0,
+          "percentage": 75.0,
+          "raw_percentage": 75.0,
+          "number": 1068.0,
           "applicable": true,
           "exceeded": false
         }
@@ -1384,468 +1406,94 @@ const facultyData={
           "exceeded": false
         }
       ],
-      "comparison": "below"
+      "comparison": "above"
     }
   },
   "schools": {
-    "BDI": {
-      "name": "BDI",
+    "Estates": {
+      "name": "Estates",
       "kpis": {
         "Written Arrangements Complete": {
-          "percentage": 100.0,
-          "number": 33.0,
+          "percentage": 97.297297,
+          "number": 37.0,
           "applicable": true,
           "exceeded": false,
           "completed_count": null,
-          "display_text": "100.0% (33 arrangements in scope)",
+          "display_text": "97.3% (37 arrangements in scope)",
           "history": [
             {
               "date": "01/08/2025",
-              "percentage": 60.606061,
-              "raw_percentage": 60.606061,
-              "number": 33.0,
+              "percentage": 97.297297,
+              "raw_percentage": 97.297297,
+              "number": 37.0,
               "applicable": true,
               "exceeded": false
             },
             {
               "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 33.0,
+              "percentage": 97.297297,
+              "raw_percentage": 97.297297,
+              "number": 37.0,
               "applicable": true,
               "exceeded": false
             },
             {
               "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 33.0,
+              "percentage": 97.297297,
+              "raw_percentage": 97.297297,
+              "number": 37.0,
               "applicable": true,
               "exceeded": false
             }
           ]
         },
         "Risk Assessments in Register up to date": {
-          "percentage": 36.931818,
-          "number": 528.0,
+          "percentage": 86.834734,
+          "number": 357.0,
           "applicable": true,
           "exceeded": false,
           "completed_count": null,
-          "display_text": "36.9% (528 risk assessments in scope)",
+          "display_text": "86.8% (357 risk assessments in scope)",
           "history": [
             {
               "date": "01/08/2025",
-              "percentage": 46.726862,
-              "raw_percentage": 46.726862,
-              "number": 443.0,
+              "percentage": 78.151261,
+              "raw_percentage": 78.151261,
+              "number": 357.0,
               "applicable": true,
               "exceeded": false
             },
             {
               "date": "01/02/2026",
-              "percentage": 49.356223,
-              "raw_percentage": 49.356223,
-              "number": 466.0,
+              "percentage": 86.834734,
+              "raw_percentage": 86.834734,
+              "number": 357.0,
               "applicable": true,
               "exceeded": false
             },
             {
               "date": "01/08/2026",
-              "percentage": 36.931818,
-              "raw_percentage": 36.931818,
-              "number": 528.0,
+              "percentage": 86.834734,
+              "raw_percentage": 86.834734,
+              "number": 357.0,
               "applicable": true,
               "exceeded": false
             }
           ]
         },
         "H&S Induction Completion": {
-          "percentage": 96.0,
-          "number": 24.0,
+          "percentage": 91.0,
+          "number": 1068.0,
           "applicable": true,
           "exceeded": false,
           "completed_count": null,
-          "display_text": "96.0% (24 staff in scope)",
+          "display_text": "91.0% (1068 staff in scope)",
           "history": [
             {
               "date": "01/08/2025",
-              "percentage": 72.298137,
-              "raw_percentage": 72.298137,
-              "number": 805.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 96.0,
-              "raw_percentage": 96.0,
-              "number": 24.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 96.0,
-              "raw_percentage": 96.0,
-              "number": 24.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Fire Training Completion": {
-          "percentage": 92.0,
-          "number": 24.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "92.0% (24 staff in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 88.944099,
-              "raw_percentage": 88.944099,
-              "number": 805.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 88.0,
-              "raw_percentage": 88.0,
-              "number": 24.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 92.0,
-              "raw_percentage": 92.0,
-              "number": 24.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Fire Drills Completed": {
-          "percentage": 150.0,
-          "number": 2.0,
-          "applicable": true,
-          "exceeded": true,
-          "completed_count": 3,
-          "display_text": "150.0% (3 carried out, 2 buildings scheduled)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 2.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 150.0,
-              "raw_percentage": 150.0,
-              "number": 2.0,
-              "applicable": true,
-              "exceeded": true
-            }
-          ]
-        },
-        "PEEPS in Place": {
-          "percentage": null,
-          "number": 0.0,
-          "applicable": false,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "No PEEPs identified as required",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            }
-          ]
-        },
-        "PEEPS Drilled": {
-          "percentage": null,
-          "number": 0.0,
-          "applicable": false,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "No PEEPs identified as required",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            }
-          ]
-        },
-        "Assets without A&B Defects": {
-          "percentage": 100.0,
-          "number": 103.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0% (103 assets in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 114.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 114.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 103.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Assets Inspected by Allianz": {
-          "percentage": 100.0,
-          "number": 103.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0% (103 assets in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 99.122807,
-              "raw_percentage": 99.122807,
-              "number": 114.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 95.614035,
-              "raw_percentage": 95.614035,
-              "number": 114.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 103.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Accidents and Incidents Investigated": {
-          "percentage": 94.444444,
-          "number": 18.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "94.4% (18 incidents/near misses in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 11.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 10.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 94.444444,
-              "raw_percentage": 94.444444,
-              "number": 18.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Inspections Carried Out": {
-          "percentage": 90.909091,
-          "number": 11.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": 10,
-          "display_text": "90.9% (11 inspections in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 45.454545,
-              "raw_percentage": 45.454545,
-              "number": 11.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 60.0,
-              "raw_percentage": 60.0,
-              "number": 5.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 90.909091,
-              "raw_percentage": 90.909091,
-              "number": 11.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Leadership Walkarounds": {
-          "percentage": 100.0,
-          "number": 2.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": 2,
-          "display_text": "100.0% (2 walkarounds in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 75.0,
-              "raw_percentage": 75.0,
-              "number": 4.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 2.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Risk Assessment Coverage": {
-          "percentage": 55.0,
-          "number": null,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "55.0%",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 44.0,
-              "raw_percentage": 44.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 50.0,
-              "raw_percentage": 50.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 55.0,
-              "raw_percentage": 55.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Training Matrix Coverage": {
-          "percentage": 100.0,
-          "number": null,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0%",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 80.0,
-              "raw_percentage": 80.0,
-              "number": null,
+              "percentage": 71.043478,
+              "raw_percentage": 71.043478,
+              "number": 1150.0,
               "applicable": true,
               "exceeded": false
             },
@@ -1853,33 +1501,33 @@ const facultyData={
               "date": "01/02/2026",
               "percentage": 90.0,
               "raw_percentage": 90.0,
-              "number": null,
+              "number": 1068.0,
               "applicable": true,
               "exceeded": false
             },
             {
               "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": null,
+              "percentage": 91.0,
+              "raw_percentage": 91.0,
+              "number": 1068.0,
               "applicable": true,
               "exceeded": false
             }
           ]
         },
-        "Staff Training Requirements": {
-          "percentage": 96.0,
-          "number": 24.0,
+        "Fire Training Completion": {
+          "percentage": 91.0,
+          "number": 1068.0,
           "applicable": true,
           "exceeded": false,
           "completed_count": null,
-          "display_text": "96.0% (24 staff in scope)",
+          "display_text": "91.0% (1068 staff in scope)",
           "history": [
             {
               "date": "01/08/2025",
-              "percentage": 5.0,
-              "raw_percentage": 5.0,
-              "number": 805.0,
+              "percentage": 71.043478,
+              "raw_percentage": 71.043478,
+              "number": 1150.0,
               "applicable": true,
               "exceeded": false
             },
@@ -1887,671 +1535,15 @@ const facultyData={
               "date": "01/02/2026",
               "percentage": 90.0,
               "raw_percentage": 90.0,
-              "number": 24.0,
+              "number": 1068.0,
               "applicable": true,
               "exceeded": false
             },
             {
               "date": "01/08/2026",
-              "percentage": 96.0,
-              "raw_percentage": 96.0,
-              "number": 24.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        }
-      }
-    },
-    "Life Sciences": {
-      "name": "Life Sciences",
-      "kpis": {
-        "Written Arrangements Complete": {
-          "percentage": 83.333333,
-          "number": 42.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "83.3% (42 arrangements in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 73.913043,
-              "raw_percentage": 73.913043,
-              "number": 23.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 64.705882,
-              "raw_percentage": 64.705882,
-              "number": 34.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 83.333333,
-              "raw_percentage": 83.333333,
-              "number": 42.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Risk Assessments in Register up to date": {
-          "percentage": 77.865169,
-          "number": 890.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "77.9% (890 risk assessments in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 99.878197,
-              "raw_percentage": 99.878197,
-              "number": 821.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 91.401649,
-              "raw_percentage": 91.401649,
-              "number": 849.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 77.865169,
-              "raw_percentage": 77.865169,
-              "number": 890.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "H&S Induction Completion": {
-          "percentage": 80.0,
-          "number": 329.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "80.0% (329 staff in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 70.326409,
-              "raw_percentage": 70.326409,
-              "number": 337.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 69.0,
-              "raw_percentage": 69.0,
-              "number": 332.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 80.0,
-              "raw_percentage": 80.0,
-              "number": 329.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Fire Training Completion": {
-          "percentage": 78.0,
-          "number": 329.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "78.0% (329 staff in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 83.976261,
-              "raw_percentage": 83.976261,
-              "number": 337.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 72.0,
-              "raw_percentage": 72.0,
-              "number": 332.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 78.0,
-              "raw_percentage": 78.0,
-              "number": 329.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Fire Drills Completed": {
-          "percentage": null,
-          "number": 0.0,
-          "applicable": false,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "No scheduled drills this period",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            }
-          ]
-        },
-        "PEEPS in Place": {
-          "percentage": null,
-          "number": 0.0,
-          "applicable": false,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "No PEEPs identified as required",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            }
-          ]
-        },
-        "PEEPS Drilled": {
-          "percentage": null,
-          "number": 0.0,
-          "applicable": false,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "No PEEPs identified as required",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            }
-          ]
-        },
-        "Assets without A&B Defects": {
-          "percentage": 100.0,
-          "number": 84.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0% (84 assets in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 97.619048,
-              "raw_percentage": 97.619048,
-              "number": 42.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 68.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 84.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Assets Inspected by Allianz": {
-          "percentage": 88.095238,
-          "number": 84.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "88.1% (84 assets in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 92.857143,
-              "raw_percentage": 92.857143,
-              "number": 42.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 97.058824,
-              "raw_percentage": 97.058824,
-              "number": 68.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 88.095238,
-              "raw_percentage": 88.095238,
-              "number": 84.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Accidents and Incidents Investigated": {
-          "percentage": 81.818182,
-          "number": 11.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "81.8% (11 incidents/near misses in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 24.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 89.473684,
-              "raw_percentage": 89.473684,
-              "number": 19.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 81.818182,
-              "raw_percentage": 81.818182,
-              "number": 11.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Inspections Carried Out": {
-          "percentage": 100.0,
-          "number": 4.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": 4,
-          "display_text": "100.0% (4 inspections in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 42.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 0.0,
-              "raw_percentage": 0.0,
-              "number": 60.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 4.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Leadership Walkarounds": {
-          "percentage": null,
-          "number": 0.0,
-          "applicable": false,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "No walkarounds scheduled in period",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            }
-          ]
-        },
-        "Risk Assessment Coverage": {
-          "percentage": 80.0,
-          "number": null,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "80.0%",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 75.0,
-              "raw_percentage": 75.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 80.0,
-              "raw_percentage": 80.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 80.0,
-              "raw_percentage": 80.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Training Matrix Coverage": {
-          "percentage": 75.0,
-          "number": null,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "75.0%",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 75.0,
-              "raw_percentage": 75.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 75.0,
-              "raw_percentage": 75.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 75.0,
-              "raw_percentage": 75.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Staff Training Requirements": {
-          "percentage": 75.0,
-          "number": 329.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "75.0% (329 staff in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 60.0,
-              "raw_percentage": 60.0,
-              "number": 337.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 75.0,
-              "raw_percentage": 75.0,
-              "number": 332.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 75.0,
-              "raw_percentage": 75.0,
-              "number": 329.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        }
-      }
-    },
-    "Medicine": {
-      "name": "Medicine",
-      "kpis": {
-        "Written Arrangements Complete": {
-          "percentage": 70.731707,
-          "number": 41.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "70.7% (41 arrangements in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 47.826087,
-              "raw_percentage": 47.826087,
-              "number": 46.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 63.414634,
-              "raw_percentage": 63.414634,
-              "number": 41.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 70.731707,
-              "raw_percentage": 70.731707,
-              "number": 41.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Risk Assessments in Register up to date": {
-          "percentage": 81.904762,
-          "number": 420.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "81.9% (420 risk assessments in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 81.782946,
-              "raw_percentage": 81.782946,
-              "number": 258.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 75.645756,
-              "raw_percentage": 75.645756,
-              "number": 271.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 81.904762,
-              "raw_percentage": 81.904762,
-              "number": 420.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "H&S Induction Completion": {
-          "percentage": 95.0,
-          "number": 931.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "95.0% (931 staff in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 111.513158,
-              "raw_percentage": 111.513158,
-              "number": 912.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 94.0,
-              "raw_percentage": 94.0,
-              "number": 968.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 95.0,
-              "raw_percentage": 95.0,
-              "number": 931.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Fire Training Completion": {
-          "percentage": 87.0,
-          "number": 931.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "87.0% (931 staff in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 109.210526,
-              "raw_percentage": 109.210526,
-              "number": 912.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 87.0,
-              "raw_percentage": 87.0,
-              "number": 968.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 87.0,
-              "raw_percentage": 87.0,
-              "number": 931.0,
+              "percentage": 91.0,
+              "raw_percentage": 91.0,
+              "number": 1068.0,
               "applicable": true,
               "exceeded": false
             }
@@ -2559,215 +1551,11 @@ const facultyData={
         },
         "Fire Drills Completed": {
           "percentage": 100.0,
-          "number": 5.0,
+          "number": 15.0,
           "applicable": true,
           "exceeded": false,
-          "completed_count": 5,
-          "display_text": "100.0% (5 buildings in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 4.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 5.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "PEEPS in Place": {
-          "percentage": 100.0,
-          "number": 5.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0% (5 PEEPs in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 4.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 5.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 5.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "PEEPS Drilled": {
-          "percentage": 0.0,
-          "number": 5.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": 0,
-          "display_text": "0.0% (5 PEEPs in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 0.0,
-              "raw_percentage": 0.0,
-              "number": 4.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 0.0,
-              "raw_percentage": 0.0,
-              "number": 5.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 0.0,
-              "raw_percentage": 0.0,
-              "number": 5.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Assets without A&B Defects": {
-          "percentage": 99.065421,
-          "number": 107.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "99.1% (107 assets in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 115.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 97.391304,
-              "raw_percentage": 97.391304,
-              "number": 115.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 99.065421,
-              "raw_percentage": 99.065421,
-              "number": 107.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Assets Inspected by Allianz": {
-          "percentage": 75.700935,
-          "number": 107.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "75.7% (107 assets in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 97.391304,
-              "raw_percentage": 97.391304,
-              "number": 115.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 97.391304,
-              "raw_percentage": 97.391304,
-              "number": 115.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 75.700935,
-              "raw_percentage": 75.700935,
-              "number": 107.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Accidents and Incidents Investigated": {
-          "percentage": 68.75,
-          "number": 16.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "68.8% (16 incidents/near misses in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 90.909091,
-              "raw_percentage": 90.909091,
-              "number": 11.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 7.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 68.75,
-              "raw_percentage": 68.75,
-              "number": 16.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Inspections Carried Out": {
-          "percentage": 100.0,
-          "number": 2.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": 2,
-          "display_text": "100.0% (2 inspections in scope)",
+          "completed_count": 15,
+          "display_text": "100.0% (15 buildings in scope)",
           "history": [
             {
               "date": "01/08/2025",
@@ -2779,9 +1567,9 @@ const facultyData={
             },
             {
               "date": "01/02/2026",
-              "percentage": 88.888889,
-              "raw_percentage": 88.888889,
-              "number": 9.0,
+              "percentage": 100.0,
+              "raw_percentage": 100.0,
+              "number": 15.0,
               "applicable": true,
               "exceeded": false
             },
@@ -2789,507 +1577,26 @@ const facultyData={
               "date": "01/08/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
-              "number": 2.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Leadership Walkarounds": {
-          "percentage": 100.0,
-          "number": 2.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": 2,
-          "display_text": "100.0% (2 walkarounds in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 3.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 2.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 2.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Risk Assessment Coverage": {
-          "percentage": 80.0,
-          "number": null,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "80.0%",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 65.0,
-              "raw_percentage": 65.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 75.0,
-              "raw_percentage": 75.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 80.0,
-              "raw_percentage": 80.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Training Matrix Coverage": {
-          "percentage": 96.0,
-          "number": null,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "96.0%",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 95.0,
-              "raw_percentage": 95.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 96.0,
-              "raw_percentage": 96.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 96.0,
-              "raw_percentage": 96.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Staff Training Requirements": {
-          "percentage": 45.0,
-          "number": 931.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "45.0% (931 staff in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 35.0,
-              "raw_percentage": 35.0,
-              "number": 912.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 40.0,
-              "raw_percentage": 40.0,
-              "number": 968.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 45.0,
-              "raw_percentage": 45.0,
-              "number": 931.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        }
-      }
-    },
-    "Veterinary Medicine and Science": {
-      "name": "Veterinary Medicine and Science",
-      "kpis": {
-        "Written Arrangements Complete": {
-          "percentage": 86.486486,
-          "number": 37.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "86.5% (37 arrangements in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 59.459459,
-              "raw_percentage": 59.459459,
-              "number": 37.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 81.081081,
-              "raw_percentage": 81.081081,
-              "number": 37.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 86.486486,
-              "raw_percentage": 86.486486,
-              "number": 37.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Risk Assessments in Register up to date": {
-          "percentage": 63.636364,
-          "number": 209.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "63.6% (209 risk assessments in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 62.561576,
-              "raw_percentage": 62.561576,
-              "number": 203.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 35.734072,
-              "raw_percentage": 35.734072,
-              "number": 361.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 63.636364,
-              "raw_percentage": 63.636364,
-              "number": 209.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "H&S Induction Completion": {
-          "percentage": 88.0,
-          "number": 257.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "88.0% (257 staff in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 61.851852,
-              "raw_percentage": 61.851852,
-              "number": 270.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 83.0,
-              "raw_percentage": 83.0,
-              "number": 254.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 88.0,
-              "raw_percentage": 88.0,
-              "number": 257.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Fire Training Completion": {
-          "percentage": 79.0,
-          "number": 257.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "79.0% (257 staff in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 101.481481,
-              "raw_percentage": 101.481481,
-              "number": 270.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 72.0,
-              "raw_percentage": 72.0,
-              "number": 254.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 79.0,
-              "raw_percentage": 79.0,
-              "number": 257.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Fire Drills Completed": {
-          "percentage": 37.5,
-          "number": 8.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": 3,
-          "display_text": "37.5% (8 buildings in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 85.714286,
-              "raw_percentage": 85.714286,
-              "number": 7.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 112.5,
-              "raw_percentage": 112.5,
-              "number": 8.0,
-              "applicable": true,
-              "exceeded": true
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 37.5,
-              "raw_percentage": 37.5,
-              "number": 8.0,
+              "number": 15.0,
               "applicable": true,
               "exceeded": false
             }
           ]
         },
         "PEEPS in Place": {
-          "percentage": 100.0,
-          "number": 1.0,
+          "percentage": 66.666667,
+          "number": 9.0,
           "applicable": true,
           "exceeded": false,
           "completed_count": null,
-          "display_text": "100.0% (1 PEEPs in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "PEEPS Drilled": {
-          "percentage": 0.0,
-          "number": 1.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": 0,
-          "display_text": "0.0% (1 PEEPs in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 0.0,
-              "raw_percentage": 0.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 0.0,
-              "raw_percentage": 0.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 0.0,
-              "raw_percentage": 0.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Assets without A&B Defects": {
-          "percentage": 98.314607,
-          "number": 178.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "98.3% (178 assets in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 97.252747,
-              "raw_percentage": 97.252747,
-              "number": 182.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 182.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 98.314607,
-              "raw_percentage": 98.314607,
-              "number": 178.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Assets Inspected by Allianz": {
-          "percentage": 100.0,
-          "number": 178.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0% (178 assets in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 99.450549,
-              "raw_percentage": 99.450549,
-              "number": 182.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 182.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 178.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Accidents and Incidents Investigated": {
-          "percentage": 100.0,
-          "number": 83.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0% (83 incidents/near misses in scope)",
+          "display_text": "66.7% (9 PEEPs in scope)",
           "history": [
             {
               "date": "01/08/2025",
               "percentage": null,
               "raw_percentage": null,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 93.220339,
-              "raw_percentage": 93.220339,
-              "number": 59.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 83.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Inspections Carried Out": {
-          "percentage": 60.0,
-          "number": 5.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": 3,
-          "display_text": "60.0% (5 inspections in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 28.571429,
-              "raw_percentage": 28.571429,
-              "number": 7.0,
-              "applicable": true,
+              "number": 0.0,
+              "applicable": false,
               "exceeded": false
             },
             {
@@ -3302,9 +1609,179 @@ const facultyData={
             },
             {
               "date": "01/08/2026",
-              "percentage": 60.0,
-              "raw_percentage": 60.0,
-              "number": 5.0,
+              "percentage": 66.666667,
+              "raw_percentage": 66.666667,
+              "number": 9.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "PEEPS Drilled": {
+          "percentage": 0.0,
+          "number": 9.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": 0,
+          "display_text": "0.0% (9 PEEPs in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": null,
+              "raw_percentage": null,
+              "number": 0.0,
+              "applicable": false,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": null,
+              "raw_percentage": null,
+              "number": 0.0,
+              "applicable": false,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 0.0,
+              "raw_percentage": 0.0,
+              "number": 9.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "Assets without A&B Defects": {
+          "percentage": 100.0,
+          "number": 829.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
+          "display_text": "100.0% (829 assets in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 94.385593,
+              "raw_percentage": 94.385593,
+              "number": 944.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 100.0,
+              "raw_percentage": 100.0,
+              "number": 943.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 100.0,
+              "raw_percentage": 100.0,
+              "number": 829.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "Assets Inspected by Allianz": {
+          "percentage": 79.010856,
+          "number": 829.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
+          "display_text": "79.0% (829 assets in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 95.65678,
+              "raw_percentage": 95.65678,
+              "number": 944.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 95.227996,
+              "raw_percentage": 95.227996,
+              "number": 943.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 79.010856,
+              "raw_percentage": 79.010856,
+              "number": 829.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "Accidents and Incidents Investigated": {
+          "percentage": 97.435897,
+          "number": 78.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": null,
+          "display_text": "97.4% (78 incidents/near misses in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 59.235669,
+              "raw_percentage": 59.235669,
+              "number": 157.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 61.946903,
+              "raw_percentage": 61.946903,
+              "number": 113.0,
+              "applicable": true,
+              "exceeded": false
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 97.435897,
+              "raw_percentage": 97.435897,
+              "number": 78.0,
+              "applicable": true,
+              "exceeded": false
+            }
+          ]
+        },
+        "Inspections Carried Out": {
+          "percentage": 100.0,
+          "number": 450.0,
+          "applicable": true,
+          "exceeded": false,
+          "completed_count": 450,
+          "display_text": "100.0% (450 inspections in scope)",
+          "history": [
+            {
+              "date": "01/08/2025",
+              "percentage": 111.842105,
+              "raw_percentage": 111.842105,
+              "number": 456.0,
+              "applicable": true,
+              "exceeded": true
+            },
+            {
+              "date": "01/02/2026",
+              "percentage": 111.842105,
+              "raw_percentage": 111.842105,
+              "number": 456.0,
+              "applicable": true,
+              "exceeded": true
+            },
+            {
+              "date": "01/08/2026",
+              "percentage": 100.0,
+              "raw_percentage": 100.0,
+              "number": 450.0,
               "applicable": true,
               "exceeded": false
             }
@@ -3312,17 +1789,17 @@ const facultyData={
         },
         "Leadership Walkarounds": {
           "percentage": 100.0,
-          "number": 2.0,
+          "number": 1.0,
           "applicable": true,
           "exceeded": false,
-          "completed_count": 2,
-          "display_text": "100.0% (2 walkarounds in scope)",
+          "completed_count": 1,
+          "display_text": "100.0% (1 walkarounds in scope)",
           "history": [
             {
               "date": "01/08/2025",
               "percentage": 100.0,
               "raw_percentage": 100.0,
-              "number": 3.0,
+              "number": 2.0,
               "applicable": true,
               "exceeded": false
             },
@@ -3338,7 +1815,7 @@ const facultyData={
               "date": "01/08/2026",
               "percentage": 100.0,
               "raw_percentage": 100.0,
-              "number": 2.0,
+              "number": 1.0,
               "applicable": true,
               "exceeded": false
             }
@@ -3354,521 +1831,6 @@ const facultyData={
           "history": [
             {
               "date": "01/08/2025",
-              "percentage": 90.0,
-              "raw_percentage": 90.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 90.0,
-              "raw_percentage": 90.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 90.0,
-              "raw_percentage": 90.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Training Matrix Coverage": {
-          "percentage": 100.0,
-          "number": null,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0%",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 90.0,
-              "raw_percentage": 90.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 95.0,
-              "raw_percentage": 95.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Staff Training Requirements": {
-          "percentage": 80.0,
-          "number": 257.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "80.0% (257 staff in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 60.0,
-              "raw_percentage": 60.0,
-              "number": 270.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 80.0,
-              "raw_percentage": 80.0,
-              "number": 254.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 80.0,
-              "raw_percentage": 80.0,
-              "number": 257.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        }
-      }
-    },
-    "Clinical Skills": {
-      "name": "Clinical Skills",
-      "kpis": {
-        "Written Arrangements Complete": {
-          "percentage": 100.0,
-          "number": 25.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0% (25 arrangements in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 13.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 25.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 25.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Risk Assessments in Register up to date": {
-          "percentage": 95.0,
-          "number": 20.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "95.0% (20 risk assessments in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 91.666667,
-              "raw_percentage": 91.666667,
-              "number": 12.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 88.888889,
-              "raw_percentage": 88.888889,
-              "number": 18.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 95.0,
-              "raw_percentage": 95.0,
-              "number": 20.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "H&S Induction Completion": {
-          "percentage": 100.0,
-          "number": 17.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0% (17 staff in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 9.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 10.0,
-              "raw_percentage": 10.0,
-              "number": 10.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 17.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Fire Training Completion": {
-          "percentage": 100.0,
-          "number": 17.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0% (17 staff in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 9.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 7.0,
-              "raw_percentage": 7.0,
-              "number": 10.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 17.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Fire Drills Completed": {
-          "percentage": null,
-          "number": 0.0,
-          "applicable": false,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "No scheduled drills this period",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            }
-          ]
-        },
-        "PEEPS in Place": {
-          "percentage": null,
-          "number": 0.0,
-          "applicable": false,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "No PEEPs identified as required",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            }
-          ]
-        },
-        "PEEPS Drilled": {
-          "percentage": null,
-          "number": 0.0,
-          "applicable": false,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "No PEEPs identified as required",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            }
-          ]
-        },
-        "Assets without A&B Defects": {
-          "percentage": 100.0,
-          "number": 16.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0% (16 assets in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 12.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 16.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 16.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Assets Inspected by Allianz": {
-          "percentage": 93.75,
-          "number": 16.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "93.8% (16 assets in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 91.666667,
-              "raw_percentage": 91.666667,
-              "number": 12.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 93.75,
-              "raw_percentage": 93.75,
-              "number": 16.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 93.75,
-              "raw_percentage": 93.75,
-              "number": 16.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Accidents and Incidents Investigated": {
-          "percentage": 100.0,
-          "number": 3.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0% (3 incidents/near misses in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 4.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 11.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 3.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Inspections Carried Out": {
-          "percentage": 106.060606,
-          "number": 66.0,
-          "applicable": true,
-          "exceeded": true,
-          "completed_count": 70,
-          "display_text": "106.1% (70 carried out, 66 inspections scheduled)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 71.590909,
-              "raw_percentage": 71.590909,
-              "number": 88.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 90.909091,
-              "raw_percentage": 90.909091,
-              "number": 143.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 106.060606,
-              "raw_percentage": 106.060606,
-              "number": 66.0,
-              "applicable": true,
-              "exceeded": true
-            }
-          ]
-        },
-        "Leadership Walkarounds": {
-          "percentage": null,
-          "number": 0.0,
-          "applicable": false,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "No walkarounds scheduled in period",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            }
-          ]
-        },
-        "Risk Assessment Coverage": {
-          "percentage": 95.0,
-          "number": null,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "95.0%",
-          "history": [
-            {
-              "date": "01/08/2025",
               "percentage": 75.0,
               "raw_percentage": 75.0,
               "number": null,
@@ -3877,16 +1839,16 @@ const facultyData={
             },
             {
               "date": "01/02/2026",
-              "percentage": 95.0,
-              "raw_percentage": 95.0,
+              "percentage": 85.0,
+              "raw_percentage": 85.0,
               "number": null,
               "applicable": true,
               "exceeded": false
             },
             {
               "date": "01/08/2026",
-              "percentage": 95.0,
-              "raw_percentage": 95.0,
+              "percentage": 90.0,
+              "raw_percentage": 90.0,
               "number": null,
               "applicable": true,
               "exceeded": false
@@ -3894,60 +1856,26 @@ const facultyData={
           ]
         },
         "Training Matrix Coverage": {
-          "percentage": 100.0,
+          "percentage": 80.0,
           "number": null,
           "applicable": true,
           "exceeded": false,
           "completed_count": null,
-          "display_text": "100.0%",
+          "display_text": "80.0%",
           "history": [
             {
               "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
+              "percentage": 80.0,
+              "raw_percentage": 80.0,
               "number": null,
               "applicable": true,
               "exceeded": false
             },
             {
               "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
+              "percentage": 80.0,
+              "raw_percentage": 80.0,
               "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Staff Training Requirements": {
-          "percentage": 80.0,
-          "number": 17.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "80.0% (17 staff in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 50.0,
-              "raw_percentage": 50.0,
-              "number": 9.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 70.0,
-              "raw_percentage": 70.0,
-              "number": 10.0,
               "applicable": true,
               "exceeded": false
             },
@@ -3955,487 +1883,6 @@ const facultyData={
               "date": "01/08/2026",
               "percentage": 80.0,
               "raw_percentage": 80.0,
-              "number": 17.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        }
-      }
-    },
-    "Health Sciences": {
-      "name": "Health Sciences",
-      "kpis": {
-        "Written Arrangements Complete": {
-          "percentage": 100.0,
-          "number": 12.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0% (12 arrangements in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 22.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 12.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 12.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Risk Assessments in Register up to date": {
-          "percentage": 100.0,
-          "number": 7.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0% (7 risk assessments in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 6.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 7.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 7.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "H&S Induction Completion": {
-          "percentage": 97.0,
-          "number": 180.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "97.0% (180 staff in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 105.882353,
-              "raw_percentage": 105.882353,
-              "number": 204.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 92.0,
-              "raw_percentage": 92.0,
-              "number": 190.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 97.0,
-              "raw_percentage": 97.0,
-              "number": 180.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Fire Training Completion": {
-          "percentage": 73.0,
-          "number": 180.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "73.0% (180 staff in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 106.372549,
-              "raw_percentage": 106.372549,
-              "number": 204.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 92.0,
-              "raw_percentage": 92.0,
-              "number": 190.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 73.0,
-              "raw_percentage": 73.0,
-              "number": 180.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Fire Drills Completed": {
-          "percentage": null,
-          "number": 0.0,
-          "applicable": false,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "No scheduled drills this period",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            }
-          ]
-        },
-        "PEEPS in Place": {
-          "percentage": 100.0,
-          "number": 1.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0% (1 PEEPs in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "PEEPS Drilled": {
-          "percentage": 0.0,
-          "number": 1.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": 0,
-          "display_text": "0.0% (1 PEEPs in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 0.0,
-              "raw_percentage": 0.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 0.0,
-              "raw_percentage": 0.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Assets without A&B Defects": {
-          "percentage": null,
-          "number": 0.0,
-          "applicable": false,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "No department-owned assets that require inspection",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            }
-          ]
-        },
-        "Assets Inspected by Allianz": {
-          "percentage": null,
-          "number": 0.0,
-          "applicable": false,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "No department-owned assets that require inspection",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            }
-          ]
-        },
-        "Accidents and Incidents Investigated": {
-          "percentage": 100.0,
-          "number": 9.0,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0% (9 incidents/near misses in scope)",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 7.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 10.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 9.0,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Inspections Carried Out": {
-          "percentage": null,
-          "number": 0.0,
-          "applicable": false,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "No inspections scheduled in this period",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            }
-          ]
-        },
-        "Leadership Walkarounds": {
-          "percentage": null,
-          "number": 0.0,
-          "applicable": false,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "No walkarounds scheduled in period",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": 1.0,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": null,
-              "raw_percentage": null,
-              "number": 0.0,
-              "applicable": false,
-              "exceeded": false
-            }
-          ]
-        },
-        "Risk Assessment Coverage": {
-          "percentage": 100.0,
-          "number": null,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0%",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            }
-          ]
-        },
-        "Training Matrix Coverage": {
-          "percentage": 100.0,
-          "number": null,
-          "applicable": true,
-          "exceeded": false,
-          "completed_count": null,
-          "display_text": "100.0%",
-          "history": [
-            {
-              "date": "01/08/2025",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/02/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
-              "number": null,
-              "applicable": true,
-              "exceeded": false
-            },
-            {
-              "date": "01/08/2026",
-              "percentage": 100.0,
-              "raw_percentage": 100.0,
               "number": null,
               "applicable": true,
               "exceeded": false
@@ -4443,34 +1890,34 @@ const facultyData={
           ]
         },
         "Staff Training Requirements": {
-          "percentage": 25.0,
-          "number": 180.0,
+          "percentage": 75.0,
+          "number": 1068.0,
           "applicable": true,
           "exceeded": false,
           "completed_count": null,
-          "display_text": "25.0% (180 staff in scope)",
+          "display_text": "75.0% (1068 staff in scope)",
           "history": [
             {
               "date": "01/08/2025",
-              "percentage": 50.0,
-              "raw_percentage": 50.0,
-              "number": 204.0,
+              "percentage": 70.0,
+              "raw_percentage": 70.0,
+              "number": 1150.0,
               "applicable": true,
               "exceeded": false
             },
             {
               "date": "01/02/2026",
-              "percentage": 25.0,
-              "raw_percentage": 25.0,
-              "number": 190.0,
+              "percentage": 70.0,
+              "raw_percentage": 70.0,
+              "number": 1068.0,
               "applicable": true,
               "exceeded": false
             },
             {
               "date": "01/08/2026",
-              "percentage": 25.0,
-              "raw_percentage": 25.0,
-              "number": 180.0,
+              "percentage": 75.0,
+              "raw_percentage": 75.0,
+              "number": 1068.0,
               "applicable": true,
               "exceeded": false
             }
@@ -4479,7 +1926,7 @@ const facultyData={
       }
     }
   }
-};const facultyName="Medicine & Health Sciences";const tooltipData={
+};const facultyName="Estates";const tooltipData={
   "Written Arrangements Complete": "Written Arrangements determine how a department is enacting a specific University Policy. Where a policy determines what a department must do, the arrangements indicate how a department achieves this. This value indicates how many arrangements a department has, alongside the percentage of these which are approved by the local H&S Committee and are in-date/reviewed.",
   "Risk Assessments in Register up to date": "This number provides an indication of the percentage of risk assessments that are both on the departmental risk assessment register, AND are reviewed/up-to-date.\n\nPlease review the number of assessments provided alongside the % reviewed, as the number will provide an indication on whether the coverage across the department is high enough.",
   "H&S Induction Completion": "This number is calculated by comparing the  number of staff (from the UniCore records) who have completed the mandatory Health and Safety Induction course against the number of staff within the Department.\nNote that training data percentages are provided by the H&S Dept, but Departments were asked to provide their staff numbers directly.",
@@ -4510,6 +1957,7 @@ const DASHBOARD_CONFIG={
 // Inlined into each generated page by scripts/faculty_dashboard.py; each page
 // defines facultyData, tooltipData, kpiMeta and DASHBOARD_CONFIG beforehand.
 let currentSortOrder='highLow';let currentViewMode='detailed';
+let selectedDepartment=null;
 const activeBandFilters=new Set();
 const isUniversityDashboard=DASHBOARD_CONFIG.isUniversity===true;
 const INFO_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>';
@@ -4525,6 +1973,67 @@ const BAND_COLORS={excellent:'#2563eb',good:'#059669',warning:'#e08a00',poor:'#d
 function escapeHtml(value){
   return String(value===null||value===undefined?'':value)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function getDisplayedKpis(){
+  if(selectedDepartment===null) return facultyData.kpis || {};
+  const department=facultyData.schools[selectedDepartment];
+  // Department values and history replace the faculty result; only the
+  // university benchmark is shared with the aggregate.
+  return Object.fromEntries(Object.entries(facultyData.kpis || {}).map(([name, facultyKpi])=>{
+    const kpi=department.kpis?.[name] || {percentage:null,number:null,applicable:true,history:[]};
+    const comparable=!isMissingCurrentForKpi(name,kpi.percentage,kpi.number,kpi.applicable)
+      && kpi.applicable!==false && facultyKpi.university_applicable!==false
+      && isFiniteNumber(kpi.percentage) && isFiniteNumber(facultyKpi.university_percentage);
+    const comparison=comparable
+      ? (kpi.percentage>facultyKpi.university_percentage?'above':kpi.percentage<facultyKpi.university_percentage?'below':'equal')
+      : 'unknown';
+    return [name,{...kpi,university_percentage:facultyKpi.university_percentage,
+      university_applicable:facultyKpi.university_applicable,university_history:facultyKpi.university_history,
+      comparison,primary_label:selectedDepartment}];
+  }));
+}
+function getDisplayedUnits(){
+  const units=Object.entries(facultyData.schools || {});
+  return selectedDepartment===null?units:units.filter(([name])=>name===selectedDepartment);
+}
+function renderDepartmentSelector(){
+  const host=document.getElementById('departmentButtons');
+  if(!host || isUniversityDashboard) return;
+  const choices=[null,...Object.keys(facultyData.schools || {}).sort((a,b)=>a.localeCompare(b))];
+  choices.forEach((name)=>{
+    const button=document.createElement('button');
+    button.type='button';
+    button.textContent=name===null?'Faculty total':name;
+    button.dataset.department=name===null?'':name;
+    button.addEventListener('click',()=>selectDepartment(name));
+    host.appendChild(button);
+  });
+  syncDepartmentUi();
+}
+function syncDepartmentUi(){
+  document.querySelectorAll('#departmentButtons button').forEach((button)=>{
+    const active=button.dataset.department===(selectedDepartment===null?'':selectedDepartment);
+    button.classList.toggle('active',active);
+    button.setAttribute('aria-pressed',String(active));
+  });
+  const scope=document.getElementById('departmentScope');
+  if(scope) scope.innerHTML=selectedDepartment===null
+    ? 'Showing combined results for <strong>the whole faculty</strong>.'
+    : `Showing results for <strong>${escapeHtml(selectedDepartment)}</strong>.`;
+  const title=document.getElementById('kpiSectionTitle');
+  if(title) title.textContent=selectedDepartment===null?'KPI results':`KPI results · ${selectedDepartment}`;
+  const instructions=document.getElementById('instructions');
+  if(instructions) instructions.textContent=selectedDepartment===null
+    ? (currentViewMode==='compressed'?DASHBOARD_CONFIG.compactHint:DASHBOARD_CONFIG.detailedHint)
+    : 'Scores and changes are for the selected school or department. Select About for a KPI’s full definition.';
+}
+function selectDepartment(name){
+  if(isUniversityDashboard || (name!==null && !Object.hasOwn(facultyData.schools || {},name))) return;
+  selectedDepartment=name;
+  syncDepartmentUi();
+  renderSummary();
+  syncBandFilterUi();
+  refreshDashboard();
 }
 function textToParagraphs(text){
   return String(text||'').trim().split(/\n\s*\n/).map((para)=>`<p>${escapeHtml(para.trim()).replace(/\n/g,'<br>')}</p>`).join('');
@@ -4924,7 +2433,7 @@ function createTrendMarkup(kpiData,kpiName){
   const safeKpi = encodeURIComponent(kpiName);
   const facData = encodeURIComponent(JSON.stringify(facultyHistory));
   const uniData = encodeURIComponent(JSON.stringify(universityHistory));
-  const primaryLabel = kpiData.is_university === true ? 'University' : DASHBOARD_CONFIG.entityLabel;
+  const primaryLabel = kpiData.is_university === true ? 'University' : (kpiData.primary_label || DASHBOARD_CONFIG.entityLabel);
   const legend = universityHistory.length >= 2 && kpiData.is_university !== true
     ? `<div class="trend-legend"><span><i class="legend-line split"></i>${escapeHtml(primaryLabel)} (green above / red below university)</span><span><i class="legend-line dashed"></i>University</span></div>`
     : '';
@@ -5350,6 +2859,7 @@ function toggleViewMode(mode){
     container.classList.remove('compressed-view');
     instructions.textContent=DASHBOARD_CONFIG.detailedHint;
   }
+  if(!isUniversityDashboard) syncDepartmentUi();
   refreshDashboard();
 }
 function renderHeaderMeta(){
@@ -5401,8 +2911,9 @@ function syncBandFilterUi(){
     grid.parentNode.insertBefore(bar, head || grid);
   }
   if(!filtering){ bar.hidden = true; bar.innerHTML = ''; return; }
-  const total = Object.keys(facultyData.kpis || {}).length;
-  const shown = Object.entries(facultyData.kpis || {}).filter(([n, k]) => activeBandFilters.has(getKpiSummaryBand(n, k))).length;
+  const displayedKpis=getDisplayedKpis();
+  const total = Object.keys(displayedKpis).length;
+  const shown = Object.entries(displayedKpis).filter(([n, k]) => activeBandFilters.has(getKpiSummaryBand(n, k))).length;
   const chips = [...activeBandFilters].map((cls) => {
     const band = BAND_INFO[cls];
     return `<button type="button" class="band-chip ${band.cls} filter-chip" onclick="toggleBandFilter('${cls}')" aria-label="Remove filter: ${band.name}">${band.name}<span aria-hidden="true">×</span></button>`;
@@ -5413,7 +2924,7 @@ function syncBandFilterUi(){
 function renderSummary(){
   const host = document.getElementById('glance');
   if(!host || !facultyData.kpis) return;
-  const kpis = Object.entries(facultyData.kpis);
+  const kpis = Object.entries(getDisplayedKpis());
   const counts = { 'performance-excellent':0, 'performance-good':0, 'performance-warning':0, 'performance-poor':0 };
   let unrated = 0, improved = 0, declined = 0, above = 0, compared = 0;
   kpis.forEach(([kpiName, kpiData]) => {
@@ -5437,7 +2948,7 @@ function renderSummary(){
     : '';
   const unratedNote = unrated > 0 ? `${pluralise(unrated, 'KPI is', 'KPIs are')} not rated this period (not applicable or no return).` : 'All KPIs have a rated value this period.';
 
-  const units = facultyData.schools ? Object.entries(facultyData.schools) : [];
+  const units = getDisplayedUnits();
   const noReturnUnits = units.filter(([, unit]) => {
     const entries = Object.entries(unit.kpis || {});
     return entries.length > 0 && entries.every(([kpiName, k]) => isMissingCurrentForKpi(kpiName, k.percentage, k.number, k.applicable));
@@ -5467,10 +2978,14 @@ function renderSummary(){
 function initializeFacultyDashboard(){
   applyExceededInference();
   const facultyKpisContainer = document.getElementById('facultyKpis');
+  // Release charts before replacing their canvases on a view / scope change.
+  if(typeof Chart!=='undefined' && typeof Chart.getChart==='function'){
+    facultyKpisContainer.querySelectorAll('canvas').forEach((canvas)=>Chart.getChart(canvas)?.destroy());
+  }
   facultyKpisContainer.innerHTML = '';
   if(!facultyData.kpis) return;
 
-  let kpiEntries = Object.entries(facultyData.kpis);
+  let kpiEntries = Object.entries(getDisplayedKpis());
   if(currentSortOrder === 'highLow') {
     kpiEntries.sort((a, b) => {
       const aPercentage = a[1].applicable === false || a[1].percentage === null ? -1 : a[1].percentage;
@@ -5488,6 +3003,9 @@ function initializeFacultyDashboard(){
   if(activeBandFilters.size > 0){
     kpiEntries = kpiEntries.filter(([kpiName, kpiData]) => activeBandFilters.has(getKpiSummaryBand(kpiName, kpiData)));
   }
+  if(kpiEntries.length===0){
+    facultyKpisContainer.innerHTML='<p class="kpi-empty" role="status">No KPIs match the selected performance bands. Select Show all KPIs to clear the band filters.</p>';
+  }
 
   for(const [kpiName, kpiData] of kpiEntries){
     const card = document.createElement('div');
@@ -5502,7 +3020,7 @@ function initializeFacultyDashboard(){
     let schoolBreakdownHtml = '';
     let schoolCount = 0;
 
-    const hasSchools = facultyData.schools && Object.keys(facultyData.schools).length > 0;
+    const hasSchools = selectedDepartment===null && facultyData.schools && Object.keys(facultyData.schools).length > 0;
     if(hasSchools){
       let schoolEntries = Object.entries(facultyData.schools).filter(([schoolName, schoolData]) => schoolData.kpis && schoolData.kpis[kpiName]);
       missingReturnsCount = schoolEntries.reduce((count, [, schoolData]) => {
@@ -5674,7 +3192,9 @@ function initializeFacultyDashboard(){
   }
 }
 document.addEventListener('keydown', (event) => { if(event.key === 'Escape') closeInfoDialog(); });
+applyExceededInference();
 renderHeaderMeta();
+renderDepartmentSelector();
 renderSummary();
 refreshDashboard();
 window.addEventListener('resize', () => { setTimeout(() => { renderTrendCharts(); renderSchoolTrendCharts(); }, 100); });

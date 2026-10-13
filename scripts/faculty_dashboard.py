@@ -426,6 +426,12 @@ class FacultyDashboardGenerator:
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(html_content)
 
+    @staticmethod
+    def faculty_report_filename(faculty_name):
+        """Use the same report filename for generation and navigation links."""
+        safe_name = ''.join(c for c in faculty_name if c.isalnum() or c in (' ', '-', '_'))
+        return f"{safe_name.rstrip().replace(' ', '_')}_Faculty_Report.html"
+
     def create_faculty_html_dashboard(self, dashboard_data, faculty_name, output_path):
         faculty_data = dashboard_data["faculties"].get(faculty_name, {})
         if not faculty_data:
@@ -480,8 +486,7 @@ class FacultyDashboardGenerator:
         generated_files = []
         
         for faculty_name in dashboard_data["faculties"].keys():
-            safe_filename = "".join(c for c in faculty_name if c.isalnum() or c in (' ', '-', '_')).rstrip().replace(' ', '_')
-            output_file = os.path.join(output_dir, f"{safe_filename}_Faculty_Report.html")
+            output_file = os.path.join(output_dir, self.faculty_report_filename(faculty_name))
             
             try:
                 self.create_faculty_html_dashboard(dashboard_data, faculty_name, output_file)

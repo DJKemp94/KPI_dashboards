@@ -1,5 +1,6 @@
 import hashlib
 import json
+from html.parser import HTMLParser
 from pathlib import Path
 import shutil
 import subprocess
@@ -7,12 +8,35 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+from urllib.parse import unquote
 
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from scripts.refresh_dashboards import promote
+
+
+class DashboardLinks(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.faculty_navigation = False
+        self.faculty_targets = []
+        self.overview_targets = []
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == 'nav' and attrs.get('id') == 'facultyNavigation':
+            self.faculty_navigation = True
+        if tag == 'a':
+            if self.faculty_navigation:
+                self.faculty_targets.append(unquote(attrs.get('href', '')))
+            if attrs.get('href') == 'index.html':
+                self.overview_targets.append(attrs['href'])
+
+    def handle_endtag(self, tag):
+        if tag == 'nav':
+            self.faculty_navigation = False
 
 
 class PromotionTests(unittest.TestCase):
@@ -95,6 +119,15 @@ class RefreshIntegrationTests(unittest.TestCase):
             self.assertEqual((build / 'source.csv').read_bytes(), (ROOT / 'data/raw/latest.csv').read_bytes())
             self.assertTrue((build / 'html/index.html').is_file())
             self.assertTrue((build / 'pipeline.log').is_file())
+            links = DashboardLinks()
+            links.feed((build / 'html/index.html').read_text())
+            faculty_pages = list((build / 'html').glob('*_Faculty_Report.html'))
+            self.assertEqual(len(links.faculty_targets), report['faculty_count'])
+            self.assertEqual(set(links.faculty_targets), {page.name for page in faculty_pages})
+            for page in faculty_pages:
+                faculty_links = DashboardLinks()
+                faculty_links.feed(page.read_text())
+                self.assertEqual(faculty_links.overview_targets, [], page.name)
             with pd.ExcelFile(build / 'summary.xlsx') as workbook:
                 self.assertEqual(len(workbook.sheet_names), 7)
                 university = pd.read_excel(workbook, sheet_name='University_Summary_History')

@@ -72,8 +72,7 @@ def build_dashboards(source, destination):
     data = faculty.extract_and_process_data()
     university_data = university._extract_university_dashboard_data()
     for name in data['faculties']:
-        safe_name = name.replace(' ', '_').replace('&', '').replace(',', '')
-        faculty.create_faculty_html_dashboard(data, name, html / f'{safe_name}_Faculty_Report.html')
+        faculty.create_faculty_html_dashboard(data, name, html / faculty.faculty_report_filename(name))
     university.create_university_html_dashboard(university_data, html / 'index.html')
     (html / '.nojekyll').touch()
 

@@ -17,7 +17,6 @@ __DASHBOARD_STYLES__
 <header class="page-header">
 <div class="page-header-inner">
 <div>
-<a class="breadcrumb" href="index.html">← University overview</a>
 <div class="eyebrow">Health &amp; Safety KPI dashboard</div>
 <h1>__FACULTY_NAME__</h1>
 <div class="header-meta" id="headerMeta"></div>
@@ -28,6 +27,11 @@ __DASHBOARD_STYLES__
 </div>
 </header>
 <main class="container">
+<section class="department-selector panel" aria-labelledby="departmentSelectorTitle">
+<h2 id="departmentSelectorTitle">Show results for</h2>
+<div class="department-buttons" id="departmentButtons" role="group" aria-label="Faculty or school / department"></div>
+<p class="department-scope" id="departmentScope" role="status"></p>
+</section>
 <section class="glance" id="glance" aria-label="Summary"></section>
 <section class="faculty-overview" aria-labelledby="kpiSectionTitle">
 <div class="section-head">
@@ -62,6 +66,7 @@ __DASHBOARD_STYLES__
 <template id="guideTemplate">
 <div class="info-section">
 <ol class="guide-steps">
+<li>Use <strong>Show results for</strong> to select a school or department. Both views, the summary and trends show its results. Select <strong>Faculty total</strong> to return to the combined faculty results.</li>
 <li>The large figure on each card is this period's result. The line beneath it shows how many items were in scope.</li>
 <li>The coloured bar and band label show the performance band. The black “Uni” marker shows the university average.</li>
 <li>“vs university” shows the gap to the university average in percentage points (pp). “Since last return” shows movement since the last applicable return.</li>

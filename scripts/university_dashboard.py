@@ -1,6 +1,8 @@
 import json
 import os
+from html import escape
 from pathlib import Path
+from urllib.parse import quote
 
 if __package__:
     from .faculty_dashboard import FacultyDashboardGenerator
@@ -45,12 +47,18 @@ class UniversityDashboardGenerator(FacultyDashboardGenerator):
         university_json = json.dumps(university_data, indent=2, default=str)
         tooltip_json = json.dumps(self.tooltip_data or {}, indent=2, default=str)
         kpi_meta_json = json.dumps(self.kpi_metadata, default=str)
+        faculty_links = '\n'.join(
+            f'<a href="{escape(quote(self.faculty_report_filename(name)), quote=True)}">'
+            f'{escape(name)}<span aria-hidden="true">→</span></a>'
+            for name in sorted(university_data.get('schools', {}))
+        )
 
         replacements = {
             '__FACULTY_NAME__': 'University',
             '__FACULTY_JSON__': university_json,
             '__TOOLTIP_JSON__': tooltip_json,
             '__KPI_META_JSON__': kpi_meta_json,
+            '__FACULTY_LINKS__': faculty_links,
         }
         self.render_dashboard_template('university_dashboard_template.html', replacements, output_path)
 

@@ -22,6 +22,10 @@ Generate the University Health & Safety KPI dashboard and one dashboard for each
 
 Edit the templates or scripts, then regenerate. Changes made directly to generated HTML will be overwritten by the next refresh.
 
+Faculty dashboards have **Show results for** buttons for each school or department. Selecting one updates the scores, scope counts, trends, university comparisons and summary in both **Cards** and **Compact list**. The selection stays in place when changing view, sort order or performance-band filters. Select **Faculty total** to restore the combined results and school/department breakdowns.
+
+The University overview generates a **Faculty dashboards** button for every faculty or service report. Faculty pages do not include a back link to the University overview. These controls are built by the generators and templates on every refresh.
+
 ## First-time setup
 
 Install Python 3.10 or newer, clone or download this repository, and open a terminal in its main folder.
